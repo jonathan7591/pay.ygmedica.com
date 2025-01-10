@@ -1,0 +1,31 @@
+{
+    "steps": [
+        "商户提额"
+    ],
+    "items": [
+        [
+            {
+                "type": "alert",
+                "style": "info",
+                "content": "当商户进件类型为个人且使用当面付收单时，会有收单限额。可在此补充营业执照，提升收单限额。"
+            },
+            {
+                "name": "license_image",
+                "type": "image-upload",
+                "label": "营业执照照片",
+                "filetype": "business",
+                "autofill": {
+                    "license_no": "license_no"
+                },
+                "required": true
+            },
+            {
+                "name": "license_no",
+                "type": "input",
+                "label": "营业执照编号",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true
+            }
+        ]
+    ]
+}

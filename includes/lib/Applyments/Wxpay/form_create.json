@@ -1,0 +1,481 @@
+{
+    "steps": [
+        "主体信息",
+        "经营信息",
+        "结算账户"
+    ],
+    "items": [
+        [
+            {
+                "name": "uid",
+                "type": "input",
+                "label": "绑定本站用户ID",
+                "placeholder": "可留空"
+            },
+            {
+                "name": "order_id",
+                "type": "hidden",
+                "label": "申请单编号"
+            },
+            {
+                "type": "line",
+                "content": "基础信息"
+            },
+            {
+                "name": "subject_type",
+                "type": "radio",
+                "label": "主体类型",
+                "value": "SUBJECT_TYPE_INDIVIDUAL",
+                "options": [
+                    {
+                        "label": "个体工商户",
+                        "value": "SUBJECT_TYPE_INDIVIDUAL"
+                    },
+                    {
+                        "label": "企业",
+                        "value": "SUBJECT_TYPE_ENTERPRISE"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "name": "mobile_phone",
+                "type": "input",
+                "label": "手机号码",
+                "validator": "phone",
+                "placeholder": "用于接收微信支付的重要管理信息及日常操作验证码",
+                "required": true
+            },
+            {
+                "name": "contact_email",
+                "type": "input",
+                "label": "电子邮箱",
+                "validator": "email",
+                "placeholder": "用于接收微信支付的开户邮件及日常业务通知",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "营业执照"
+            },
+            {
+                "name": "license_copy",
+                "type": "image-upload",
+                "label": "营业执照照片",
+                "tip": "请上传“营业执照”，需年检章齐全，当年注册除外",
+                "filesize": 2,
+                "filetype": "business",
+                "autofill": {
+                    "license_number": "license_no",
+                    "merchant_name": "name",
+                    "id_card_name": "legal_name"
+                },
+                "required": true
+            },
+            {
+                "name": "license_number",
+                "type": "input",
+                "label": "营业执照编号",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true
+            },
+            {
+                "name": "merchant_name",
+                "type": "input",
+                "label": "营业执照名称",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "法人信息"
+            },
+            {
+                "name": "id_card_copy",
+                "type": "image-upload",
+                "label": "身份证人像面照片",
+                "filesize": 2,
+                "filetype": "idcard",
+                "autofill": {
+                    "id_card_number": "id_no",
+                    "id_card_name": "name",
+                    "id_card_address": "address"
+                },
+                "tip": "请上传法人的身份证人像面照片",
+                "required": true
+            },
+            {
+                "name": "id_card_national",
+                "type": "image-upload",
+                "label": "身份证国徽面照片",
+                "filesize": 2,
+                "filetype": "idcard_back",
+                "autofill": {
+                    "card_period_begin": "period_begin",
+                    "card_period_end": "period_end"
+                },
+                "tip": "请上传法人的身份证国徽面照片",
+                "required": true
+            },
+            {
+                "name": "id_card_name",
+                "type": "input",
+                "label": "身份证姓名",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true
+            },
+            {
+                "name": "id_card_number",
+                "type": "input",
+                "label": "身份证号码",
+                "validator": "id",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true
+            },
+            {
+                "name": "id_card_address",
+                "type": "input",
+                "label": "身份证居住地址",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true
+            },
+            {
+                "name": "card_period_begin",
+                "type": "date",
+                "label": "身份证有效期开始时间",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true
+            },
+            {
+                "name": "card_period_end",
+                "type": "date",
+                "label": "身份证有效期结束时间",
+                "placeholder": "上传身份证照片后自动填入",
+                "longterm": true,
+                "required": true
+            }
+        ],
+        [
+            {
+                "type": "line",
+                "content": "行业资质"
+            },
+            {
+                "name": "qualification_type2",
+                "type": "cascader",
+                "label": "所属行业",
+                "options": "${qualification_type2}",
+                "autofill": {
+                    "settlement_id": "settlement_id",
+                    "qualification_note": "guide"
+                },
+                "show": "subject_type=='SUBJECT_TYPE_INDIVIDUAL'",
+                "required": true
+            },
+            {
+                "name": "qualification_type3",
+                "type": "cascader",
+                "label": "所属行业",
+                "options": "${qualification_type3}",
+                "autofill": {
+                    "settlement_id": "settlement_id",
+                    "qualification_note": "guide"
+                },
+                "show": "subject_type=='SUBJECT_TYPE_ENTERPRISE'",
+                "required": true
+            },
+            {
+                "name": "settlement_id",
+                "type": "select",
+                "label": "结算费率",
+                "options": "${settlement_id}",
+                "disabled": true
+            },
+            {
+                "name": "activities_id",
+                "type": "select",
+                "label": "优惠费率活动",
+                "value": "",
+                "options": [
+                    {
+                        "label": "无",
+                        "value": ""
+                    },
+                    {
+                        "label": "泛行业活动（优惠区间：0.2%~0.6%）",
+                        "value": "20191030111cff5b5e"
+                    }
+                ],
+                "note": "活动规则说明可参考<a href=\"https://pay.weixin.qq.com/docs/partner/development/chart/preferential-rate.html\" target=\"_blank\">《优惠费率活动对照表》</a>"
+            },
+            {
+                "name": "debit_activities_rate",
+                "type": "input",
+                "label": "非信用卡活动费率值",
+                "validator": "numeric",
+                "min": "0.2",
+                "max": "0.6",
+                "placeholder": "仅能填入2位以内小数，且在优惠费率活动指定费率范围内",
+                "show": "activities_id!=''",
+                "required": true
+            },
+            {
+                "name": "credit_activities_rate",
+                "type": "input",
+                "label": "信用卡活动费率值",
+                "validator": "numeric",
+                "min": "0.2",
+                "max": "0.6",
+                "placeholder": "仅能填入2位以内小数，且在优惠费率活动指定费率范围内",
+                "show": "activities_id!=''",
+                "required": true
+            },
+            {
+                "name": "qualification_note",
+                "type": "hidden",
+                "value": "",
+                "label": "特殊资质指引"
+            },
+            {
+                "name": "qualifications",
+                "type": "image-upload",
+                "label": "特殊资质图片",
+                "filesize": 2,
+                "multiple": 5,
+                "value": [],
+                "note": "${qualification_note}",
+                "show": "qualification_note!=''",
+                "tip": "请上传彩色照片 or 彩色扫描件 or 加盖公章鲜章的复印件，要求正面拍摄，露出证件四角且清晰、完整，所有字符清晰可识别，不得反光或遮挡",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "经营信息"
+            },
+            {
+                "name": "merchant_shortname",
+                "type": "input",
+                "label": "商户简称",
+                "placeholder": "在支付完成页向买家展示，需与微信经营类目相关",
+                "required": true
+            },
+            {
+                "name": "service_phone",
+                "type": "input",
+                "label": "客服电话",
+                "placeholder": "将在交易记录中向买家展示，请确保电话畅通以便平台回拨确认",
+                "required": true
+            },
+            {
+                "name": "sales_scenes_type",
+                "type": "checkboxes",
+                "label": "经营场景",
+                "options": [
+                    {
+                        "label": "线下场所",
+                        "value": "SALES_SCENES_STORE"
+                    },
+                    {
+                        "label": "公众号",
+                        "value": "SALES_SCENES_MP"
+                    },
+                    {
+                        "label": "小程序",
+                        "value": "SALES_SCENES_MINI_PROGRAM"
+                    },
+                    {
+                        "label": "互联网网站",
+                        "value": "SALES_SCENES_WEB"
+                    },
+                    {
+                        "label": "App",
+                        "value": "SALES_SCENES_APP"
+                    }
+                ],
+                "value": [],
+                "tip": "该选项由管理员在后台配置",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "线下场所",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_STORE')>=0"
+            },
+            {
+                "name": "biz_store_name",
+                "type": "input",
+                "label": "线下场所名称",
+                "placeholder": "请填写门店名称",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_STORE')>=0",
+                "required": true
+            },
+            {
+                "name": "biz_address_code",
+                "type": "inputcity",
+                "label": "线下场所省市县",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_STORE')>=0",
+                "required": true
+            },
+            {
+                "name": "biz_store_address",
+                "type": "input",
+                "label": "线下场所地址",
+                "placeholder": "请填写详细的经营场所信息",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_STORE')>=0",
+                "required": true
+            },
+            {
+                "name": "store_entrance_pic",
+                "type": "image-upload",
+                "label": "线下场所门头照片",
+                "filetype": "",
+                "tip": "门店招牌清晰、招牌名称、文字可辨识、门框完整，且店面显示在营",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_STORE')>=0",
+                "required": true
+            },
+            {
+                "name": "indoor_pic",
+                "type": "image-upload",
+                "label": "线下场所内部照片",
+                "value": [],
+                "filetype": "",
+                "tip": "能够展示内部环境并能辨识所经营的业务、销售商品/服务",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_STORE')>=0",
+                "multiple": 3,
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "公众号",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_MP')>=0"
+            },
+            {
+                "name": "mp_pics",
+                "type": "image-upload",
+                "label": "公众号页面截图",
+                "value": [],
+                "multiple": 5,
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_MP')>=0",
+                "note": "请提供展示商品/服务的页面截图/设计稿，若公众号未建设完善或未上线请务必提供。"
+            },
+            {
+                "type": "line",
+                "content": "小程序",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_MINI_PROGRAM')>=0"
+            },
+            {
+                "name": "mini_program_pics",
+                "type": "image-upload",
+                "label": "小程序页面截图",
+                "value": [],
+                "multiple": 5,
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_MINI_PROGRAM')>=0",
+                "note": "请提供展示商品/服务的页面截图/设计稿，若小程序未建设完善或未上线请务必提供。"
+            },
+            {
+                "type": "line",
+                "content": "互联网网站",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_WEB')>=0"
+            },
+            {
+                "name": "domain",
+                "type": "input",
+                "label": "互联网网站域名",
+                "validator": "uri",
+                "placeholder": "填写用于出售商品的网站地址，域名需ICP备案",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_WEB')>=0",
+                "required": true
+            },
+            {
+                "name": "web_authorisation",
+                "type": "image-upload",
+                "label": "网站授权函",
+                "show": "sales_scenes_type.indexOf('SALES_SCENES_WEB')>=0",
+                "note": "若备案主体与申请主体不同，请务必上传加盖公章的<a href=\"https://wx.gtimg.com/mch/img/icp.doc\">网站授权函</a>"
+            }
+        ],
+        [
+            {
+                "name": "bank_account_type",
+                "type": "radio",
+                "label": "银行账户类型",
+                "value": "BANK_ACCOUNT_TYPE_PERSONAL",
+                "options": [
+                    {
+                        "label": "对公银行账户",
+                        "value": "BANK_ACCOUNT_TYPE_CORPORATE"
+                    },
+                    {
+                        "label": "经营者个人银行卡",
+                        "value": "BANK_ACCOUNT_TYPE_PERSONAL",
+                        "show": "subject_type=='SUBJECT_TYPE_INDIVIDUAL'"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "name": "account_name",
+                "type": "input",
+                "label": "开户名称",
+                "placeholder": "开户名称需与主体或法人一致",
+                "required": true
+            },
+            {
+                "name": "account_bank",
+                "type": "hidden",
+                "label": "开户银行(含其他银行)"
+            },
+            {
+                "name": "need_bank_branch",
+                "type": "hidden",
+                "value": false,
+                "label": "是否需要填写支行信息"
+            },
+            {
+                "name": "city_code",
+                "type": "hidden",
+                "label": "开户银行城市编码"
+            },
+            {
+                "name": "bank_code",
+                "type": "bank-select",
+                "label": "开户银行",
+                "placeholder": "请选择开户银行",
+                "autofill": {
+                    "account_bank": "account_bank",
+                    "need_bank_branch": "need_bank_branch"
+                },
+                "required": true
+            },
+            {
+                "name": "bank_address_code",
+                "type": "cascader",
+                "label": "开户银行省市",
+                "options": "${city}",
+                "autofill": {
+                    "city_code": "code"
+                },
+                "required": true
+            },
+            {
+                "name": "bank_branch_id",
+                "type": "bank-branch-select",
+                "label": "开户银行支行",
+                "placeholder": "请选择支行",
+                "show": "need_bank_branch",
+                "param": {
+                    "bank_code": "bank_code",
+                    "city_code": "city_code"
+                },
+                "required": true
+            },
+            {
+                "name": "account_number",
+                "type": "input",
+                "label": "银行账号",
+                "placeholder": "",
+                "required": true
+            }
+        ]
+    ]
+}

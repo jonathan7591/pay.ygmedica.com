@@ -1,0 +1,46 @@
+{
+    "steps": [
+        "设置商户自定义信息"
+    ],
+    "items": [
+        [
+            {
+                "name": "apptype",
+                "type": "checkboxes",
+                "label": "选择可用的支付方式",
+                "options": [
+                    {
+                        "label": "电脑网站支付",
+                        "value": "1"
+                    },
+                    {
+                        "label": "手机网站支付",
+                        "value": "2"
+                    },
+                    {
+                        "label": "当面付扫码",
+                        "value": "3"
+                    },
+                    {
+                        "label": "当面付JS",
+                        "value": "4"
+                    },
+                    {
+                        "label": "预授权支付",
+                        "value": "5"
+                    },
+                    {
+                        "label": "APP支付",
+                        "value": "6"
+                    },
+                    {
+                        "label": "JSAPI支付",
+                        "value": "7"
+                    }
+                ],
+                "value": [],
+                "note": "全不选将默认使用支付插件的配置"
+            }
+        ]
+    ]
+}

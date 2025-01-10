@@ -1,0 +1,270 @@
+[2024-11-26 08:01:23] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.59","currency":"CNY"},"outTradeNo":"2024112608012299982","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112608012299982/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"113.109.205.138"},"payer":{"openid":"17325792834018"}}
+[2024-11-26 08:01:23] [DEBUG] 返回数据：{"msg":"请求不合法:finishConnect(..) failed: Connection refused: /172.16.24.239:8080","code":8003}
+[2024-11-26 08:01:40] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.16","currency":"CNY"},"outTradeNo":"2024112608014046623","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112608014046623/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"113.109.205.138"},"payer":{"openid":"17325793004253"}}
+[2024-11-26 08:01:40] [DEBUG] 返回数据：{"msg":"请求不合法:finishConnect(..) failed: Connection refused: /172.16.24.239:8080","code":8003}
+[2024-11-26 10:17:06] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.51","currency":"CNY"},"outTradeNo":"2024112610170518874","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610170518874/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.88.43.119"},"payer":{"openid":"17325874262835"}}
+[2024-11-26 10:17:12] [DEBUG] 返回数据：{
+	"code":"SYSTEM_ERROR",
+	"msg":"[500 Internal Server Error] during [POST] to [http://provider/v5/pay/trade/apply] [PayClient#jsapi(PayReq)]: [{\"code\":\"SYSTEM_ERROR\",\"msg\":\"Unable to write command into connection! Increase nettyThreads setting. Node source: NodeSource [slot=14844, addr=null, redisClient=null, redirect=null, entry=null], conn... (500 bytes)]"
+}
+[2024-11-26 10:18:25] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.83","currency":"CNY"},"outTradeNo":"2024112610182424429","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610182424429/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.88.43.119"},"payer":{"openid":"17325875053963"}}
+[2024-11-26 10:18:30] [DEBUG] 返回数据：{
+	"code":"SYSTEM_ERROR",
+	"msg":"[500 Internal Server Error] during [POST] to [http://provider/v5/pay/trade/apply] [PayClient#jsapi(PayReq)]: [{\"code\":\"SYSTEM_ERROR\",\"msg\":\"Unable to write command into connection! Increase nettyThreads setting. Node source: NodeSource [slot=14844, addr=null, redisClient=null, redirect=null, entry=null], conn... (499 bytes)]"
+}
+[2024-11-26 10:18:59] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.35","currency":"CNY"},"outTradeNo":"2024112610185865616","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610185865616/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.88.43.119"},"payer":{"openid":"17325875394245"}}
+[2024-11-26 10:19:04] [DEBUG] 返回数据：{
+	"code":"SYSTEM_ERROR",
+	"msg":"[500 Internal Server Error] during [POST] to [http://provider/v5/pay/trade/apply] [PayClient#jsapi(PayReq)]: [{\"code\":\"SYSTEM_ERROR\",\"msg\":\"Unable to write command into connection! Increase nettyThreads setting. Node source: NodeSource [slot=14844, addr=null, redisClient=null, redirect=null, entry=null], conn... (499 bytes)]"
+}
+[2024-11-26 10:23:32] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.85","currency":"CNY"},"outTradeNo":"2024112610233145753","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610233145753/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.243.230.187"},"payer":{"openid":"17325878123673"}}
+[2024-11-26 10:23:37] [DEBUG] 返回数据：{
+	"code":"SYSTEM_ERROR",
+	"msg":"[500 Internal Server Error] during [GET] to [http://admin/v2/application/info?id=10001245] [ApplicationClient#selectById(Long)]: [{\n\t\"code\":\"SYSTEM_ERROR\",\n\t\"msg\":\"Unable to write command into connection! Increase nettyThreads setting. Node source: NodeSource [slot=16344, addr=null, redisClient=null, redirect=null, entry=null], ... (507 bytes)]"
+}
+[2024-11-26 10:28:29] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.85","currency":"CNY"},"outTradeNo":"2024112610233145753","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610233145753/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.243.230.187"},"payer":{"openid":"17325881092800"}}
+[2024-11-26 10:28:31] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax05042fcvp4jz2ioqf552c","appId":"2021003167624148"}
+[2024-11-26 10:34:29] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.35","currency":"CNY"},"outTradeNo":"2024112610185865616","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610185865616/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.88.43.119"},"payer":{"openid":"17325884696470"}}
+[2024-11-26 10:34:30] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:35:12] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.29","currency":"CNY"},"outTradeNo":"2024112610351280467","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610351280467/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.88.43.119"},"payer":{"openid":"17325885122757"}}
+[2024-11-26 10:35:14] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax08285w9il7v090zmk3011","appId":"2021003167624148"}
+[2024-11-26 10:35:30] [DEBUG] 异步返回数据：{"payer_total":138.29,"in_trade_no":"2024112622001488681448569118","amount":{"currency":"CNY","payer_currency":"","total":138.29},"out_trade_no":"2024112610351280467","trade_state":"SUCCESS","mch_name":" 深圳市三开度信息科技","pay_amount":138.29,"trade_no":"AL2411261035130001954011126","receipt_amount":138.29,"mch_id":10003461,"payer":{"openid":"17325885122757"}}
+[2024-11-26 10:36:30] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.86","currency":"CNY"},"outTradeNo":"2024112610362928648","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610362928648/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"223.104.68.30"},"payer":{"openid":"17325885902139"}}
+[2024-11-26 10:36:32] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax03117w9kxwdtnjjm63064","appId":"2021003167624148"}
+[2024-11-26 10:38:02] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.06","currency":"CNY"},"outTradeNo":"2024112610380137004","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610380137004/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"223.104.68.30"},"payer":{"openid":"17325886829931"}}
+[2024-11-26 10:38:03] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax07079zym2sdssopfn00d5","appId":"2021003167624148"}
+[2024-11-26 10:38:12] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.10","currency":"CNY"},"outTradeNo":"2024112610380959536","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610380959536/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"223.104.68.30"},"payer":{"openid":"17325886925737"}}
+[2024-11-26 10:38:14] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax03915uccveaolbro030ce","appId":"2021003167624148"}
+[2024-11-26 10:38:23] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.10","currency":"CNY"},"outTradeNo":"2024112610380959536","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610380959536/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"223.104.68.30"},"payer":{"openid":"17325887033512"}}
+[2024-11-26 10:38:24] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:49:35] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.15","currency":"CNY"},"outTradeNo":"2024112610493514675","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610493514675/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"119.123.34.188"},"payer":{"openid":"17325893755257"}}
+[2024-11-26 10:49:37] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax09811ht4citduecrs30a4","appId":"2021003167624148"}
+[2024-11-26 10:50:01] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.15","currency":"CNY"},"outTradeNo":"2024112610493514675","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610493514675/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"119.123.34.188"},"payer":{"openid":"17325894013413"}}
+[2024-11-26 10:50:01] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:50:02] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.15","currency":"CNY"},"outTradeNo":"2024112610493514675","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610493514675/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"119.123.34.188"},"payer":{"openid":"17325894022561"}}
+[2024-11-26 10:50:03] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:50:13] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.15","currency":"CNY"},"outTradeNo":"2024112610493514675","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610493514675/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"27.115.124.53"},"payer":{"openid":"17325894132519"}}
+[2024-11-26 10:50:13] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:53:48] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.95","currency":"CNY"},"outTradeNo":"2024112610534784476","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610534784476/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"119.123.34.188"},"payer":{"openid":"17325896285844"}}
+[2024-11-26 10:53:49] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax037356gngeobogrs72557","appId":"2021003167624148"}
+[2024-11-26 10:54:03] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.95","currency":"CNY"},"outTradeNo":"2024112610534784476","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610534784476/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.6.49.12"},"payer":{"openid":"17325896438331"}}
+[2024-11-26 10:54:03] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:54:07] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.95","currency":"CNY"},"outTradeNo":"2024112610534784476","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610534784476/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"27.115.124.70"},"payer":{"openid":"17325896477709"}}
+[2024-11-26 10:54:07] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:54:26] [DEBUG] 异步返回数据：{"payer_total":138.95,"in_trade_no":"2024112622001407161412342772","amount":{"currency":"CNY","payer_currency":"","total":138.95},"out_trade_no":"2024112610534784476","trade_state":"SUCCESS","mch_name":" 深圳市三开度信息科技","pay_amount":138.95,"trade_no":"AL2411261053480000748246735","receipt_amount":138.95,"mch_id":10003461,"payer":{"openid":"17325896285844"}}
+[2024-11-26 10:57:16] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.35","currency":"CNY"},"outTradeNo":"2024112610185865616","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610185865616/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.88.43.119"},"payer":{"openid":"17325898367880"}}
+[2024-11-26 10:57:17] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 10:57:57] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109\u6216\u6dfb\u52a0\u5ba2\u670dQQ\uff1a1092392271","amount":{"total":"138.91","currency":"CNY"},"outTradeNo":"2024112610575731386","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112610575731386/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.88.43.119"},"payer":{"openid":"17325898777850"}}
+[2024-11-26 10:57:59] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax08890pj9lbfj66kxh30dc","appId":"2021003167624148"}
+[2024-11-26 10:58:46] [DEBUG] 异步返回数据：{"payer_total":138.91,"in_trade_no":"2024112622001488681446769231","amount":{"currency":"CNY","payer_currency":"","total":138.91},"out_trade_no":"2024112610575731386","trade_state":"SUCCESS","mch_name":" 深圳市三开度信息科技","pay_amount":138.91,"trade_no":"AL2411261057580001535375561","receipt_amount":138.91,"mch_id":10003461,"payer":{"openid":"17325898777850"}}
+[2024-11-26 13:22:04] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"168.26","currency":"CNY"},"outTradeNo":"2024112613220386810","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613220386810/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"111.197.250.225"},"payer":{"openid":"17325985241769"}}
+[2024-11-26 13:22:06] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax04456oeucsm4kjxzj550d","appId":"2021003167624148"}
+[2024-11-26 13:27:10] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.43","currency":"CNY"},"outTradeNo":"2024112613271028013","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613271028013/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"27.190.241.204"},"payer":{"openid":"17325988301352"}}
+[2024-11-26 13:27:11] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax00442ozskvbc9haov2531","appId":"2021003167624148"}
+[2024-11-26 13:28:16] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"138.28","currency":"CNY"},"outTradeNo":"2024112613281583368","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613281583368/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"117.136.111.181"},"payer":{"openid":"17325988969530"}}
+[2024-11-26 13:28:17] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax05830anv58ro7qpjg55c7","appId":"2021003167624148"}
+[2024-11-26 13:28:30] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"138.28","currency":"CNY"},"outTradeNo":"2024112613281583368","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613281583368/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.6.49.44"},"payer":{"openid":"17325989106244"}}
+[2024-11-26 13:28:30] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 13:28:36] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"138.28","currency":"CNY"},"outTradeNo":"2024112613281583368","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613281583368/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"27.115.124.70"},"payer":{"openid":"17325989164143"}}
+[2024-11-26 13:28:36] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 13:29:02] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"138.43","currency":"CNY"},"outTradeNo":"2024112613290268968","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613290268968/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"61.130.182.195"},"payer":{"openid":"17325989423386"}}
+[2024-11-26 13:29:04] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax034274qmpfnbna3r83002","appId":"2021003167624148"}
+[2024-11-26 13:32:35] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"138.78","currency":"CNY"},"outTradeNo":"2024112613323447324","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613323447324/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"171.215.50.201"},"payer":{"openid":"17325991557262"}}
+[2024-11-26 13:32:36] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax02946oph6nrjja8ib55da","appId":"2021003167624148"}
+[2024-11-26 13:38:05] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.46","currency":"CNY"},"outTradeNo":"2024112613380574895","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613380574895/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"111.194.87.114"},"payer":{"openid":"17325994859887"}}
+[2024-11-26 13:38:06] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax03320o7einj4zp6yg55bb","appId":"2021003167624148"}
+[2024-11-26 13:44:03] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"138.70","currency":"CNY"},"outTradeNo":"2024112613440228435","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613440228435/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"124.232.157.26"},"payer":{"openid":"17325998434508"}}
+[2024-11-26 13:44:04] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax03745xgkopwjc48fm2502","appId":"2021003167624148"}
+[2024-11-26 13:44:43] [DEBUG] 异步返回数据：{"payer_total":138.70,"in_trade_no":"2024112622001407131415559497","amount":{"currency":"CNY","payer_currency":"","total":138.70},"out_trade_no":"2024112613440228435","trade_state":"SUCCESS","mch_name":" 瑾呈(南京)数字科技","pay_amount":138.70,"trade_no":"AL2411261344040000165939745","receipt_amount":138.70,"mch_id":10003459,"payer":{"openid":"17325998434508"}}
+[2024-11-26 13:57:14] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.25","currency":"CNY"},"outTradeNo":"2024112613571143464","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613571143464/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.243.230.187"},"payer":{"openid":"17326006344688"}}
+[2024-11-26 13:57:15] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax07261ailkgciw5dqu554d","appId":"2021003167624148"}
+[2024-11-26 14:27:38] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.01","currency":"CNY"},"outTradeNo":"2024112614273634586","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112614273634586/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"59.174.134.129"},"payer":{"openid":"17326024588213"}}
+[2024-11-26 14:27:40] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax02646nb6bpoae1pzx304a","appId":"2021003167624148"}
+[2024-11-26 14:46:57] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"99.85","currency":"CNY"},"outTradeNo":"2024112614465676270","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112614465676270/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"117.136.19.213"},"payer":{"openid":"17326036179126"}}
+[2024-11-26 14:46:58] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax09668wuvahwexlpvs005b","appId":"2021003167624148"}
+[2024-11-26 14:47:10] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"99.85","currency":"CNY"},"outTradeNo":"2024112614465676270","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112614465676270/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"117.136.19.213"},"payer":{"openid":"17326036306278"}}
+[2024-11-26 14:47:11] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 14:47:11] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"99.85","currency":"CNY"},"outTradeNo":"2024112614465676270","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112614465676270/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"117.136.19.213"},"payer":{"openid":"17326036316713"}}
+[2024-11-26 14:47:11] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 14:47:36] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"99.85","currency":"CNY"},"outTradeNo":"2024112614465676270","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112614465676270/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.6.49.44"},"payer":{"openid":"17326036562909"}}
+[2024-11-26 14:47:36] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 15:09:10] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.25","currency":"CNY"},"outTradeNo":"2024112613571143464","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112613571143464/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.243.230.187"},"payer":{"openid":"17326049502045"}}
+[2024-11-26 15:09:10] [DEBUG] 返回数据：{
+	"code":"订单已存在",
+	"msg":"系统错误"
+}
+[2024-11-26 15:23:24] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"138.59","currency":"CNY"},"outTradeNo":"2024112615232337237","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112615232337237/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"116.130.208.60"},"payer":{"openid":"17326058045208"}}
+[2024-11-26 15:23:25] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax04735tfegele5zwvz30a4","appId":"2021003167624148"}
+[2024-11-26 15:41:33] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.90","currency":"CNY"},"outTradeNo":"2024112615413247298","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112615413247298/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"111.162.137.74"},"payer":{"openid":"17326068933669"}}
+[2024-11-26 15:41:34] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax02290xhuuorhoeu5z557a","appId":"2021003167624148"}
+[2024-11-26 16:15:08] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.70","currency":"CNY"},"outTradeNo":"2024112616150031916","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112616150031916/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.242.14.224"},"payer":{"openid":"17326089082632"}}
+[2024-11-26 16:15:10] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax01966mkc1zskbypdr2584","appId":"2021003167624148"}
+[2024-11-26 16:16:04] [DEBUG] 异步返回数据：{"payer_total":98.70,"in_trade_no":"2024112622001468001438198324","amount":{"currency":"CNY","payer_currency":"","total":98.70},"out_trade_no":"2024112616150031916","trade_state":"SUCCESS","mch_name":" 瑾呈(南京)数字科技","pay_amount":98.70,"trade_no":"AL2411261615090001201305493","receipt_amount":98.70,"mch_id":10003459,"payer":{"openid":"17326089082632"}}
+[2024-11-26 16:21:21] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.54","currency":"CNY"},"outTradeNo":"2024112616212023623","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112616212023623/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"113.9.90.180"},"payer":{"openid":"17326092811300"}}
+[2024-11-26 16:21:22] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax03388ltfs9n3rla8w009c","appId":"2021003167624148"}
+[2024-11-26 16:21:37] [DEBUG] 异步返回数据：{"payer_total":98.54,"in_trade_no":"2024112622001407771453225251","amount":{"currency":"CNY","payer_currency":"","total":98.54},"out_trade_no":"2024112616212023623","trade_state":"SUCCESS","mch_name":" 瑾呈(南京)数字科技","pay_amount":98.54,"trade_no":"AL2411261621210000875849367","receipt_amount":98.54,"mch_id":10003459,"payer":{"openid":"17326092811300"}}
+[2024-11-26 16:54:02] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.10","currency":"CNY"},"outTradeNo":"2024112616540057066","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112616540057066/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.6.189.50"},"payer":{"openid":"17326112421496"}}
+[2024-11-26 16:54:03] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax04603lvbwu3dn3nfb000e","appId":"2021003167624148"}
+[2024-11-26 17:09:59] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.96","currency":"CNY"},"outTradeNo":"2024112617095877009","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617095877009/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"113.84.1.58"},"payer":{"openid":"17326121991030"}}
+[2024-11-26 17:10:00] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax03568disu3tqf1him2538","appId":"2021003167624148"}
+[2024-11-26 17:10:13] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.77","currency":"CNY"},"outTradeNo":"2024112617101246048","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617101246048/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"119.41.229.131"},"payer":{"openid":"17326122131321"}}
+[2024-11-26 17:10:14] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax033463ct95jlkekx1552c","appId":"2021003167624148"}
+[2024-11-26 17:10:39] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.79","currency":"CNY"},"outTradeNo":"2024112617103934153","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617103934153/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"39.144.123.161"},"payer":{"openid":"17326122395491"}}
+[2024-11-26 17:10:41] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax05331z6c9wil66car30e1","appId":"2021003167624148"}
+[2024-11-26 17:10:46] [DEBUG] 异步返回数据：{"payer_total":98.77,"in_trade_no":"2024112622001482131438164976","amount":{"currency":"CNY","payer_currency":"","total":98.77},"out_trade_no":"2024112617101246048","trade_state":"SUCCESS","mch_name":" 瑾呈(南京)数字科技","pay_amount":98.77,"trade_no":"AL2411261710140000470245906","receipt_amount":98.77,"mch_id":10003459,"payer":{"openid":"17326122131321"}}
+[2024-11-26 17:13:04] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.06","currency":"CNY"},"outTradeNo":"2024112617130367694","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617130367694/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"183.221.9.94"},"payer":{"openid":"17326123841722"}}
+[2024-11-26 17:13:05] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax06120yjwrzw5m5fap25af","appId":"2021003167624148"}
+[2024-11-26 17:16:33] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.75","currency":"CNY"},"outTradeNo":"2024112617163251673","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617163251673/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"123.147.251.222"},"payer":{"openid":"17326125933454"}}
+[2024-11-26 17:16:34] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax061716odd7phjlare255c","appId":"2021003167624148"}
+[2024-11-26 17:16:52] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.88","currency":"CNY"},"outTradeNo":"2024112617165159689","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617165159689/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"117.172.170.88"},"payer":{"openid":"17326126126567"}}
+[2024-11-26 17:16:53] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax02152hmpx23yilubc5573","appId":"2021003167624148"}
+[2024-11-26 17:21:56] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.91","currency":"CNY"},"outTradeNo":"2024112617215574299","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617215574299/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"183.199.162.6"},"payer":{"openid":"17326129162140"}}
+[2024-11-26 17:21:57] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax00694ozfcirowzvw8007e","appId":"2021003167624148"}
+[2024-11-26 17:22:19] [DEBUG] 异步返回数据：{"payer_total":98.91,"in_trade_no":"2024112622001430981424399328","amount":{"currency":"CNY","payer_currency":"","total":98.91},"out_trade_no":"2024112617215574299","trade_state":"SUCCESS","mch_name":" 瑾呈(南京)数字科技","pay_amount":98.91,"trade_no":"AL2411261721570001720399524","receipt_amount":98.91,"mch_id":10003459,"payer":{"openid":"17326129162140"}}
+[2024-11-26 17:48:01] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.01","currency":"CNY"},"outTradeNo":"2024112617480052256","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617480052256/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"211.90.235.253"},"payer":{"openid":"17326144818367"}}
+[2024-11-26 17:48:02] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax08197mmwnav2rjgae25ed","appId":"2021003167624148"}
+[2024-11-26 17:48:24] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.90","currency":"CNY"},"outTradeNo":"2024112617482373117","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617482373117/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"211.90.235.253"},"payer":{"openid":"17326145048039"}}
+[2024-11-26 17:48:25] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax0403974ojfigpce922517","appId":"2021003167624148"}
+[2024-11-26 17:59:18] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.59","currency":"CNY"},"outTradeNo":"2024112617591836322","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112617591836322/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"39.144.179.182"},"payer":{"openid":"17326151585857"}}
+[2024-11-26 17:59:19] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax02065erqkfccv0wmu5583","appId":"2021003167624148"}
+[2024-11-26 18:08:53] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.00","currency":"CNY"},"outTradeNo":"2024112618085282542","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112618085282542/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"171.219.243.88"},"payer":{"openid":"17326157338221"}}
+[2024-11-26 18:08:54] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax07132hdjfbxw1mqj5553b","appId":"2021003167624148"}
+[2024-11-26 18:09:41] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.70","currency":"CNY"},"outTradeNo":"2024112618094016556","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112618094016556/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"36.132.156.186"},"payer":{"openid":"17326157812382"}}
+[2024-11-26 18:09:42] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax08554mcpvvnpjggtt25d7","appId":"2021003167624148"}
+[2024-11-26 18:20:11] [DEBUG] 退款请求数据：{"outTradeNo":"2024112519242219611","amount":{"refund":"138.22","total":"138.22","currency":"CNY"},"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024112519242219611/","outRefundNo":"2024112618200844579"}
+[2024-11-26 18:20:11] [DEBUG] 退款返回数据：{
+	"amount":{
+		"currency":"CNY",
+		"refund":138.22,
+		"total":138.22
+	},
+	"appId":10001247,
+	"channel":null,
+	"createTime":"2024-11-26 18:20:11",
+	"currency":"",
+	"fundsAccount":null,
+	"goodsDetail":null,
+	"id":361,
+	"mchId":10003461,
+	"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024112519242219611/",
+	"outRefundNo":"2024112618200844579",
+	"outTradeNo":"2024112519242219611",
+	"providerId":22,
+	"reason":"请求成功",
+	"refund":138.22,
+	"refundVolume":null,
+	"status":null,
+	"successTime":null,
+	"total":138.22,
+	"transaction":null,
+	"transactionId":null,
+	"userId":null
+}
+[2024-11-26 18:20:12] [DEBUG] 退款异步返回数据：{"transaction_id":0,"amount":{"currency":"CNY","refund":138.22,"total":138.22},"out_trade_no":"2024112519242219611","trade_state":"SUCCESS","out_refund_no":"2024112618200844579","success_time":"2024-11-26 18:20:11.500926111","mch_id":10003461,"refund_id":361}
+[2024-11-26 18:21:20] [DEBUG] 退款请求数据：{"outTradeNo":"2024112610351280467","amount":{"refund":"138.29","total":"138.29","currency":"CNY"},"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024112610351280467/","outRefundNo":"2024112618211813335"}
+[2024-11-26 18:21:20] [DEBUG] 退款返回数据：{
+	"amount":{
+		"currency":"CNY",
+		"refund":138.29,
+		"total":138.29
+	},
+	"appId":10001247,
+	"channel":null,
+	"createTime":"2024-11-26 18:21:20",
+	"currency":"",
+	"fundsAccount":null,
+	"goodsDetail":null,
+	"id":362,
+	"mchId":10003461,
+	"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024112610351280467/",
+	"outRefundNo":"2024112618211813335",
+	"outTradeNo":"2024112610351280467",
+	"providerId":22,
+	"reason":"请求成功",
+	"refund":138.29,
+	"refundVolume":null,
+	"status":null,
+	"successTime":null,
+	"total":138.29,
+	"transaction":null,
+	"transactionId":null,
+	"userId":null
+}
+[2024-11-26 18:21:21] [DEBUG] 退款异步返回数据：{"transaction_id":0,"amount":{"currency":"CNY","refund":138.29,"total":138.29},"out_trade_no":"2024112610351280467","trade_state":"SUCCESS","out_refund_no":"2024112618211813335","success_time":"2024-11-26 18:21:20.788438434","mch_id":10003461,"refund_id":362}
+[2024-11-26 18:23:23] [DEBUG] 退款请求数据：{"outTradeNo":"2024112610534784476","amount":{"refund":"130","total":"130","currency":"CNY"},"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024112610534784476/","outRefundNo":"2024112618232114150"}
+[2024-11-26 18:23:23] [DEBUG] 退款返回数据：{
+	"amount":{
+		"currency":"CNY",
+		"refund":130,
+		"total":130
+	},
+	"appId":10001247,
+	"channel":null,
+	"createTime":"2024-11-26 18:23:23",
+	"currency":"",
+	"fundsAccount":null,
+	"goodsDetail":null,
+	"id":363,
+	"mchId":10003461,
+	"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024112610534784476/",
+	"outRefundNo":"2024112618232114150",
+	"outTradeNo":"2024112610534784476",
+	"providerId":22,
+	"reason":"请求成功",
+	"refund":130,
+	"refundVolume":null,
+	"status":null,
+	"successTime":null,
+	"total":138.95,
+	"transaction":null,
+	"transactionId":null,
+	"userId":null
+}
+[2024-11-26 18:23:24] [DEBUG] 退款异步返回数据：{"transaction_id":0,"amount":{"currency":"CNY","refund":130,"total":130},"out_trade_no":"2024112610534784476","trade_state":"SUCCESS","out_refund_no":"2024112618232114150","success_time":"2024-11-26 18:23:24.306707569","mch_id":10003461,"refund_id":363}
+[2024-11-26 18:33:54] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.38","currency":"CNY"},"outTradeNo":"2024112618335415122","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112618335415122/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"39.144.179.182"},"payer":{"openid":"17326172349327"}}
+[2024-11-26 18:33:55] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax01587msfsgz3aza4m25d9","appId":"2021003167624148"}
+[2024-11-26 18:43:33] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.73","currency":"CNY"},"outTradeNo":"2024112618433362281","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112618433362281/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.243.230.187"},"payer":{"openid":"17326178139806"}}
+[2024-11-26 18:43:35] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax08920nqu9gvnf6gn02556","appId":"2021003167624148"}
+[2024-11-26 18:57:33] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.95","currency":"CNY"},"outTradeNo":"2024112618573384713","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112618573384713/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.243.230.187"},"payer":{"openid":"17326186537463"}}
+[2024-11-26 18:57:34] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax06798tlzcz5gbnqtx3024","appId":"2021003167624148"}
+[2024-11-26 19:36:58] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"98.27","currency":"CNY"},"outTradeNo":"2024112619365878899","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024112619365878899/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"120.243.230.187"},"payer":{"openid":"17326210187034"}}
+[2024-11-26 19:37:00] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax03997tkwucaxzri8z0081","appId":"2021003167624148"}

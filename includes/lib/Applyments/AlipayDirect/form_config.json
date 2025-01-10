@@ -1,0 +1,78 @@
+{
+    "steps": [
+        "系统配置"
+    ],
+    "items": [
+        [
+            {
+                "type": "alert",
+                "style": "info",
+                "content": "需在应用内绑定产品“直付通二级商户进件”，订阅“直付通商户进件审核通过/拒绝消息接口”，应用网关地址：[siteurl]pay/appgw/[channel]/"
+            },
+            {
+                "name": "service",
+                "type": "checkboxes",
+                "label": "选择开通的服务",
+                "options": [
+                    {
+                        "label": "当面付",
+                        "value": "当面付"
+                    },
+                    {
+                        "label": "电脑支付",
+                        "value": "电脑支付"
+                    },
+                    {
+                        "label": "WAP支付",
+                        "value": "wap支付"
+                    },
+                    {
+                        "label": "APP支付",
+                        "value": "app支付"
+                    },
+                    {
+                        "label": "小程序支付",
+                        "value": "jsapi支付"
+                    }
+                ],
+                "value": [],
+                "note": "该值会影响其他字段必填项，例如当面付必填门店信息"
+            },
+            {
+                "name": "mcc",
+                "type": "input",
+                "label": "商户类别码mcc",
+                "placeholder": "填写后商户进件时将无法修改，留空则商户可自行选择",
+                "note": "商户类别码 mcc，可查看 <a href=\"https://mdn.alipayobjects.com/huamei_fctrxv/afts/file/A*3TMHRZ8ppa4AAAAAAAAAAAAADs2DAQ/%E8%BF%9B%E4%BB%B6MCC%E4%B8%8E%E8%B5%84%E8%B4%A8%E8%A6%81%E6%B1%82202212.xlsx\">进件MCC与资质要求 202212.xlsx</a>"
+            },
+            {
+                "name": "site_url",
+                "type": "input",
+                "label": "站点地址",
+                "validator": "uri",
+                "placeholder": "填写后商户进件时将无法修改，留空则商户可自行选择",
+                "show": "service.indexOf('电脑支付')>=0||service.indexOf('wap支付')>=0"
+            },
+            {
+                "name": "site_name",
+                "type": "input",
+                "label": "站点名称/APP名称",
+                "placeholder": "填写后商户进件时将无法修改，留空则商户可自行选择",
+                "show": "service.indexOf('电脑支付')>=0||service.indexOf('wap支付')>=0||service.indexOf('app支付')>=0"
+            },
+            {
+                "name": "tiny_app_id",
+                "type": "input",
+                "label": "支付宝小程序AppId",
+                "validator": "digits",
+                "placeholder": "填写后商户进件时将无法修改，留空则商户可自行选择",
+                "show": "service.indexOf('jsapi支付')>=0"
+            },
+            {
+                "name": "consult",
+                "type": "checkbox",
+                "label": "进件前是否调用预校验接口"
+            }
+        ]
+    ]
+}

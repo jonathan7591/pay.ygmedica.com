@@ -1,0 +1,30 @@
+{
+    "steps": [
+        "系统配置"
+    ],
+    "items": [
+        [
+            {
+                "name": "store_name",
+                "type": "input",
+                "label": "店铺名称",
+                "placeholder": "填写后商户进件时将无法修改，留空则商户可自行填写"
+            },
+            {
+                "name": "store_url",
+                "type": "input",
+                "label": "店铺链接",
+                "placeholder": "填写后商户进件时将无法修改，留空则商户可自行填写",
+                "note":"店铺链接or店铺二维码二选一必填。请填写店铺主页链接，需符合网站规范"
+            },
+            {
+                "name": "store_qr_code",
+                "type": "image-upload",
+                "label": "店铺二维码",
+                "filesize": 2,
+                "tip":"此处上传后商户进件时就不需要再上传",
+                "note": "店铺链接or店铺二维码二选一必填。若为电商小程序，可上传店铺页面的小程序二维码"
+            }
+        ]
+    ]
+}

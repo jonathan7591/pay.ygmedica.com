@@ -1,0 +1,1 @@
+{"errCode":0,"errMsg":"ok","nonceStr":"apTnFFv8eZJKOhsS2GKZKo4KRzw9CNju","refundInfo":{"id":"1000240298","tradeInfoId":1000000024623762,"module":"pay","shopId":"303765","fromType":"wx_pay","refundNo":"2024110820111119396","refundStatus":2,"refundAmount":100,"status":2},"sign":"EF0DF3DE2B15AAEE58AC255C4A3BB467"}

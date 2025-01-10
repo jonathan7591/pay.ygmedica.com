@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/includes" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/includes/qrcodedecoder" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/stripe/inc" isTestSource="false" packagePrefix="Stripe" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/xsy/lib" isTestSource="false" packagePrefix="xsy" />
+      <sourceFolder url="file://$MODULE_DIR$/plugins/yeepay/inc" isTestSource="false" packagePrefix="Yeepay" />
+      <excludeFolder url="file://$MODULE_DIR$/includes/vendor/cccyun/alipay-sdk" />
+      <excludeFolder url="file://$MODULE_DIR$/includes/vendor/cccyun/qqpay-sdk" />
+      <excludeFolder url="file://$MODULE_DIR$/includes/vendor/cccyun/wechatpay-sdk" />
+      <excludeFolder url="file://$MODULE_DIR$/includes/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/includes/vendor/fgrosse/phpasn1" />
+      <excludeFolder url="file://$MODULE_DIR$/includes/vendor/lpilp/guomi" />
+      <excludeFolder url="file://$MODULE_DIR$/includes/vendor/mdanter/ecc" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

@@ -1,0 +1,94 @@
+{
+    "steps": [
+        "结算账户"
+    ],
+    "items": [
+        [
+            {
+                "name": "subject_type",
+                "type": "hidden",
+                "label": "主体类型"
+            },
+            {
+                "name": "account_type",
+                "type": "radio",
+                "label": "银行账户类型",
+                "options": [
+                    {
+                        "label": "对公银行账户",
+                        "value": "ACCOUNT_TYPE_BUSINESS"
+                    },
+                    {
+                        "label": "经营者个人银行卡",
+                        "value": "ACCOUNT_TYPE_PRIVATE",
+                        "show": "subject_type=='SUBJECT_TYPE_INDIVIDUAL'"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "name": "account_name",
+                "type": "input",
+                "label": "开户名称",
+                "placeholder": "银行账户开户名称需与主体或法人一致",
+                "required": true
+            },
+            {
+                "name": "account_bank",
+                "type": "hidden",
+                "label": "开户银行(含其他银行)"
+            },
+            {
+                "name": "need_bank_branch",
+                "type": "hidden",
+                "value": false,
+                "label": "是否需要填写支行信息"
+            },
+            {
+                "name": "city_code",
+                "type": "hidden",
+                "label": "开户银行城市编码"
+            },
+            {
+                "name": "bank_code",
+                "type": "bank-select",
+                "label": "开户银行",
+                "placeholder": "请选择开户银行",
+                "autofill": {
+                    "account_bank": "account_bank",
+                    "need_bank_branch": "need_bank_branch"
+                },
+                "required": true
+            },
+            {
+                "name": "bank_address_code",
+                "type": "cascader",
+                "label": "开户银行省市",
+                "options": "${city}",
+                "autofill": {
+                    "city_code": "code"
+                },
+                "required": true
+            },
+            {
+                "name": "bank_branch_id",
+                "type": "bank-branch-select",
+                "label": "开户银行支行",
+                "placeholder": "请选择支行",
+                "show": "need_bank_branch",
+                "param": {
+                    "bank_code": "bank_code",
+                    "city_code": "city_code"
+                },
+                "required": true
+            },
+            {
+                "name": "account_number",
+                "type": "input",
+                "label": "银行账号",
+                "placeholder": "",
+                "required": true
+            }
+        ]
+    ]
+}

@@ -1,0 +1,74 @@
+{
+    "steps": [
+        "商户信息修改"
+    ],
+    "items": [
+        [
+            {
+                "name": "alias_name",
+                "type": "input",
+                "label": "商户简称",
+                "placeholder": "在支付账单页向买家展示",
+                "required": true
+            },
+            {
+                "name": "shop_address",
+                "type": "inputcity",
+                "label": "经营场所省市县",
+                "required": true,
+                "allnode": true
+            },
+            {
+                "name": "shop_address_detail",
+                "type": "input",
+                "label": "经营场所地址",
+                "placeholder": "请填写经营场所的详细地址",
+                "required": true
+            },
+            {
+                "name": "shop_entrance_pic",
+                "type": "image-upload",
+                "label": "经营场所门头照片",
+                "filesize": 2,
+                "filetype": "8",
+                "tip": "门店招牌清晰、招牌名称、文字可辨识、门框完整，且店面显示在营",
+                "required": true
+            },
+            {
+                "name": "shop_indoor_pic",
+                "type": "image-upload",
+                "label": "经营场所内部照片",
+                "filesize": 2,
+                "filetype": "9",
+                "tip": "能够展示内部环境并能辨识所经营的业务、销售商品/服务",
+                "required": true
+            },
+            {
+                "name": "shop_cashier_pic",
+                "type": "image-upload",
+                "label": "经营场所收银台照片",
+                "filesize": 2,
+                "filetype": "10",
+                "tip": "上传经营场所收银台的照片",
+                "required": true
+            },
+            {
+                "name": "contact_phone",
+                "type": "input",
+                "label": "联系人手机号",
+                "validator": "phone",
+                "placeholder": "",
+                "required": true
+            },
+            {
+                "name": "merchant_modify_image",
+                "type": "image-upload",
+                "label": "商户信息变更申请表",
+                "filetype": "18",
+                "filesize": 2,
+                "note": "请下载<a href=\"/assets/files/hnapay/%E5%95%86%E6%88%B7%E4%BF%A1%E6%81%AF%E5%8F%98%E6%9B%B4%E7%94%B3%E8%AF%B7%E8%A1%A8-%E6%96%B0%E7%94%9F.doc\" target=\"_blank\">商户信息变更申请表</a>，填写并盖章后，拍照上传",
+                "required": true
+            }
+        ]
+    ]
+}

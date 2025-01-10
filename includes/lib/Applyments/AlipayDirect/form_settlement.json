@@ -1,0 +1,134 @@
+{
+    "steps": [
+        "结算账户"
+    ],
+    "items": [
+        [
+            {
+                "name": "merchant_type",
+                "type": "hidden",
+                "label": "主体类型"
+            },
+            {
+                "name": "merchant_name",
+                "type": "hidden",
+                "label": "营业执照名称"
+            },
+            {
+                "name": "default_settle_type",
+                "type": "radio",
+                "label": "结算方式",
+                "value": "alipayAccount",
+                "options": [
+                    {
+                        "label": "结算到支付宝",
+                        "value": "alipayAccount"
+                    },
+                    {
+                        "label": "结算到银行卡",
+                        "value": "bankCard",
+                        "show": "merchant_type!='06'"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "name": "alipay_logon_id",
+                "type": "input",
+                "label": "结算支付宝账号",
+                "placeholder": "与商户主体同名，且已实名认证的支付宝",
+                "note": "要求与商户主体同名，个人类型必须填写个人支付宝、企业类型须填写企业支付宝，个体工商户可填写个人或企业支付宝",
+                "show": "default_settle_type=='alipayAccount'",
+                "required": true
+            },
+            {
+                "name": "account_holder_name",
+                "type": "input",
+                "label": "开户名称",
+                "placeholder": "银行账户开户名称需与主体或法人一致",
+                "show": "default_settle_type=='bankCard'",
+                "required": true
+            },
+            {
+                "name": "account_no",
+                "type": "input",
+                "label": "银行卡号",
+                "placeholder": "只支持借记卡",
+                "show": "default_settle_type=='bankCard'",
+                "required": true
+            },
+            {
+                "name": "bank_city_name",
+                "type": "hidden",
+                "label": "开户银行城市名称"
+            },
+            {
+                "name": "account_inst_name",
+                "type": "hidden",
+                "label": "开户银行名称"
+            },
+            {
+                "name": "account_inst_id",
+                "type": "bank-select",
+                "label": "开户银行",
+                "placeholder": "请选择开户银行",
+                "show": "default_settle_type=='bankCard'",
+                "autofill": {
+                    "account_inst_name": "text"
+                },
+                "required": true
+            },
+            {
+                "name": "account_inst_address",
+                "type": "cascader",
+                "label": "开户银行省市",
+                "options": "${city}",
+                "show": "default_settle_type=='bankCard'",
+                "autofill": {
+                    "bank_city_name": "label"
+                },
+                "allnode": true,
+                "required": true
+            },
+            {
+                "name": "bank_branch_id",
+                "type": "bank-branch-select",
+                "label": "开户银行支行",
+                "placeholder": "请选择支行",
+                "show": "default_settle_type=='bankCard'",
+                "param": {
+                    "bank_code": "account_inst_id",
+                    "city_code": "bank_city_name"
+                },
+                "required": true
+            },
+            {
+                "name": "usage_type",
+                "type": "radio",
+                "label": "账号使用类型",
+                "value": "01",
+                "options": [
+                    {
+                        "label": "对公",
+                        "value": "01"
+                    },
+                    {
+                        "label": "对私",
+                        "value": "02",
+                        "show": "merchant_type=='07'"
+                    }
+                ],
+                "show": "default_settle_type=='bankCard'",
+                "required": true
+            },
+            {
+                "name": "license_auth_letter_image",
+                "type": "image-upload",
+                "label": "授权函",
+                "filetype": "",
+                "show": "default_settle_type=='bankCard'&&merchant_type=='01'&&account_holder_name!=merchant_name",
+                "note": "当营业执照名称与结算卡户名不一致时需要上传，<a href=\"https://gw.alipayobjects.com/os/bmw-prod/40974c1c-d346-4db0-971f-137d2e1eac34.docx\">授权函模板</a>"
+            }
+        ]
+    ]
+}

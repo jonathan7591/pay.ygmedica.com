@@ -1,0 +1,180 @@
+{
+    "steps": [
+        "结算账户"
+    ],
+    "items": [
+        [
+            {
+                "name": "merchant_type",
+                "type": "hidden",
+                "label": "主体类型"
+            },
+            {
+                "type": "line",
+                "content": "结算银行账户"
+            },
+            {
+                "name": "card_type",
+                "type": "radio",
+                "label": "银行账户类型",
+                "value": "0",
+                "options": [
+                    {
+                        "label": "对公账户",
+                        "value": "0"
+                    },
+                    {
+                        "label": "对私法人账户",
+                        "value": "1"
+                    },
+                    {
+                        "label": "对私非法人账户",
+                        "value": "2"
+                    }
+                ],
+                "show": "merchant_type>1",
+                "disabled": true
+            },
+            {
+                "name": "bank_card_image",
+                "type": "image-upload",
+                "label": "银行卡正面照片",
+                "tip": "请上传结算银行卡的卡号面照片",
+                "filesize": 2,
+                "filetype": "bankcard",
+                "autofill": {
+                    "card_no": "card_no"
+                },
+                "required": true,
+                "show": "card_type>0"
+            },
+            {
+                "name": "bank_license_image",
+                "type": "image-upload",
+                "label": "对公账户开户许可证",
+                "tip": "对公结算必填",
+                "filesize": 2,
+                "filetype": "bankaccount",
+                "autofill": {
+                    "card_no": "bank_account"
+                },
+                "required": true,
+                "show": "merchant_type>1&&card_type==0"
+            },
+            {
+                "name": "card_name",
+                "type": "input",
+                "label": "银行账户名",
+                "placeholder": "需与企业名称或法人姓名一致",
+                "required": true
+            },
+            {
+                "name": "card_no",
+                "type": "input",
+                "label": "银行卡号",
+                "placeholder": "",
+                "required": true
+            },
+            {
+                "name": "bank_code",
+                "type": "bank-select",
+                "label": "开户银行",
+                "placeholder": "请选择开户银行",
+                "required": true
+            },
+            {
+                "name": "bank_address",
+                "type": "cascader",
+                "label": "开户银行省市",
+                "options": "${city}",
+                "required": true,
+                "allnode": true
+            },
+            {
+                "name": "bank_branch_name",
+                "type": "hidden",
+                "label": "开户银行支行名称"
+            },
+            {
+                "name": "bank_branch_code",
+                "type": "bank-branch-select",
+                "label": "开户银行支行",
+                "placeholder": "请选择支行",
+                "param": {
+                    "bank_code": "bank_code",
+                    "city_code": "bank_address"
+                },
+                "autofill": {
+                    "bank_branch_name": "text"
+                },
+                "required": true
+            },
+            {
+                "name": "bank_phone",
+                "type": "input",
+                "label": "银行卡绑定手机号",
+                "validator": "phone",
+                "placeholder": "",
+                "show": "card_type>0",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "持卡人信息",
+                "show": "card_type==2"
+            },
+            {
+                "name": "auth_idcard_image",
+                "type": "image-upload",
+                "label": "持卡人身份证人像面照片",
+                "filesize": 2,
+                "filetype": "idcard",
+                "autofill": {
+                    "auth_idcard_no": "id_no",
+                    "card_name": "name"
+                },
+                "tip": "请上传持卡人的身份证人像面照片",
+                "required": true,
+                "show": "card_type==2"
+            },
+            {
+                "name": "auth_idcard_back_image",
+                "type": "image-upload",
+                "label": "持卡人身份证国徽面照片",
+                "filesize": 2,
+                "filetype": "idcard_back",
+                "tip": "请上传持卡人的身份证国徽面照片",
+                "required": true,
+                "show": "card_type==2"
+            },
+            {
+                "name": "auth_idcard_no",
+                "type": "input",
+                "label": "持卡人身份证号码",
+                "validator": "id",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true,
+                "show": "card_type==2"
+            },
+            {
+                "name": "settle_auth_image",
+                "type": "image-upload",
+                "label": "非法人结算授权函图片",
+                "tip": "对私非法人结算时必填",
+                "filesize": 2,
+                "note": "请下载<a href=\"/assets/files/haipay/%E9%9D%9E%E6%B3%95%E4%BA%BA%E7%BB%93%E7%AE%97%E6%8E%88%E6%9D%83%E5%87%BD%E6%A8%A1%E6%9D%BF.docx\" target=\"_blank\">非法人结算授权函模板</a>，填写并盖章后，拍照上传",
+                "required": true,
+                "show": "card_type==2"
+            },
+            {
+                "name": "settle_auth_hold_image",
+                "type": "image-upload",
+                "label": "法人手持结算授权函合影图片",
+                "tip": "对私非法人结算时必填",
+                "filesize": 2,
+                "required": true,
+                "show": "card_type==2"
+            }
+        ]
+    ]
+}

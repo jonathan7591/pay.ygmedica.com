@@ -1,0 +1,32 @@
+{
+    "steps": [
+        "注销申请"
+    ],
+    "items": [
+        [
+            {
+                "name": "order_id",
+                "type": "hidden",
+                "label": "申请单编号"
+            },
+            {
+                "name": "sp_merchant_application",
+                "type": "image-upload",
+                "label": "服务商注销子商户申请书",
+                "filetype": "wx_cancel",
+                "filesize": 2,
+                "note": "由电商服务商下载模板打印纸质版、填写盖章后拍照上传。模板文档详见：<a href=\"https://docs.qq.com/doc/DQUZoUHpKUlhZVXpW\" target=\"_blank\">注销申请书模板-电商服务商</a>",
+                "required": true
+            },
+            {
+                "name": "sub_merchant_application",
+                "type": "image-upload",
+                "label": "子商户注销申请书",
+                "filetype": "wx_cancel",
+                "filesize": 2,
+                "note": "由子商户下载模板打印纸质版、填写盖章后拍照上传。模板文档详见：<a href=\"https://docs.qq.com/doc/DQUZoUHpKUlhZVXpW\" target=\"_blank\">注销申请书模板-子商户</a>",
+                "required": true
+            }
+        ]
+    ]
+}

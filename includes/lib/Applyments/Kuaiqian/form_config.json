@@ -1,0 +1,79 @@
+{
+    "steps": [
+        "系统配置"
+    ],
+    "items": [
+        [
+            {
+                "name": "pay_channel",
+                "type": "pay-channel-select",
+                "label": "其他关联支付通道",
+                "tip": "关联的支付通道将在进件成功后点开启时同时启用",
+                "placeholder":"请选择关联的支付通道",
+                "required": true
+            },
+            {
+                "name": "operator",
+                "type": "input",
+                "label": "操作员账号",
+                "placeholder": "操作员账号，由平台方提供并维护",
+                "required": true
+            },
+            {
+                "name": "debit_rate",
+                "type": "input",
+                "label": "借记卡费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.4",
+                "max": "1.0",
+                "placeholder": "仅能填入2位以内小数，且在0.4~1.0范围内",
+                "required": true
+            },
+            {
+                "name": "debit_max_fee",
+                "type": "input",
+                "label": "借记卡手续费封顶",
+                "validator": "integer",
+                "value": "20",
+                "min": "20",
+                "max": "100",
+                "placeholder": "借记卡手续费封顶金额",
+                "required": true
+            },
+            {
+                "name": "credit_rate",
+                "type": "input",
+                "label": "信用卡费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.52",
+                "max": "1.0",
+                "placeholder": "仅能填入2位以内小数，且在0.52~1.0范围内",
+                "required": true
+            },
+            {
+                "name": "wxpay_rate",
+                "type": "input",
+                "label": "微信费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.24",
+                "max": "0.6",
+                "placeholder": "仅能填入2位以内小数，且在0.24~0.6范围内",
+                "required": true
+            },
+            {
+                "name": "alipay_rate",
+                "type": "input",
+                "label": "支付宝费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.24",
+                "max": "0.6",
+                "placeholder": "仅能填入2位以内小数，且在0.24~0.6范围内",
+                "required": true
+            }
+        ]
+    ]
+}

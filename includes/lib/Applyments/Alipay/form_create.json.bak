@@ -1,0 +1,363 @@
+{
+    "steps": [
+        "签约信息",
+        "经营信息"
+    ],
+    "items": [
+        [
+            {
+                "name": "uid",
+                "type": "input",
+                "label": "绑定本站用户ID",
+                "placeholder": "可留空"
+            },
+            {
+                "name": "order_id",
+                "type": "hidden",
+                "label": "申请单编号"
+            },
+            {
+                "name": "product",
+                "type": "radio",
+                "label": "选择开通的产品",
+                "options": [],
+                "value": "",
+                "tip": "由于支付宝接口限制，一次性只能开通1个产品，可在开通成功后继续开通其他产品"
+            },
+            {
+                "name": "rate",
+                "type": "input",
+                "label": "服务费率(%)",
+                "validator": "numeric",
+                "min": "0.38",
+                "max": "0.6",
+                "placeholder": "仅能填入2位以内小数，且在0.38~0.6范围内"
+            },
+            {
+                "name": "alipay_account",
+                "type": "input",
+                "label": "签约支付宝账号",
+                "placeholder": "填写你的支付宝账号",
+                "note": "企业类型商户只能填写企业支付宝，个体工商户可填写个人或企业支付宝",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "营业执照"
+            },
+            {
+                "name": "merchant_type",
+                "type": "radio",
+                "label": "商户类型",
+                "value": "2",
+                "options": [
+                    {
+                        "label": "个体工商户",
+                        "value": "2"
+                    },
+                    {
+                        "label": "企业",
+                        "value": "3"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "name": "business_license_pic",
+                "type": "image-upload",
+                "label": "营业执照照片",
+                "filetype": "business",
+                "autofill": {
+                    "business_license_no": "license_no",
+                    "merchant_name": "name"
+                },
+                "required": true
+            },
+            {
+                "name": "business_license_no",
+                "type": "input",
+                "label": "营业执照编号",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true
+            },
+            {
+                "name": "merchant_name",
+                "type": "input",
+                "label": "营业执照名称",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "联系人信息"
+            },
+            {
+                "name": "contact_name",
+                "type": "input",
+                "label": "联系人姓名",
+                "placeholder": "",
+                "required": true
+            },
+            {
+                "name": "contact_mobile",
+                "type": "input",
+                "label": "联系人手机号",
+                "validator": "phone",
+                "placeholder": "",
+                "required": true
+            },
+            {
+                "name": "contact_email",
+                "type": "input",
+                "label": "联系人邮箱",
+                "validator": "email",
+                "placeholder": ""
+            }
+        ],
+        [
+            {
+                "type": "line",
+                "content": "经营类目"
+            },
+            {
+                "name": "mcc",
+                "type": "cascader",
+                "label": "经营类目",
+                "options": "${mcc}",
+                "autofill": {
+                    "need_special": "need_special"
+                },
+                "allnode": true,
+                "required": true
+            },
+            {
+                "name": "need_special",
+                "type": "hidden",
+                "value": false,
+                "label": "是否特殊行业"
+            },
+            {
+                "name": "special_license_pic",
+                "type": "image-upload",
+                "label": "特殊资质图片",
+                "show": "need_special",
+                "note": "需上传的特殊资质图片，可参考 <a href=\"https://opendocs.alipay.com/common/02khjv#%E5%95%86%E5%AE%B6%E7%BB%8F%E8%90%A5%E7%B1%BB%E7%9B%AE\" target=\"_blank\">商家经营类目</a> 中的“所需资质”",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "店铺信息",
+                "show": "product=='face'"
+            },
+            {
+                "name": "shop_name",
+                "type": "input",
+                "label": "店铺名称",
+                "show": "product=='face'",
+                "required": true
+            },
+            {
+                "name": "shop_address",
+                "type": "inputcity",
+                "label": "店铺所在省市县",
+                "required": true,
+                "show": "product=='face'",
+                "allnode": true
+            },
+            {
+                "name": "shop_address_detail",
+                "type": "input",
+                "label": "店铺详细地址",
+                "placeholder": "请输入详细地址",
+                "show": "product=='face'",
+                "required": true
+            },
+            {
+                "name": "shop_sign_board_pic",
+                "type": "image-upload",
+                "label": "店铺门头照片",
+                "filetype": "",
+                "show": "product=='face'",
+                "required": true
+            },
+            {
+                "name": "shop_scene_pic",
+                "type": "image-upload",
+                "label": "店铺内景照片",
+                "filetype": "",
+                "show": "product=='face'",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "网站信息",
+                "show": "product=='pc'"
+            },
+            {
+                "name": "web_sites",
+                "type": "input",
+                "label": "网站页面链接",
+                "validator": "uri",
+                "note": "输入可正常访问的网站地址，并且域名需ICP备案",
+                "show": "product=='pc'",
+                "required": true
+            },
+            {
+                "name": "web_sites_loa",
+                "type": "image-upload",
+                "label": "网站授权函",
+                "filetype": "",
+                "show": "product=='pc'",
+                "note": "若您用非本人的网站申请开通，需提供授权函。请按照 <a href=\"https://mdn.alipayobjects.com/huamei_r3eeay/afts/file/A*90JaT7BQ_f0AAAAAAAAAAAAADheBAQ/%E7%94%B5%E8%84%91%E7%BD%91%E7%AB%99%E6%8E%88%E6%9D%83%E5%87%BD%E6%A8%A1%E6%9D%BF.docx\">授权函模板</a>，完善相关信息并加盖公章后上传"
+            },
+            {
+                "name": "web_test_account",
+                "type": "input",
+                "label": "网站测试账号",
+                "placeholder": "可选填",
+                "show": "product=='pc'"
+            },
+            {
+                "name": "web_test_account_password",
+                "type": "input",
+                "label": "网站测试账号密码",
+                "placeholder": "可选填",
+                "show": "product=='pc'"
+            },
+            {
+                "type": "line",
+                "content": "H5网站信息",
+                "show": "product=='wap'"
+            },
+            {
+                "name": "h_5_sites",
+                "type": "input",
+                "label": "H5页面链接",
+                "validator": "uri",
+                "note": "输入可正常访问的H5页面地址，并且域名需ICP备案",
+                "show": "product=='wap'",
+                "required": true
+            },
+            {
+                "name": "h_5_sites_loa",
+                "type": "image-upload",
+                "label": "H5授权函",
+                "filetype": "",
+                "show": "product=='wap'",
+                "note": "若您用非本人的H5页面申请开通，需提供授权函。请按照 <a href=\"https://mdn.alipayobjects.com/huamei_r3eeay/afts/file/A*qKeyRpH2pDgAAAAAAAAAAAAADheBAQ/H5%E6%8E%88%E6%9D%83%E5%87%BD%E6%A8%A1%E6%9D%BF%20.docx\">授权函模板</a>，完善相关信息并加盖公章后上传"
+            },
+            {
+                "name": "h_5_memo",
+                "type": "textarea",
+                "label": "H5备注说明",
+                "placeholder": "可选填",
+                "note": "您可补充贵司售卖的产品及H5支付使用场景，H5页面如需账号密码登录，请在此提供账号密码",
+                "show": "product=='wap'"
+            },
+            {
+                "name": "h_5_extra_pic",
+                "type": "image-upload",
+                "label": "H5备注图片",
+                "filetype": "",
+                "note": "可选填，补充更多售卖商品场景及现状信息便于审核通过",
+                "show": "product=='wap'"
+            },
+            {
+                "type": "line",
+                "content": "APP信息",
+                "show": "product=='app'"
+            },
+            {
+                "name": "app_name",
+                "type": "input",
+                "label": "APP名称",
+                "placeholder": "请输入完整的APP名称，并确保APP已上架应用市场",
+                "show": "product=='app'",
+                "required": true
+            },
+            {
+                "name": "app_market",
+                "type": "checkboxes",
+                "label": "投放应用市场",
+                "options": [
+                    {
+                        "label": "苹果",
+                        "value": "苹果"
+                    },
+                    {
+                        "label": "应用宝",
+                        "value": "应用宝"
+                    },
+                    {
+                        "label": "华为",
+                        "value": "华为"
+                    },
+                    {
+                        "label": "360",
+                        "value": "360"
+                    },
+                    {
+                        "label": "小米",
+                        "value": "小米"
+                    },
+                    {
+                        "label": "豌豆荚",
+                        "value": "豌豆荚"
+                    },
+                    {
+                        "label": "其他",
+                        "value": "其他"
+                    }
+                ],
+                "value": [],
+                "show": "product=='app'",
+                "required": true
+            },
+            {
+                "name": "app_auth_pic",
+                "type": "image-upload",
+                "label": "APP授权函",
+                "filetype": "",
+                "show": "product=='app'",
+                "note": "若您用非本人的APP申请开通，需提供授权函。请按照 <a href=\"https://mdn.alipayobjects.com/huamei_r3eeay/afts/file/A*x3IYQ7oKI9kAAAAAAAAAAAAADheBAQ/APP%E6%8E%88%E6%9D%83%E5%87%BD%E6%A8%A1%E6%9D%BF.docx\">授权函模板</a>，完善相关信息并加盖公章后上传"
+            },
+            {
+                "name": "download_link",
+                "type": "input",
+                "label": "APP下载链接",
+                "validator": "uri",
+                "placeholder": "可选填",
+                "show": "product=='app'"
+            },
+            {
+                "name": "app_test_account",
+                "type": "input",
+                "label": "APP测试账号",
+                "placeholder": "可选填",
+                "show": "product=='app'"
+            },
+            {
+                "name": "app_test_account_password",
+                "type": "input",
+                "label": "APP测试账号密码",
+                "placeholder": "可选填",
+                "show": "product=='app'"
+            },
+            {
+                "type": "line",
+                "content": "小程序信息",
+                "show": "product=='jsapi'"
+            },
+            {
+                "name": "mini_app_id",
+                "type": "input",
+                "label": "支付宝小程序AppId",
+                "validator": "digits",
+                "placeholder": "填写支付宝小程序AppId",
+                "note": "可登陆支付宝商家平台（b.alipay.com）-运营中心-小程序查看或创建小程序",
+                "show": "product=='jsapi'",
+                "required": true
+            }
+        ]
+    ]
+}

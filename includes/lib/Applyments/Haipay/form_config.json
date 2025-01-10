@@ -1,0 +1,157 @@
+{
+    "steps": [
+        "系统配置"
+    ],
+    "items": [
+        [
+            {
+                "name": "pay_channel",
+                "type": "pay-channel-select",
+                "label": "其他关联支付通道",
+                "tip": "关联的支付通道将在进件成功后点开启时同时启用",
+                "placeholder":"请选择关联的支付通道",
+                "required": true
+            },
+            {
+                "name": "paytypes",
+                "type": "checkboxes",
+                "label": "默认开通的支付方式",
+                "options": [
+                    {
+                        "label": "支付宝",
+                        "value": "ali"
+                    },
+                    {
+                        "label": "微信支付",
+                        "value": "wx"
+                    },
+                    {
+                        "label": "银联二维码",
+                        "value": "bank"
+                    }
+                ],
+                "required": true,
+                "value": ["ali", "wx"]
+            },
+            {
+                "name": "alipay_channel_no",
+                "type": "input",
+                "label": "支付宝渠道号",
+                "value": "",
+                "required": true,
+                "placeholder": "服务商通过海科申请的支付宝渠道号",
+                "show": "paytypes.indexOf('ali') > -1"
+            },
+            {
+                "name": "alipay_rate",
+                "type": "input",
+                "label": "支付宝费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.2",
+                "max": "1.5",
+                "placeholder": "仅能填入2位以内小数",
+                "required": true,
+                "show": "paytypes.indexOf('ali') > -1"
+            },
+            {
+                "name": "wxpay_channel_no",
+                "type": "input",
+                "label": "微信渠道号",
+                "value": "",
+                "required": true,
+                "placeholder": "服务商通过海科申请的微信渠道号",
+                "show": "paytypes.indexOf('wx') > -1"
+            },
+            {
+                "name": "wxpay_rate",
+                "type": "input",
+                "label": "微信支付费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.2",
+                "max": "1.5",
+                "placeholder": "仅能填入2位以内小数",
+                "required": true,
+                "show": "paytypes.indexOf('wx') > -1"
+            },
+            {
+                "name": "bank_debit_rate",
+                "type": "input",
+                "label": "银联支付借记卡费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.2",
+                "max": "1.5",
+                "placeholder": "仅能填入2位以内小数",
+                "required": true,
+                "show": "paytypes.indexOf('bank') > -1"
+            },
+            {
+                "name": "bank_credit_rate",
+                "type": "input",
+                "label": "银联支付贷记卡费率(%)",
+                "validator": "numeric",
+                "value": "0.6",
+                "min": "0.2",
+                "max": "1.5",
+                "placeholder": "仅能填入2位以内小数",
+                "required": true,
+                "show": "paytypes.indexOf('bank') > -1"
+            },
+            {
+                "name": "settle_cycle",
+                "type": "radio",
+                "label": "默认结算方式",
+                "value": "D1",
+                "options": [
+                    {
+                        "label": "D1",
+                        "value": "D1"
+                    },
+                    {
+                        "label": "T1",
+                        "value": "T1"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "name": "settle_rate",
+                "type": "input",
+                "label": "D1提现手续费率(%)",
+                "validator": "numeric",
+                "min": "0",
+                "max": "3",
+                "placeholder": "仅能填入2位以内小数，不填默认为0",
+                "show": "settle_cycle=='D1'||settle_cycle=='D0'"
+            },
+            {
+                "name": "settle_feemin",
+                "type": "input",
+                "label": "D1单笔最低提现手续费(元)",
+                "validator": "numeric",
+                "min": "0",
+                "max": "30",
+                "placeholder": "不填默认为0",
+                "show": "settle_cycle=='D1'||settle_cycle=='D0'"
+            },
+            {
+                "name": "wxpay_appid",
+                "type": "input",
+                "label": "默认关联公众号AppID",
+                "value": "",
+                "placeholder": "报备成功后自动配置",
+                "show": "paytypes.indexOf('wx') > -1"
+            },
+            {
+                "name": "wxpay_path",
+                "type": "input",
+                "label": "默认JSAPI支付授权目录",
+                "value": "",
+                "placeholder": "报备成功后自动配置",
+                "show": "paytypes.indexOf('wx') > -1"
+            }
+        ]
+    ]
+}

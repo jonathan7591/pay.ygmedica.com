@@ -1,0 +1,553 @@
+{
+    "steps": [
+        "主体信息",
+        "经营信息",
+        "结算账户"
+    ],
+    "items": [
+        [
+            {
+                "name": "uid",
+                "type": "input",
+                "label": "绑定本站用户ID",
+                "placeholder": "可留空"
+            },
+            {
+                "name": "order_id",
+                "type": "hidden",
+                "label": "申请单编号"
+            },
+            {
+                "type": "line",
+                "content": "基础信息"
+            },
+            {
+                "name": "merchant_type",
+                "type": "radio",
+                "label": "主体类型",
+                "value": "2",
+                "options": [
+                    {
+                        "label": "个人",
+                        "value": "1"
+                    },
+                    {
+                        "label": "个体工商户",
+                        "value": "2"
+                    },
+                    {
+                        "label": "企业",
+                        "value": "3"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "营业执照",
+                "show": "merchant_type>1"
+            },
+            {
+                "name": "license_image",
+                "type": "image-upload",
+                "label": "营业执照照片",
+                "tip": "请上传“营业执照”，需年检章齐全，当年注册除外",
+                "filesize": 2,
+                "filetype": "business",
+                "fileparam": {"pictureType": "4"},
+                "autofill": {
+                    "license_no": "license_no",
+                    "merchant_name": "name",
+                    "idcard_name": "legal_name",
+                    "license_period_begin": "period_begin",
+                    "license_period_end": "period_end"
+                },
+                "required": true,
+                "show": "merchant_type>1"
+            },
+            {
+                "name": "license_no",
+                "type": "input",
+                "label": "营业执照编号",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true,
+                "show": "merchant_type>1"
+            },
+            {
+                "name": "merchant_name",
+                "type": "input",
+                "label": "营业执照名称",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true,
+                "show": "merchant_type>1"
+            },
+            {
+                "name": "license_period_begin",
+                "type": "date",
+                "label": "营业执照有效期开始时间",
+                "placeholder": "上传营业执照后自动填入",
+                "required": true,
+                "show": "merchant_type>1"
+            },
+            {
+                "name": "license_period_end",
+                "type": "date",
+                "label": "营业执照有效期结束时间",
+                "placeholder": "上传营业执照后自动填入",
+                "longterm": true,
+                "required": true,
+                "show": "merchant_type>1"
+            },
+            {
+                "type": "line",
+                "content": "法人信息"
+            },
+            {
+                "name": "idcard_image",
+                "type": "image-upload",
+                "label": "身份证人像面照片",
+                "filesize": 2,
+                "filetype": "idcard",
+                "fileparam": {"pictureType": "1"},
+                "autofill": {
+                    "idcard_no": "id_no",
+                    "idcard_name": "name"
+                },
+                "tip": "请上传法人的身份证人像面照片",
+                "required": true
+            },
+            {
+                "name": "idcard_back_image",
+                "type": "image-upload",
+                "label": "身份证国徽面照片",
+                "filesize": 2,
+                "filetype": "idcard_back",
+                "fileparam": {"pictureType": "2"},
+                "autofill": {
+                    "idcard_period_begin": "period_begin",
+                    "idcard_period_end": "period_end"
+                },
+                "tip": "请上传法人的身份证国徽面照片",
+                "required": true
+            },
+            {
+                "name": "idcard_name",
+                "type": "input",
+                "label": "身份证姓名",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true
+            },
+            {
+                "name": "idcard_no",
+                "type": "input",
+                "label": "身份证号码",
+                "validator": "id",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true
+            },
+            {
+                "name": "idcard_period_begin",
+                "type": "date",
+                "label": "身份证有效期开始时间",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true
+            },
+            {
+                "name": "idcard_period_end",
+                "type": "date",
+                "label": "身份证有效期结束时间",
+                "placeholder": "上传身份证照片后自动填入",
+                "longterm": true,
+                "required": true
+            }
+        ],
+        [
+            {
+                "type": "line",
+                "content": "经营场所信息"
+            },
+            {
+                "name": "mcc",
+                "type": "cascader",
+                "label": "经营类目",
+                "options": "${mcc}",
+                "autofill": {
+                    "industry": "industry"
+                },
+                "required": true
+            },
+            {
+                "name": "industry",
+                "type": "hidden",
+                "label": "行业类别"
+            },
+            {
+                "name": "alias_name",
+                "type": "input",
+                "label": "商户简称",
+                "placeholder": "在支付账单页向买家展示",
+                "required": true
+            },
+            {
+                "name": "shop_address",
+                "type": "inputcity",
+                "label": "经营场所省市县",
+                "required": true,
+                "allnode": true
+            },
+            {
+                "name": "shop_address_detail",
+                "type": "input",
+                "label": "经营场所地址",
+                "placeholder": "请填写经营场所的详细地址",
+                "required": true
+            },
+            {
+                "name": "shop_entrance_pic",
+                "type": "image-upload",
+                "label": "经营场所门头照片",
+                "filesize": 2,
+                "fileparam": {"pictureType": "8"},
+                "tip": "门店招牌清晰、招牌名称、文字可辨识、门框完整，且店面显示在营",
+                "required": true
+            },
+            {
+                "name": "shop_indoor_pic",
+                "type": "image-upload",
+                "label": "经营场所内部照片",
+                "filesize": 2,
+                "fileparam": {"pictureType": "9"},
+                "tip": "能够展示内部环境并能辨识所经营的业务、销售商品/服务",
+                "required": true
+            },
+            {
+                "name": "shop_cashier_pic",
+                "type": "image-upload",
+                "label": "经营场所收银台照片",
+                "filesize": 2,
+                "fileparam": {"pictureType": "10"},
+                "tip": "上传经营场所收银台的照片",
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "线上产品信息",
+                "show": "industry=='线上'"
+            },
+            {
+                "name": "online_type",
+                "type": "radio",
+                "label": "线上产品类型",
+                "value": "02",
+                "options": [
+                    {
+                        "label": "APP",
+                        "value": "01"
+                    },
+                    {
+                        "label": "网站",
+                        "value": "02"
+                    },
+                    {
+                        "label": "公众号",
+                        "value": "03"
+                    }
+                ],
+                "show": "industry=='线上'",
+                "required": true
+            },
+            {
+                "name": "online_name",
+                "type": "input",
+                "label": "APP名称/网站网址/公众号名称",
+                "placeholder": "",
+                "show": "industry=='线上'",
+                "required": true
+            },
+            {
+                "name": "online_type_info",
+                "type": "input",
+                "label": "APP下载地址及账号信息",
+                "placeholder": "",
+                "show": "industry=='线上'"
+            },
+            {
+                "name": "icp_license_image",
+                "type": "image-upload",
+                "label": "ICP许可证或公众号主体信息截图",
+                "fileparam": {"pictureType": "19"},
+                "filesize": 2,
+                "show": "industry=='线上'"
+            },
+            {
+                "type": "line",
+                "content": "联系人信息"
+            },
+            {
+                "name": "contact_name",
+                "type": "input",
+                "label": "联系人姓名",
+                "placeholder": "",
+                "required": true
+            },
+            {
+                "name": "contact_phone",
+                "type": "input",
+                "label": "联系人手机号",
+                "validator": "phone",
+                "placeholder": "",
+                "required": true
+            },
+            {
+                "name": "contact_email",
+                "type": "input",
+                "label": "联系人邮箱",
+                "validator": "email",
+                "placeholder": "",
+                "required": true
+            }
+        ],
+        [
+            {
+                "type": "line",
+                "content": "结算银行账户"
+            },
+            {
+                "name": "settle_account_type",
+                "type": "radio",
+                "label": "结算账户类型",
+                "value": "2",
+                "options": [
+                    {
+                        "label": "对私",
+                        "value": "2"
+                    },
+                    {
+                        "label": "对公",
+                        "value": "1",
+                        "show": "merchant_type==3"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "name": "settle_account_nature",
+                "type": "radio",
+                "label": "结算账户性质",
+                "value": "1",
+                "options": [
+                    {
+                        "label": "法人账户",
+                        "value": "1"
+                    },
+                    {
+                        "label": "非法人账户",
+                        "value": "2",
+                        "show": "merchant_type!=1"
+                    }
+                ],
+                "show": "settle_account_type==2",
+                "required": true
+            },
+            {
+                "name": "account_name",
+                "type": "input",
+                "label": "开户名称",
+                "placeholder": "开户名称需与主体或法人一致",
+                "required": true
+            },
+            {
+                "name": "account_number",
+                "type": "input",
+                "label": "银行卡号",
+                "placeholder": "",
+                "required": true
+            },
+            {
+                "name": "bank_code",
+                "type": "select",
+                "label": "开户银行",
+                "placeholder": "请选择开户银行",
+                "options": "${bank}",
+                "required": true
+            },
+            {
+                "name": "bank_address",
+                "type": "cascader",
+                "label": "开户银行省市",
+                "options": "${city}",
+                "required": true
+            },
+            {
+                "name": "bank_branch_name",
+                "type": "hidden",
+                "label": "开户银行支行名称"
+            },
+            {
+                "name": "bank_branch_id",
+                "type": "bank-branch-select",
+                "label": "开户银行支行",
+                "placeholder": "请选择支行",
+                "param": {
+                    "bank_code": "bank_code",
+                    "city_code": "bank_address"
+                },
+                "autofill": {
+                    "bank_branch_name": "text"
+                },
+                "required": true
+            },
+            {
+                "name": "bank_phone",
+                "type": "input",
+                "label": "银行预留手机号",
+                "validator": "phone",
+                "placeholder": "",
+                "required": true,
+                "show": "settle_account_type==2"
+            },
+            {
+                "name": "bank_card_image",
+                "type": "image-upload",
+                "label": "银行卡正面照片",
+                "tip": "请上传结算银行卡的卡号面照片",
+                "filesize": 2,
+                "filetype": "bankcard",
+                "fileparam": {"pictureType": "16"},
+                "required": true,
+                "show": "settle_account_type==2"
+            },
+            {
+                "name": "bank_license_image",
+                "type": "image-upload",
+                "label": "对公账户开户许可证",
+                "tip": "对公结算必填",
+                "filesize": 2,
+                "filetype": "bankaccount",
+                "fileparam": {"pictureType": "3"},
+                "required": true,
+                "show": "settle_account_type==1"
+            },
+            {
+                "name": "settle_way",
+                "type": "radio",
+                "label": "结算方式",
+                "value": "02",
+                "options": [
+                    {
+                        "label": "T1",
+                        "value": "01"
+                    },
+                    {
+                        "label": "D1",
+                        "value": "02"
+                    }
+                ],
+                "required": true
+            },
+            {
+                "type": "line",
+                "content": "持卡人信息",
+                "show": "settle_account_type==2"
+            },
+            {
+                "name": "hold_idcard_image",
+                "type": "image-upload",
+                "label": "手持身份证（人像面）照片",
+                "tip": "对私结算必填",
+                "fileparam": {"pictureType": "23"},
+                "filesize": 2,
+                "required": true,
+                "show": "settle_account_type==2"
+            },
+            {
+                "name": "auth_idcard_image",
+                "type": "image-upload",
+                "label": "持卡人身份证人像面照片",
+                "filesize": 2,
+                "filetype": "idcard",
+                "fileparam": {"pictureType": "21"},
+                "autofill": {
+                    "auth_idcard_no": "id_no",
+                    "auth_idcard_name": "name"
+                },
+                "tip": "请上传持卡人的身份证人像面照片",
+                "required": true,
+                "show": "settle_account_type==2&&settle_account_nature==2"
+            },
+            {
+                "name": "auth_idcard_back_image",
+                "type": "image-upload",
+                "label": "持卡人身份证国徽面照片",
+                "filesize": 2,
+                "filetype": "idcard_back",
+                "fileparam": {"pictureType": "22"},
+                "autofill": {
+                    "auth_idcard_period_begin": "period_begin",
+                    "auth_idcard_period_end": "period_end"
+                },
+                "tip": "请上传持卡人的身份证国徽面照片",
+                "required": true,
+                "show": "settle_account_type==2&&settle_account_nature==2"
+            },
+            {
+                "name": "auth_idcard_name",
+                "type": "input",
+                "label": "持卡人身份证姓名",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true,
+                "show": "settle_account_type==2&&settle_account_nature==2"
+            },
+            {
+                "name": "auth_idcard_no",
+                "type": "input",
+                "label": "持卡人身份证号码",
+                "validator": "id",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true,
+                "show": "settle_account_type==2&&settle_account_nature==2"
+            },
+            {
+                "name": "auth_idcard_period_begin",
+                "type": "date",
+                "label": "持卡人身份证有效期开始",
+                "placeholder": "上传身份证照片后自动填入",
+                "required": true,
+                "show": "settle_account_type==2&&settle_account_nature==2"
+            },
+            {
+                "name": "auth_idcard_period_end",
+                "type": "date",
+                "label": "持卡人身份证有效期结束",
+                "placeholder": "上传身份证照片后自动填入",
+                "longterm": true,
+                "required": true,
+                "show": "settle_account_type==2&&settle_account_nature==2"
+            },
+            {
+                "name": "settle_auth_image",
+                "type": "image-upload",
+                "label": "结算授权书",
+                "tip": "对私非法人结算时必填",
+                "fileparam": {"pictureType": "20"},
+                "filesize": 2,
+                "note": "请下载<a href=\"/assets/files/hnapay/%E6%B3%95%E4%BA%BA%E6%8E%88%E6%9D%83%E5%A7%94%E6%89%98%E4%B9%A6-%E6%96%B0%E7%94%9F.docx\" target=\"_blank\">结算授权书模板</a>，填写并盖章后，拍照上传",
+                "required": true,
+                "show": "settle_account_type==2&&settle_account_nature==2"
+            },
+            {
+                "type": "line",
+                "content": "补充材料"
+            },
+            {
+                "name": "protocol_image",
+                "type": "image-upload",
+                "label": "商户协议图片",
+                "fileparam": {"pictureType": "14"},
+                "filesize": 2,
+                "note": "请下载<a href=\"/assets/files/hnapay/%E6%94%AF%E4%BB%98%E6%9C%8D%E5%8A%A1%E5%8D%8F%E8%AE%AE-%E6%96%B0%E7%94%9F.jpg\" target=\"_blank\">商户协议模板</a>，按照<a href=\"/assets/files/hnapay/%E6%94%AF%E4%BB%98%E6%9C%8D%E5%8A%A1%E5%8D%8F%E8%AE%AE-%E6%96%B0%E7%94%9F-%E7%A4%BA%E4%BE%8B.png\" target=\"_blank\">图示</a>填写并签字或盖章后，拍照上传",
+                "required": true
+            }
+        ]
+    ]
+}
