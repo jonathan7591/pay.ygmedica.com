@@ -11,7 +11,7 @@ switch($conf['user_style']){
 	case 5: $style=['bg-info','bg-info','bg-white']; break;
 	case 6: $style=['bg-primary','bg-primary','bg-dark']; break;
 	case 7: $style=['bg-primary','bg-primary','bg-white']; break;
-	default: $style=['bg-dark','bg-dark','bg-light']; break;
+	default: $style=['bg-black','bg-white','bg-black']; break;
 }
 $groupconfig = getGroupConfig($userrow['gid']);
 $conf = array_merge($conf, $groupconfig);
@@ -31,37 +31,6 @@ $conf = array_merge($conf, $groupconfig);
   <link rel="stylesheet" href="./assets/css/app.css" type="text/css" />
   <link rel="stylesheet" href="../assets/css/bootstrap-table.css?v=1"/>
 </head>
-<style>
-    .nav  li a{
-        color: white;
-    }
-   .nav  li a:hover,
-.nav  li a:focus {
-  color: #141719;
-  text-decoration: none;
-}
-@media (max-width: 767px) {
-    .user-info {
-        margin: 10px;
-        padding: 8px;
-        background-color: <?php echo $style[0]; ?>;
-    }
-    .user-avatar {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .user-details {
-        margin-left: 0;
-        margin-top: 10px;
-        font-size: 14px;
-    }
-    .thumb-sm.avatar {
-        margin-bottom: 10px;
-    }
-}
-
-</style>
 <body>
 <div class="app app-header-fixed  ">
   <!-- header -->
@@ -107,23 +76,23 @@ $conf = array_merge($conf, $groupconfig);
             <!-- dropdown -->
             <ul class="dropdown-menu animated fadeInRight w">
               <li>
-                <a href="index.php" style="color:black;">
+                <a href="index.php">
                   <span>用户中心</span>
                 </a>
               </li>
               <li>
-                <a href="editinfo.php " style="color:black;">
+                <a href="editinfo.php">
                   <span>修改资料</span>
                 </a>
               </li>
 			  <li>
-                <a href="userinfo.php?mod=account" style="color:black;">
+                <a href="userinfo.php?mod=account">
                   <span>修改密码</span>
                 </a>
               </li>
               <li class="divider"></li>
               <li>
-                <a ui-sref="access.signin" href="login.php?logout" style="color:black;">退出登录</a>
+                <a ui-sref="access.signin" href="login.php?logout">退出登录</a>
               </li>
             </ul>
             <!-- / dropdown -->
@@ -135,27 +104,10 @@ $conf = array_merge($conf, $groupconfig);
   </header>
   <!-- / header -->
   <!-- aside -->
-  <aside id="aside" class="app-aside hidden-xs <?php echo $style[4]?>" style="background-color:black;color:white;font-bold:weight;"> 
-  <!-- 侧边栏用户信息部分 -->
-<div class="user-info" style="margin: 15px; padding: 10px; background-color: <?php echo $style[0]; ?>; border-radius: 10px; color: #fff;">
-    <!-- 用户头像 -->
-    <div class="user-avatar" style="display: flex; align-items: center;">
-        <span class="thumb-sm avatar">
-            <img src="<?php echo ($userrow['qq']) ? '//q2.qlogo.cn/headimg_dl?bs=qq&dst_uin=' . $userrow['qq'] : 'assets/img/user.png'; ?>"
-                alt="User Avatar" class="img-circle" style="width: 60px; height: 40px; border-radius: 50%; border: 2px solid #fff;">
-        </span>
-        <!-- 用户名 -->
-        <div class="user-details" style="margin-left: 15px; font-size: 16px; font-weight: 500; text-transform: uppercase;">
-            <div class="username"><?php echo $userrow['username']; ?></div>
-            <div class="user-role" style="font-size: 12px; color: rgba(255, 255, 255, 0.7);"><?php echo $userrow['role'] ?? '普通用户'; ?></div>
-        </div>
-    </div>
-</div>
-
+  <aside id="aside" class="app-aside hidden-xs <?php echo $style[2]?>">
       <div class="aside-wrap">
-         
         <div class="navi-wrap">
-      
+
           <!-- nav -->
           <nav ui-nav class="navi clearfix">
             <ul class="nav">
@@ -271,12 +223,6 @@ $conf = array_merge($conf, $groupconfig);
               <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">          
                 <span>其他</span>
               </li>
-              <li class="<?php echo checkIfActive('applyments_merchant,applyments_form')?>">
-                <a href="applyments_merchant.php">
-                  <i class="fa fa-id-badge fa-fw"></i>
-                  <span>商户进件</span>
-                </a>
-              </li>
 			  <?php if($conf['user_transfer']==1){?>
               <li class="<?php echo checkIfActive('transfer,transfer_add')?>">
                 <a href="transfer.php">
@@ -325,41 +271,27 @@ $conf = array_merge($conf, $groupconfig);
 			  <?php }?>
             </ul>
           </nav>
-          <nav ui-nav class="navi clearfix">
-              <ui class="nav">
-              <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
-                  <span>设置</span>
-              </li>
-              <li style="padding-left:10px;">
-                 
-                <a ui-sref="access.signin" href="login.php?logout" >
-                    <i class="glyphicon glyphicon-log-out icon text-danger"></i>
-                    <span style="margin-left:10px;">安全退出</span>
-                </a>
-              </li>
-              </ui>
-          </nav>
           <!-- nav -->
 
           <!-- aside footer -->
-          <!--<div class="wrapper m-t">-->
-          <!--  <div class="text-center-folded">-->
-          <!--    <span class="pull-right pull-none-folded">60%</span>-->
-          <!--    <span class="hidden-folded">Milestone</span>-->
-          <!--  </div>-->
-          <!--  <div class="progress progress-xxs m-t-sm dk">-->
-          <!--    <div class="progress-bar progress-bar-info" style="width: 60%;">-->
-          <!--    </div>-->
-          <!--  </div>-->
-          <!--  <div class="text-center-folded">-->
-          <!--    <span class="pull-right pull-none-folded">35%</span>-->
-          <!--    <span class="hidden-folded">Release</span>-->
-          <!--  </div>-->
-          <!--  <div class="progress progress-xxs m-t-sm dk">-->
-          <!--    <div class="progress-bar progress-bar-primary" style="width: 35%;">-->
-          <!--    </div>-->
-          <!--  </div>-->
-          <!--</div>-->
+          <div class="wrapper m-t">
+            <div class="text-center-folded">
+              <span class="pull-right pull-none-folded">60%</span>
+              <span class="hidden-folded">Milestone</span>
+            </div>
+            <div class="progress progress-xxs m-t-sm dk">
+              <div class="progress-bar progress-bar-info" style="width: 60%;">
+              </div>
+            </div>
+            <div class="text-center-folded">
+              <span class="pull-right pull-none-folded">35%</span>
+              <span class="hidden-folded">Release</span>
+            </div>
+            <div class="progress progress-xxs m-t-sm dk">
+              <div class="progress-bar progress-bar-primary" style="width: 35%;">
+              </div>
+            </div>
+          </div>
           <!-- / aside footer -->
         </div>
       </div>

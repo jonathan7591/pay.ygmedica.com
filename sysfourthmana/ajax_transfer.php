@@ -30,8 +30,19 @@ case 'transferList':
 	$limit = intval($_POST['limit']);
 	$total = $DB->getColumn("SELECT count(*) from pre_transfer WHERE{$sql}");
 	$list = $DB->getAll("SELECT * FROM pre_transfer WHERE{$sql} order by biz_no desc limit $offset,$limit");
+	$list2 = [];
+	foreach($list as $row){
+		if($row['type'] == 'wxpay' && $row['status'] == 0 && !empty($row['ext'])){
+			if(substr($row['ext'], 0, 4) == 'http'){
+				$row['jumpurl'] = $row['ext'];
+			}else{
+				$row['jumpurl'] = $siteurl.'paypage/wxtrans.php?id='.$row['biz_no'].'&type=transfer';
+			}
+		}
+		$list2[] = $row;
+	}
 
-	exit(json_encode(['total'=>$total, 'rows'=>$list]));
+	exit(json_encode(['total'=>$total, 'rows'=>$list2]));
 break;
 
 case 'transfer_query':
@@ -44,6 +55,11 @@ case 'transfer_result':
     $row = $DB->find('transfer', 'biz_no,result', ['biz_no' => $biz_no]);
 	if(!$row) exit('{"code":-1,"msg":"付款记录不存在！"}');
 	$result = ['code'=>0,'msg'=>$row['result']?$row['result']:'未知'];
+	exit(json_encode($result));
+break;
+case 'transfer_cancel':
+	$biz_no=trim($_POST['biz_no']);
+	$result = \lib\Transfer::cancel($biz_no);
 	exit(json_encode($result));
 break;
 case 'balance_query':

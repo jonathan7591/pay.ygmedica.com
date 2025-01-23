@@ -65,19 +65,17 @@ if ($isqrcode && ($conf['cert_open']==1 || $conf['cert_open']==5)) {
 <div class="tab-container ng-isolate-scope">
 <ul class="nav nav-tabs">
 	<li style="width: 25%;" align="center">
-		<a href="userinfo.php?mod=api" style="color:black;">API信息</a>
+		<a href="userinfo.php?mod=api">API信息</a>
 	</li>
 	<li style="width: 25%;" align="center">
-		<a href="editinfo.php" style="color:black;">修改资料</a>
+		<a href="editinfo.php">修改资料</a>
 	</li>
 	<li style="width: 25%;" align="center">
-		<a href="userinfo.php?mod=account" style="color:black;">修改密码</a>
+		<a href="userinfo.php?mod=account">修改密码</a>
 	</li>
-	<?php if($conf['cert_channel']){?>
 	<li style="width: 25%;" align="center" class="active">
-		<a href="certificate.php" style="color:black;">实名认证</a>
+		<a href="certificate.php">实名认证</a>
 	</li>
-	<?php }?>
 </ul>
 <?php
 if($conf['cert_open']==2 && $userrow['cert']!=1){

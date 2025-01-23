@@ -67,7 +67,7 @@ if($admin_cdnpublic==1){
         <?php if($conf['reg_open']==2){?><li><a href="./invitecode.php">邀请码管理</a></li><?php }?>
             </ul>
           </li>
-		  <li class="<?php echo checkIfActive('pay_channel,pay_roll,pay_type,pay_plugin,pay_weixin,applyments_channel,applyments_merchant,applyments_form')?>">
+		  <li class="<?php echo checkIfActive('pay_channel,pay_roll,pay_type,pay_plugin,pay_weixin')?>">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-credit-card"></i> 支付接口<b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li><a href="./pay_channel.php">支付通道</a></li>
@@ -75,8 +75,6 @@ if($admin_cdnpublic==1){
 			  <li><a href="./pay_plugin.php">支付插件</a></li>
         <li><a href="./pay_roll.php">支付通道轮询</a></li>
         <li><a href="./pay_weixin.php">公众号小程序</a></li>
-        <li><a href="./applyments_channel.php">进件渠道管理</a></li>
-        <li><a href="./applyments_merchant.php">进件商户管理</a></li>
             </ul>
           </li>
 		  <li class="<?php echo checkIfActive('set,gonggao,set_wxkf')?>">
@@ -97,7 +95,7 @@ if($admin_cdnpublic==1){
         <li><a href="./set_wxkf.php">H5跳转微信客服支付</a></li>
             </ul>
           </li>
-		  <li class="<?php echo checkIfActive('clean,log,transfer,transfer_add,risk,export,ps_receiver,ps_order,gettoken,blacklist,complain,complain_info')?>">
+		  <li class="<?php echo checkIfActive('clean,log,transfer,transfer_add,risk,alipayrisk,export,ps_receiver,ps_order,gettoken,blacklist,complain,complain_info')?>">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cube"></i> 其他功能<b class="caret"></b></a>
             <ul class="dropdown-menu">
         <li><a href="./export.php">导出订单</a><li>
@@ -110,7 +108,6 @@ if($admin_cdnpublic==1){
         <li><a href="./ps_order.php">分账记录</a><li>
         <li><a href="./gettoken.php">获取用户标识</a><li>
         <li><a href="./blacklist.php">黑名单管理</a></li>
-        <li><a href="./complain.php">支付交易投诉</a></li>
             </ul>
           </li>
           <li><a href="./login.php?logout" onclick="return confirm('是否确定退出登录？')"><i class="fa fa-power-off"></i> 退出登录</a></li>

@@ -80,19 +80,23 @@ if(isset($_POST['submit'])){
 	$result = \lib\Transfer::submit($app, $channel, $out_biz_no, $payee_account, $payee_real_name, $money, $desc);
 
 	if($result['code']==0){
-		$data = ['biz_no'=>$out_biz_no, 'uid'=>$uid, 'type'=>$app, 'channel'=>$channelid, 'account'=>$payee_account, 'username'=>$payee_real_name, 'money'=>$money, 'costmoney'=>$need_money, 'paytime'=>'NOW()', 'pay_order_no'=>$result['orderid'], 'status'=>$result['status'], 'desc'=>$desc];
+		$paytime = $result['status'] == 1 ? 'NOW()' : null;
+		$data = ['biz_no'=>$out_biz_no, 'uid'=>$uid, 'type'=>$app, 'channel'=>$channelid, 'account'=>$payee_account, 'username'=>$payee_real_name, 'money'=>$money, 'costmoney'=>$need_money, 'addtime'=>'NOW()', 'paytime'=>$paytime, 'pay_order_no'=>$result['orderid'], 'status'=>$result['status'], 'desc'=>$desc];
+		if(isset($result['wxpackage'])) $data['ext'] = $result['wxpackage'];
 		if($DB->insert('transfer', $data)!==false){
 			changeUserMoney($uid, $need_money, false, '代付');
 		}
 		if($result['status'] == 1){
 			$result='转账成功！转账单据号:'.$result['orderid'].' 支付时间:'.$result['paydate'];
+		}elseif(isset($result['wxpackage'])){
+			$result='提交成功！请在付款记录页面扫描二维码确认收款，1天内未确认，将退还给商家。转账单据号:'.$result['orderid'].' 支付时间:'.$result['paydate'];
 		}else{
 			$result='提交成功！转账处理中，请稍后在代付管理页面查看结果。转账单据号:'.$result['orderid'].' 支付时间:'.$result['paydate'];
 		}
 		$_SESSION['transfer_desc'] = $desc;
 		showmsg($result,1,'./transfer.php');
 	}else{
-		$result='转账失败，接口返回错误信息：'.$result['msg'];
+		$result='转账失败，'.$result['msg'];
 		showmsg($result,4);
 	}
 }

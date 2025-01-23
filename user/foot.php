@@ -3,7 +3,7 @@
   <!-- footer -->
   <footer id="footer" class="app-footer" role="footer">
         <div class="wrapper b-t bg-light">
-      <span class="pull-right">Powered by <a href="/" target="_blank" style="color:black;"><?php echo $conf['sitename']?></a></span>
+      <span class="pull-right">Powered by <a href="/" target="_blank"><?php echo $conf['sitename']?></a></span>
     	&copy; 2016-<?php echo date("Y")?> Copyright.
     </div>
   </footer>

@@ -11,7 +11,7 @@ if(isset($_GET['invite'])){
 
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 
-if(empty($userrow['account']) || empty($userrow['username'])){
+if(!$conf['reg_input_settle'] && (empty($userrow['account']) || empty($userrow['username']))){
 	exit("<script language='javascript'>window.location.href='./completeinfo.php';</script>");
 }
 
@@ -48,41 +48,6 @@ include './head.php';
     border-radius: 50%;
     background: #e3dff9;
 }
-
-
-</style>
-<style>
-    .card {
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
-    .card-header {
-        background-color: #f7f7f7;
-        font-size: 18px;
-        font-weight: bold;
-        
-    }
-    .card-body {
-        background-color: #ffffff;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    .btn-block {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        font-size: 14px;
-    }
-    .mt-4 {
-        margin-top: 20px;
-    }
-    .text-success {
-        color: #28a745;
-    }
-    .text-danger {
-        color: #dc3545;
-    }
 </style>
 <?php
 $rs=$DB->query("SELECT * FROM pre_settle WHERE uid={$uid} AND status=1 ORDER BY id DESC LIMIT 9");
@@ -121,10 +86,6 @@ $list = $DB->getAll("SELECT * FROM pre_anounce WHERE status=1 ORDER BY sort ASC"
 <div class="bg-light lter b-b wrapper-md hidden-print">
   <h1 class="m-n font-thin h3">用户中心</h1>
   <small class="text-muted">欢迎使用<?php echo $conf['sitename']?></small>
-   <div class="time" style="float: right; font-size: 14px; color: #777;background-color:#33c2ff;color:white;padding:5px;border-radius:10px;">
-       当前时间：
-    <span id="current-date"></span>
-  </div>
 </div>
 <div class="wrapper-md control">
 <!-- stats -->
@@ -180,79 +141,47 @@ if(empty($userrow['pwd'])){
 			  </div>
             </div>
         </div>
-        <div class="row">
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading text-center">
-                <i class="fa fa-cogs"></i> 设置模块
-            </div>
-            <div class="panel-body">
-                <!-- 个人信息部分 -->
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fa fa-user"></i> 个人信息
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>用户名：</strong> <?php echo $userrow['username']; ?></p>
-                                <p><strong>商户状态：</strong> <?php echo $status; ?></p>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="./editinfo.php" class="btn btn-primary btn-block">修改资料</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+	      <div class="row">
+        <div class="col-md-6">
 
-                <!-- 安全设置部分 -->
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <i class="fa fa-lock"></i> 安全设置
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>API信息：</strong> <a href="./userinfo.php?mod=api" class="btn btn-danger btn-block">查看/修改API信息</a></p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>实名认证：</strong> 
-                                    <?php echo $userrow['cert'] == 1 ? '<span class="text-success">已认证</span>' : '<a href="certificate.php" class="btn btn-danger btn-block">未认证，点击认证</a>'; ?>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 支付设置部分 -->
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <i class="fa fa-credit-card"></i> 支付设置
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>支付状态：</strong> 
-                                    <?php echo $userrow['pay'] == 1 ? '<span class="text-success">开启</span>' : '<span class="text-danger">关闭</span>'; ?>
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>结算状态：</strong> 
-                                    <?php echo $userrow['settle'] == 1 ? '<span class="text-success">开启</span>' : '<span class="text-danger">关闭</span>'; ?>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 操作提示 -->
-                <div class="alert alert-info mt-4">
-                    <strong>温馨提示：</strong> 请确保您的个人资料和支付设置完善，以便您可以顺利进行交易和结算。
-                </div>
+		<div class="panel b-a">
+            <div class="panel-heading bg-info dk no-border wrapper-lg">
+              <a class="btn btn-sm btn-rounded btn-info pull-right m-r" href="./editinfo.php"><i class="fa fa-cog fa-fw"></i>&nbsp;修改资料</a>
+              <a class="btn btn-sm btn-rounded btn-info m-l" href="./userinfo.php?mod=api"><i class="fa fa-lock fa-fw"></i>&nbsp;API信息</a>
             </div>
-        </div>
-    </div>
-    <div class="col-md-6">
+            <div class="text-center m-b clearfix">
+              <div class="thumb-lg avatar m-t-n-xxl">
+                <img src="<?php echo ($userrow['qq'])?'//q2.qlogo.cn/headimg_dl?bs=qq&dst_uin='.$userrow['qq'].'&src_uin='.$userrow['qq'].'&fid='.$userrow['qq'].'&spec=100&url_enc=0&referer=bu_interface&term_type=PC':'assets/img/user.png'?>" alt="..." class="b b-3x b-white">
+              </div>
+			  <div class="h2 font-thin m-t-sm">欢迎您，<?php echo $userrow['username']?></div>
+			  <div class="h4 font-thin m-t-sm">商户状态：<?php echo $status;?></div>
+            </div>
+            <div class="hbox text-center b-t b-light bg-light">          
+              <a class="col padder-v text-muted b-r b-light">
+                <div class="h3"><span id="order_today_all"></span></div>
+                <i class="fa fa-plus fa-fw"></i><span>今日收入</span>
+              </a>
+              <a class="col padder-v text-muted">
+                <div class="h3"><span id="order_lastday_all"></span></div>
+                <i class="fa fa-plus-circle fa-fw"></i><span>昨日收入</span>
+              </a>
+            </div>
+          </div>
+
+		  <div class="panel panel-default text-center">
+		<div class="panel-heading font-bold">
+			收入统计与通道费率
+		</div>
+		<div class="table-responsive">
+		<table class="table table-striped">
+		<thead><tr id="paytypes"></tr></thead>
+		<tbody><tr id="order_today"></tr><tr id="order_lastday"></tr><tr id="payrates"></tr></tbody>
+		</table>
+		</div>
+		</div>
+
+		  </div>
+		<div class="col-md-6">
 
 		  <div class="panel panel-default">
 		<div class="panel-heading font-bold text-center">
@@ -288,127 +217,6 @@ if(empty($userrow['pwd'])){
             </div>
           </div>
         </div>
-</div>
-	    <div class="row">
-	     
-        <div class="col-md-6">
-
-		<!--<div class="panel b-a">-->
-  <!--          <div class="panel-heading bg-info dk no-border wrapper-lg">-->
-              <!--<a class="btn btn-sm btn-rounded btn-info pull-right m-r" href="./editinfo.php"><i class="fa fa-cog fa-fw"></i>&nbsp;修改资料</a>-->
-              <!--<a class="btn btn-sm btn-rounded btn-info m-l" href="./userinfo.php?mod=api"><i class="fa fa-lock fa-fw"></i>&nbsp;API信息</a>-->
-  <!--          </div>-->
-  <!--          <div class="text-center m-b clearfix">-->
-  <!--            <div class="thumb-lg avatar m-t-n-xxl">-->
-  <!--              <img src="<?php echo ($userrow['qq'])?'//q2.qlogo.cn/headimg_dl?bs=qq&dst_uin='.$userrow['qq'].'&src_uin='.$userrow['qq'].'&fid='.$userrow['qq'].'&spec=100&url_enc=0&referer=bu_interface&term_type=PC':'assets/img/user.png'?>" alt="..." class="b b-3x b-white">-->
-  <!--            </div>-->
-		<!--	  <div class="h2 font-thin m-t-sm">欢迎您，<?php echo $userrow['username']?></div>-->
-		<!--	  <div class="h4 font-thin m-t-sm">商户状态：<?php echo $status;?></div>-->
-  <!--          </div>-->
-  <!--          <div class="hbox text-center b-t b-light bg-light">          -->
-              <!--<a class="col padder-v text-muted b-r b-light">-->
-              <!--  <div class="h3"><span id="order_today_all"></span></div>-->
-              <!--  <i class="fa fa-plus fa-fw"></i><span>今日收入</span>-->
-              <!--</a>-->
-              <!--<a class="col padder-v text-muted">-->
-              <!--  <div class="h3"><span id="order_lastday_all"></span></div>-->
-              <!--  <i class="fa fa-plus-circle fa-fw"></i><span>昨日收入</span>-->
-              <!--</a>-->
-  <!--          </div>-->
-  <!--        </div>-->
-
-		  <div class="panel panel-default text-center">
-		<div class="panel-heading font-bold">
-			收入统计与通道费率
-		</div>
-		<div class="table-responsive">
-		    <div class="row">
-    <!-- 今日收入 -->
-    <div class="col-md-4">
-        <div class="panel panel-success">
-            <div class="panel-heading text-center">
-                <i class="fa fa-dollar-sign"></i> 今日收入
-            </div>
-            <div class="panel-body">
-                <div class="h1" id="order_today_all">￥0.00</div>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-success" style="width: 70%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 昨日收入 -->
-    <div class="col-md-4">
-        <div class="panel panel-warning">
-            <div class="panel-heading text-center">
-                <i class="fa fa-calendar-day"></i> 昨日收入
-            </div>
-            <div class="panel-body">
-                <div class="h1" id="order_lastday_all">￥0.00</div>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-warning" style="width: 55%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 今日订单数 -->
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading text-center">
-                <i class="fa fa-check-circle"></i> 今日订单数
-            </div>
-            <div class="panel-body">
-                <div class="h1" id="orders_today">0</div>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-default" style="width: 80%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-default">
-            <div class="panel-heading text-center">
-                <i class="fa fa-credit-card"></i> 通道费率
-            </div>
-            <div class="panel-body">
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th style="text-align:center;">通道</th>
-                                <th style="text-align:center;">今日收入</th>
-                                <th style="text-align:center;">昨日收入</th>
-                                <th style="text-align:center;">费率</th>
-                             
-                            </tr>
-                        </thead>
-                        <tbody id="paytypes">
-                            <!-- 动态加载数据 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-		<!--<table class="table table-striped">-->
-		<!--<thead><tr id="paytypes"></tr></thead>-->
-		<!--<tbody><tr id="order_today"></tr><tr id="order_lastday"></tr><tr id="payrates"></tr></tbody>-->
-		<!--</table>-->
-		</div>
-		</div>
-
-		  </div>
-		 
-		
-        
       </div>
       <!-- / stats -->
 </div>
@@ -417,30 +225,7 @@ if(empty($userrow['pwd'])){
 
 <?php include 'foot.php';?>
 <script>
-
-
 $(document).ready(function(){
-    // 获取当前日期
-    function updateDate() {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = (now.getMonth() + 1).toString().padStart(2, '0');
-    var day = now.getDate().toString().padStart(2, '0');
-    var hour = now.getHours().toString().padStart(2, '0');
-    var minute = now.getMinutes().toString().padStart(2, '0');
-    var second = now.getSeconds().toString().padStart(2, '0');
-
-    // 格式化为 YYYY-MM-DD HH:mm:ss
-    var dateString = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
-
-    // 更新页面上的日期显示
-    $('#current-date').text(dateString);
-}
-
-
-    // 页面加载后立即显示一次日期
-    updateDate();
-    
 	$.ajax({
 		type : "GET",
 		url : "ajax2.php?act=getcount",
@@ -452,34 +237,14 @@ $(document).ready(function(){
 			$('#settle_money').html(data.settle_money);
 			$('#order_today_all').html(data.order_today_all);
 			$('#order_lastday_all').html(data.order_lastday_all);
-// 			$.each(data.channels, function (i, item) {
-// 				$('#paytypes').append('<th style="text-align:center;"><img src="/assets/icon/'+item.name+'.ico" width="18px">&nbsp;'+item.showname+'</th>');
-// 			});
-// 			$.each(data.channels, function (i, item) {
-// 				$('#order_today').append('<td>今日：'+item.order_today+' 元</td>');
-// 				$('#order_lastday').append('<td>昨日：'+item.order_lastday+' 元</td>');
-// 				$('#payrates').append('<td>费率：'+item.rate+' %</td>');
-// 			});
-                    var payTypesHtml = '';
-                    $.each(data.channels, function(index, item) {
-                        var lastcome = item.order_lastday;//昨日收入
-                        var income = item.order_today; // 今日收入
-                        var rate = item.rate; // 费率
-                        
-                        
-                        payTypesHtml += '<tr>';
-                        payTypesHtml += '<td style="text-align:center;"><img src="/assets/icon/'+ item.name +'.ico" width="20" />&nbsp;' + item.showname + '</td>';
-                        payTypesHtml += '<td style="text-align:center;">￥' + income + '</td>';
-                        payTypesHtml += '<td style="text-align:center;">￥' + lastcome + '</td>';
-                        payTypesHtml += '<td style="text-align:center;">' + rate + '%</td>';
-                        payTypesHtml += '<td style="text-align:center;">';
-                    
-                        payTypesHtml += '</div>';
-                        payTypesHtml += '</td>';
-                        payTypesHtml += '</tr>';
-                    });
-                    $('#paytypes').html(payTypesHtml);
-                
+			$.each(data.channels, function (i, item) {
+				$('#paytypes').append('<th style="text-align:center;"><img src="/assets/icon/'+item.name+'.ico" width="18px">&nbsp;'+item.showname+'</th>');
+			});
+			$.each(data.channels, function (i, item) {
+				$('#order_today').append('<td>今日：'+item.order_today+' 元</td>');
+				$('#order_lastday').append('<td>昨日：'+item.order_lastday+' 元</td>');
+				$('#payrates').append('<td>费率：'+item.rate+' %</td>');
+			});
 		}
 	});
 	<?php if(!empty($conf['modal'])){?>

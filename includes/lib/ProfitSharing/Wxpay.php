@@ -95,7 +95,24 @@ class Wxpay implements IProfitSharing
 
     //分账回退
     public function return($trade_no, $api_trade_no, $account, $money){
-        return ['code'=>-1,'msg'=>'分账到个人账户不支持回退'];
+        $type = self::get_wxpay_account_type($account);
+        if($type == 'MERCHANT_ID'){
+            $params = [
+                'out_order_no' => $trade_no,
+                'out_return_no' => 'REF'.$trade_no,
+                'return_mchid' => $account,
+                'amount' => intval(round($money*100)),
+                'description' => '分账回退'
+            ];
+            try{
+                $this->service->return($params);
+                return ['code'=>0, 'msg'=>'分账回退成功'];
+            } catch (Exception $e) {
+                return ['code'=>-1, 'msg'=>$e->getMessage()];
+            }
+        }else{
+            return ['code'=>-1,'msg'=>'分账到个人账户不支持回退'];
+        }
     }
 
     //添加分账接收方

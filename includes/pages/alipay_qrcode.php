@@ -24,7 +24,6 @@ if(!defined('IN_PLUGIN'))exit();
 <div class="order">
 </div>
 <div class="amount">￥<?php echo $order['realmoney']?></div>
-
 <div class="qr-image" id="qrcode">
 </div>
 <div class="open_app" style="display: none;">

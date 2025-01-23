@@ -1,10 +1,9 @@
 <?php
 namespace kuaiqian;
 
-require __DIR__ . '/CryptoProcessor.php';
+require 'CryptoProcessor.php';
 
 use Exception;
-
 
 class PayApp
 {
@@ -38,7 +37,7 @@ class PayApp
 		//$apiurl = 'https://sandbox.99bill.com:7445/umgw/common/distribute.html';
 
 		$cryptoProcessor = new CryptoProcessor($this->merchat_key_path, $this->merchat_key_pwd, $this->platform_cert_path);
-        
+
 		//对明文body进行加密加签
         $salt = $head['memberCode'] . '_' . $this->getMillisecond();
         $body = json_encode($body,JSON_UNESCAPED_UNICODE);
@@ -98,7 +97,6 @@ class PayApp
 
 	public function notifyProcessComplain(&$result){
 		$json = file_get_contents('php://input');
-		
 		$requestMessage = json_decode($json,true);
 		if(!$requestMessage) throw new Exception('no data');
 		//对返回body解密验签，拿到原文
@@ -117,14 +115,12 @@ class PayApp
 		$body = [
 			'isReceived' => '1'
 		];
-		 file_put_contents(date('Ymd').'complain.txt',json_encode($result).PHP_EOL,FILE_APPEND);
 		//对明文body进行加密加签
         $salt = $head['memberCode'] . '_' . $this->getMillisecond();
         $body = json_encode($body,JSON_UNESCAPED_UNICODE);
         $response_Body_Final = $cryptoProcessor->seal($body,$salt);
         $response_Final['head'] = $head;
         $response_Final['responseBody'] = $response_Body_Final;
-       
 		return json_encode($response_Final);
 	}
 
@@ -139,69 +135,6 @@ class PayApp
 		$signstr = substr($signstr, 0, -1);
 		return $this->rsaPrivateSign($signstr);
 	}
-	
-	//飞快付MD5签名
-	public function generateFkfSign($param,$key){
-// 	    $signstr = '';
-        if(isset($param['returnUrl'])){
-           $param['returnUrl'] = urlencode($param['returnUrl']); 
-        }
- 	    
-// 		foreach($param as $k => $v){
-// 			if($k != "secretInfo" && $v!==''){
-// 				$signstr .= $k.'='.$v.'&';
-// 			}
-// 		}
-// 		$pingsignstr = $signstr.'&key='.$key;
-// 		$signstrs = strtoupper(md5($pingsignstr));
-// 		return $signstrs;
-        
-        // $param['returnUrl'] = urlencode($param['returnUrl']);
-        // $signParts = array();
-        // foreach ($param as $k => $v) {
-        //     if ($k != "secretInfo" && $v !== '') {
-        //         $signParts[] = $k . '=' . $v;
-        //     }
-        // }
-        // 对数组按键名进行自然排序
-        ksort($param);
-       // 2. 拼接键值对
-        $signstr = '';
-        foreach ($param as $k => $v) {
-            if ($v !== '' && $k != "termTxnTime") {  // 排除空值
-                $signstr .= $k . '=' . $v . '&';
-            }
-        }
-        
-        // 3. 去掉最后的 '&'
-        $signstr = rtrim($signstr, '&');
-        // 4. 在字符串末尾添加密钥
-        $signstr .= '&key=' . $key;
-       	file_put_contents('cs.txt',$signstr);
-        return strtoupper(md5($signstr));  // 返回大写的MD5签名
-        
-    //     $kq_all_para=$this->kq_ck_null($param['amt'],'amt');
-    // 	$kq_all_para.=$this->kq_ck_null($param['externalTraceNo'],'externalTraceNo');
-    // 	$kq_all_para.=$this->kq_ck_null($param['merchantCode'],'merchantCode');
-    // 	$kq_all_para.=$this->kq_ck_null($param['merchantId'],'merchantId');
-    // // 	$kq_all_para.=kq_ck_null($productInfo,'productInfo');
-    // 	$kq_all_para.=$this->kq_ck_null($param['requestTime'],'requestTime');
-    //  	$kq_all_para.=$this->kq_ck_null($param['returnUrl'],'returnUrl');
-    // // 	$kq_all_para.=kq_ck_null($param['terminalIP'],'terminalIP');
-    // 	$kq_all_para.=$this->kq_ck_null($param['terminalId'],'terminalId');
-    // 	//$kq_all_para.=kq_ck_null($txnExpireTime,'txnExpireTime');
-    // 	$kq_all_para=substr($kq_all_para,0,strlen($kq_all_para)-1);
-    	
-    //     $kq_all_para2 = '';
-    //     $kq_all_para2.=$kq_all_para.'&'.$this->kq_ck_null($key,'key');
-    	
-    // 	$kq_all_para2=substr($kq_all_para2,0,strlen($kq_all_para2)-1);
-    // 	file_put_contents('cs.txt',$kq_all_para2);
-    // 	$signval=strtoupper(md5($kq_all_para2));
-    // 	return $signval;
-	}
-	
-	static function kq_ck_null($kq_va,$kq_na){if($kq_va == ""){$kq_va="";}else{return $kq_va=$kq_na.'='.$kq_va.'&';}}
 
 	//回调验签
 	public function verifyNotify($param){
@@ -220,18 +153,13 @@ class PayApp
 
 	//商户私钥签名
 	private function rsaPrivateSign($data){
-	    file_put_contents('kq4.txt',$data);
 		$pkcs12 = file_get_contents($this->merchat_key_path);
         openssl_pkcs12_read($pkcs12, $keyarr, $this->merchat_key_pwd);
         $private_key = openssl_pkey_get_private($keyarr["pkey"]);
 		if(!$private_key){
-		   
 			throw new Exception('签名失败，商户私钥不正确');
 		}
-		
 		openssl_sign($data, $signature, $private_key, OPENSSL_ALGO_SHA256);
-		file_put_contents('kq5.txt',$pkcs12);
-		
         return base64_encode($signature);
 	}
 
@@ -300,7 +228,6 @@ class PayApp
 			curl_setopt($ch, CURLOPT_COOKIE, $cookie);
 		}
 		$data = curl_exec($ch);
-		file_put_contents('ch.txt',$url.'?'.$body.PHP_EOL,FILE_APPEND);
 		if (curl_errno($ch) > 0) {
             $errmsg = curl_error($ch);
             curl_close($ch);
@@ -311,33 +238,6 @@ class PayApp
         $body = substr($data, $headerSize);
         curl_close($ch);
         return [$header, $body];
-    }
-    
-    
-    public  function kq_curl($url,$str){
-        file_put_contents('refund.txt',$str.$url.PHP_EOL);
-        $user_agent = "Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)";
-   //     $header[] = "Content-Type: application/json;charset=utf-8";
-        $ch = curl_init();
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json; charset=utf-8"));
-        curl_setopt($ch, CURLOPT_URL,$url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,2);
-        curl_setopt($ch, CURLOPT_USERAGENT,$user_agent);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,false);
-
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $str);
-        $output = curl_exec($ch);
-        $httpCode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
-        // echo "<br/>"."httpCode:"."<br/>".$httpCode."<br/>";
-        //  echo($output);
-        if($httpCode!=200){
-            echo "curl_error:".curl_error($ch)."<br/>";
-        }
-
-        return json_decode($output,true);
-
     }
 
 	private function getMillisecond()

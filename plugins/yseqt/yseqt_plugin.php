@@ -33,10 +33,11 @@ class yseqt_plugin
 		'select_wxpay' => [
 			'1' => '公众号支付',
 			'2' => '小程序H5支付',
+			'3' => 'JS支付',
 		],
 		'select' => null,
 		'note' => '只能使用RSA证书！需要将商户私钥证书client.pfx（或商户号.pfx）上传到 /plugins/yseqt/cert 文件夹内', //支付密钥填写说明
-		'bindwxmp' => false, //是否支持绑定微信公众号
+		'bindwxmp' => true, //是否支持绑定微信公众号
 		'bindwxa' => false, //是否支持绑定微信小程序
 	];
 
@@ -51,7 +52,7 @@ class yseqt_plugin
 		}elseif($order['typename']=='wxpay'){
 			if(checkwechat()){
 				return ['type'=>'jump','url'=>'/pay/wxpay/'.TRADE_NO.'/'];
-			}elseif(checkmobile()){
+			}elseif(checkmobile() && (in_array('1',$channel['apptype']) || in_array('2',$channel['apptype']))){
 				return ['type'=>'jump','url'=>'/pay/wxwappay/'.TRADE_NO.'/'];
 			}else{
 				return ['type'=>'jump','url'=>'/pay/wxpay/'.TRADE_NO.'/'];
@@ -62,10 +63,10 @@ class yseqt_plugin
 	}
 
 	static public function mapi(){
-		global $siteurl, $channel, $order, $conf, $device, $mdevice;
+		global $siteurl, $channel, $order, $conf, $device, $mdevice, $method;
 
-		if($device == 'applet'){
-			return self::wxminipay();
+		if($method == 'applet'){
+			return self::wxapppay();
 		}elseif($order['typename']=='alipay'){
 			if($mdevice=='alipay' && in_array('2',$channel['apptype'])){
 				return self::alipaywap();
@@ -143,6 +144,44 @@ class yseqt_plugin
         });
 	}
 
+	//聚合JS支付
+	static private function jsPay($bankType, $payMode, $openid = null, $appid = null){
+		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
+
+		require(PAY_ROOT."inc/YseqtClient.php");
+
+		$params = [
+			'requestNo' => TRADE_NO,
+			'payeeMerchantNo' => $channel['appmchid'],
+			'orderDesc' => $ordername,
+			'amount' => $order['realmoney'],
+			'bankType' => $bankType,
+			'payMode' => $payMode,
+			'notifyUrl' => $conf['localurl'] . 'pay/notify/' . TRADE_NO . '/',
+		];
+		if($payMode == '28' || $payMode == '29'){
+			$params['wxAppId'] = $appid;
+			$params['wxOpenId'] = $openid;
+		}elseif($payMode == '26'){
+			$params['alipayId'] = $openid;
+		}elseif($payMode == '30'){
+			$params['unionUserId'] = $openid;
+		}
+		if($order['profits'] > 0){
+			$params['isDivision'] = 'Y';
+		}
+
+		$client = new YseqtClient($channel['appid'], $channel['appkey']);
+		return \lib\Payment::lockPayData(TRADE_NO, function () use ($client, $params) {
+            $result = $client->execute('jsPay', $params);
+			if($result['subCode'] == 'COM000'||$result['subCode'] == 'COM004'){
+				return $result['payData'];
+			}else{
+				throw new Exception($result['subMsg']);
+			}
+        });
+	}
+
 	//支付宝扫码支付
 	static public function alipay(){
 		global $channel, $siteurl, $mdevice;
@@ -188,8 +227,10 @@ class yseqt_plugin
 			}catch(Exception $ex){
 				return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
 			}
-		}else{
+		}elseif(in_array('1',$channel['apptype'])){
 			$code_url = $siteurl.'pay/wxwappay/'.TRADE_NO.'/';
+		}else{
+			$code_url = $siteurl.'pay/wxjspay/'.TRADE_NO.'/';
 		}
 
 		if (checkwechat() || $mdevice=='wechat') {
@@ -212,7 +253,7 @@ class yseqt_plugin
 			}
 			return ['type'=>'scheme','page'=>'wxpay_mini','url'=>$code_url];
 		}
-		else{
+		elseif(in_array('1',$channel['apptype'])){
 			try{
 				$code_url = self::cashierPay('28');
 			}catch(Exception $ex){
@@ -226,15 +267,71 @@ class yseqt_plugin
 		}
 	}
 
+	//微信公众号支付
+	static public function wxjspay(){
+		global $siteurl, $channel, $order, $ordername, $conf;
+
+		//①、获取用户openid
+		$wxinfo = \lib\Channel::getWeixin($channel['appwxmp']);
+		if(!$wxinfo) return ['type'=>'error','msg'=>'支付通道绑定的微信公众号不存在'];
+		try{
+			$tools = new \WeChatPay\JsApiTool($wxinfo['appid'], $wxinfo['appsecret']);
+			$openid = $tools->GetOpenid();
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		$blocks = checkBlockUser($openid, TRADE_NO);
+		if($blocks) return $blocks;
+
+		//②、统一下单
+		try{
+			$paydata = self::jsPay('1902000', '28', $openid, $wxinfo['appid']);
+		}catch(Exception $ex){
+			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
+		}
+		
+		if($_GET['d']==1){
+			$redirect_url='data.backurl';
+		}else{
+			$redirect_url='\'/pay/ok/'.TRADE_NO.'/\'';
+		}
+		return ['type'=>'page','page'=>'wxpay_jspay','data'=>['jsApiParameters'=>$paydata, 'redirect_url'=>$redirect_url]];
+	}
+
 	//微信小程序支付
 	static public function wxminipay(){
 		global $siteurl,$channel, $mdevice;
+		$code = isset($_GET['code'])?trim($_GET['code']):exit('{"code":-1,"msg":"code不能为空"}');
+	
+		//①、获取用户openid
+		$wxinfo = \lib\Channel::getWeixin($channel['appwxa']);
+		if(!$wxinfo)exit('{"code":-1,"msg":"支付通道绑定的微信小程序不存在"}');
 		try{
-			$paydata = self::cashierPay('29');
+			$tools = new \WeChatPay\JsApiTool($wxinfo['appid'], $wxinfo['appsecret']);
+			$openid = $tools->AppGetOpenid($code);
+		}catch(Exception $e){
+			exit('{"code":-1,"msg":"'.$e->getMessage().'"}');
+		}
+		$blocks = checkBlockUser($openid, TRADE_NO);
+		if($blocks)exit('{"code":-1,"msg":"'.$blocks['msg'].'"}');
+
+		//②、统一下单
+		try{
+			$paydata = self::jsPay('1902000', '29', $openid, $wxinfo['appid']);
 		}catch(Exception $ex){
 			exit('{"code":-1,"msg":"'.$ex->getMessage().'"}');
 		}
-		exit(json_encode(['code'=>0, 'data'=>$paydata]));
+		exit(json_encode(['code'=>0, 'data'=>json_decode($paydata, true)]));
+	}
+
+	//微信APP支付
+	static public function wxapppay(){
+		try{
+			$paydata = self::cashierPay('29');
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		return ['type'=>'wxapp','data'=>['appId'=>'wx05e71f6f41f6b9b4', 'miniProgramId'=>'gh_d27d42772cd8', 'path'=>'pages/index/index', 'extraData'=>json_decode($paydata, true)]];
 	}
 
 	//云闪付扫码支付
@@ -306,7 +403,7 @@ class yseqt_plugin
 			'isDivision' => 'N'
 		];
 		if($order['profits'] > 0){
-			$psorder = $DB->getRow("SELECT A.*,B.channel,B.account,B.name FROM pre_psorder A LEFT JOIN pre_psreceiver B ON A.rid=B.id WHERE A.trade_no=:trade_no", [':trade_no'=>$order['trade_no']]);
+			$psorder = $DB->getRow("SELECT A.*,B.channel,B.account FROM pre_psorder A LEFT JOIN pre_psreceiver B ON A.rid=B.id WHERE A.trade_no=:trade_no", [':trade_no'=>$order['trade_no']]);
 			if($psorder && ($psorder['status'] == 1 || $psorder['status'] == 2)){
 				$params['isDivision'] = 'Y';
 				$refundSplitInfo = [

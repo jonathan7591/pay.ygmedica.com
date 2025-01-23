@@ -37,7 +37,7 @@ class ShengPayClient
         $response = get_curl($requrl, json_encode($params), 0, 0, 0, 0, 0, ['Content-Type: application/json; charset=utf-8']);
         $result = json_decode($response, true);
 		if(isset($result['returnCode']) && $result['returnCode']=='SUCCESS'){
-			if($result['resultCode'] = 'SUCCESS'){
+			if($result['resultCode'] == 'SUCCESS'){
 				if(isset($result['sign'])){
 					if(!$this->verifySign($result)){
 						throw new Exception('返回数据验签失败');

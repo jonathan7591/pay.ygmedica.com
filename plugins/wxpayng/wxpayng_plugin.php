@@ -32,7 +32,7 @@ class wxpayng_plugin
 			'publickeyid' => [
 				'name' => '微信支付公钥ID',
 				'type' => 'input',
-				'note' => '',
+				'note' => '平台证书模式可留空',
 			],
 			'appurl' => [
 				'name' => '商户行业编码',
@@ -41,10 +41,9 @@ class wxpayng_plugin
 			],
 		],
 		'select' => [ //选择已开启的支付方式
-			'1' => '扫码支付',
-			'2' => '公众号支付',
+			'1' => 'Native支付',
+			'2' => 'JSAPI支付',
 			'3' => 'H5支付',
-			'4' => '小程序支付',
 			'5' => 'APP支付',
 		],
 		'note' => '<p>请将商户API私钥“apiclient_key.pem”、微信支付平台公钥“pub_key.pem”放到 /plugins/wxpayng/cert/ 文件夹内（或 /plugins/wxpayng/cert/商户号/ 文件夹内）。</p><p>上方APPID填写公众号或小程序的皆可，需要在微信支付后台关联对应的公众号或小程序才能使用。无认证的公众号或小程序无法发起支付！</p><p><a href="https://pay.weixin.qq.com/wiki/doc/api_external/ch/terms_definition/chapter1_1_1.shtml#part-7" target="_blank">商户行业编码表</a></p>', //支付密钥填写说明
@@ -61,9 +60,9 @@ class wxpayng_plugin
         }
 		
 		if(checkwechat()){
-			if(in_array('2',$channel['apptype'])){
+			if(in_array('2',$channel['apptype']) && $channel['appwxmp']>0){
 				return ['type'=>'jump','url'=>$urlpre.'pay/jspay/'.TRADE_NO.'/?d=1'];
-			}elseif(in_array('4',$channel['apptype'])){
+			}elseif(in_array('2',$channel['apptype']) && $channel['appwxa']>0){
 				return ['type'=>'jump','url'=>$urlpre.'pay/wap/'.TRADE_NO.'/'];
 			}elseif(in_array('1',$channel['apptype']) && $conf['wework_payopen'] == 1){
 				return ['type'=>'jump','url'=>'/pay/qrcode/'.TRADE_NO.'/'];
@@ -78,7 +77,7 @@ class wxpayng_plugin
 				return ['type'=>'jump','url'=>$urlpre.'pay/h5/'.TRADE_NO.'/'];
 			}elseif(in_array('5',$channel['apptype']) && strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone OS')!==false){
 				return ['type'=>'jump','url'=>$urlpre.'pay/apppay/'.TRADE_NO.'/'];
-			}elseif(in_array('2',$channel['apptype']) || in_array('4',$channel['apptype'])){
+			}elseif(in_array('2',$channel['apptype']) && ($channel['appwxmp']>0 || $channel['appwxa']>0)){
 				return ['type'=>'jump','url'=>$urlpre.'pay/wap/'.TRADE_NO.'/'];
 			}else{
 				return ['type'=>'jump','url'=>'/pay/qrcode/'.TRADE_NO.'/'];
@@ -96,7 +95,9 @@ class wxpayng_plugin
 			$urlpre = $conf['localurl_wxpay'];
 		}
 
-		if($method=='app'){
+		if($method == 'applet' && in_array('2',$channel['apptype'])){
+			return self::applet();
+		}elseif($method=='app'){
 			return self::apppay();
 		}elseif($method=='jsapi'){
 			return self::jspay();
@@ -104,9 +105,9 @@ class wxpayng_plugin
 			return self::scanpay();
 		}
 		elseif($mdevice=='wechat'){
-			if(in_array('2',$channel['apptype'])){
+			if(in_array('2',$channel['apptype']) && $channel['appwxmp']>0){
 				return ['type'=>'jump','url'=>$urlpre.'pay/jspay/'.TRADE_NO.'/?d=1'];
-			}elseif(in_array('4',$channel['apptype'])){
+			}elseif(in_array('2',$channel['apptype']) && $channel['appwxa']>0){
 				return self::wap();
 			}else{
 				return ['type'=>'jump','url'=>$siteurl.'pay/submit/'.TRADE_NO.'/'];
@@ -118,7 +119,7 @@ class wxpayng_plugin
 				return ['type'=>'jump','url'=>$urlpre.'pay/h5/'.TRADE_NO.'/'];
 			}elseif(in_array('5',$channel['apptype'])){
 				return ['type'=>'jump','url'=>$urlpre.'pay/submit/'.TRADE_NO.'/'];
-			}elseif(in_array('2',$channel['apptype']) || in_array('4',$channel['apptype'])){
+			}elseif(in_array('2',$channel['apptype']) && ($channel['appwxmp']>0 || $channel['appwxa']>0)){
 				return self::wap();
 			}else{
 				return self::qrcode();
@@ -157,9 +158,9 @@ class wxpayng_plugin
 			return ['type'=>'error','msg'=>'微信支付下单失败！'.$e->getMessage()];
 		}
 
-		}elseif(in_array('2',$channel['apptype'])){
+		}elseif(in_array('2',$channel['apptype']) && $channel['appwxmp']>0){
 			$code_url = $siteurl.'pay/jspay/'.TRADE_NO.'/';
-		}elseif(in_array('4',$channel['apptype'])){
+		}elseif(in_array('2',$channel['apptype']) && $channel['appwxa']>0){
 			$code_url = $siteurl.'pay/wap/'.TRADE_NO.'/';
 		}else{
 			return ['type'=>'error','msg'=>'当前支付通道没有开启的支付方式'];
@@ -239,7 +240,7 @@ class wxpayng_plugin
 	static public function wap(){
 		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
 		
-		if(in_array('4',$channel['apptype']) && !isset($_GET['qrcode'])){
+		if($channel['appwxa']>0 && !isset($_GET['qrcode'])){
 			try{
 				$wxinfo = \lib\Channel::getWeixin($channel['appwxa']);
 				if(!$wxinfo)return ['type'=>'error','msg'=>'支付通道绑定的微信小程序不存在'];
@@ -419,6 +420,7 @@ class wxpayng_plugin
 					}elseif($result['trade_state'] != 'USERPAYING'){
 						return ['type'=>'error','msg'=>'微信支付失败！'.$result['trade_state_desc']];
 					}
+					$retry++;
 				}
 				if($success){
 					processNotify($order, $result['id'], $result['payer']['openid']);
@@ -436,6 +438,19 @@ class wxpayng_plugin
 		}catch(Exception $e){
 			return ['type'=>'error','msg'=>'微信支付下单失败！'.$e->getMessage()];
 		}
+	}
+
+	//小程序跳转支付
+	static public function applet(){
+		global $channel;
+		try{
+			$wxinfo = \lib\Channel::getWeixin($channel['appwxa']);
+			if(!$wxinfo)return ['type'=>'error','msg'=>'支付通道绑定的微信小程序不存在'];
+			$path = wxminipay_jump_path(TRADE_NO);
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		return ['type'=>'wxapp','data'=>['appId'=>$wxinfo['appid'], 'miniProgramId'=>'', 'path'=>$path]];
 	}
 
 	//支付成功页面

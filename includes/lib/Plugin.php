@@ -38,8 +38,7 @@ class Plugin {
 
 	static public function loadForPay($s){
 		global $DB,$conf,$order,$channel,$ordername;
-      //'/^([a-zA-Z0-9_]+)\/([a-zA-Z0-9]+)\/$/'旧 /^(.[a-zA-Z0-9]+)\/([0-9]+)\/$/
-		if(preg_match('/^([a-zA-Z0-9_]+)\/([a-zA-Z0-9]+)\/$/',$s, $matchs)){
+		if(preg_match('/^(.[a-zA-Z0-9]+)\/([0-9]+)\/$/',$s, $matchs)){
 			$func = $matchs[1];
 			$trade_no = $matchs[2];
 			
@@ -58,6 +57,7 @@ class Plugin {
 	
 				if(!empty($userrow['ordername']))$conf['ordername']=$userrow['ordername'];
 				$ordername = !empty($conf['ordername'])?ordername_replace($conf['ordername'],$order['name'],$order['uid'],$trade_no,$order['out_trade_no']):$order['name'];
+				$order['plugin'] = $channel['plugin'];
 			}
 
 			$result = self::loadClass($channel['plugin'], $func, $trade_no);

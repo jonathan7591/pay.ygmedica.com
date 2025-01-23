@@ -36,11 +36,11 @@ if($my=='add')
 <h4><font color="blue">基本信息</font></h4>
 <div class="form-group">
 <label>手机号(登录账号):</label><br>
-<input type="text" class="form-control" name="phone" value="" placeholder="可留空">
+<input type="text" class="form-control" name="phone" value="" placeholder="和邮箱不能同时为空">
 </div>
 <div class="form-group">
 <label>邮箱(登录账号):</label><br>
-<input type="text" class="form-control" name="email" value="" placeholder="可留空">
+<input type="text" class="form-control" name="email" value="" placeholder="和手机号不能同时为空">
 </div>
 <div class="form-group">
 <label>登录密码:</label><br>
@@ -63,12 +63,12 @@ if($my=='add')
 <label>结算方式:</label><br><select class="form-control" name="settle_id"><?php echo $settle_select?></select>
 </div>
 <div class="form-group">
-<label>*结算账号:</label><br>
-<input type="text" class="form-control" name="account" value="" required>
+<label>结算账号:</label><br>
+<input type="text" class="form-control" name="account" value="" placeholder="不使用平台代收可留空">
 </div>
 <div class="form-group">
-<label>*结算账号姓名:</label><br>
-<input type="text" class="form-control" name="username" value="" required>
+<label>结算账号姓名:</label><br>
+<input type="text" class="form-control" name="username" value="" placeholder="不使用平台代收可留空">
 </div>
 <h4><font color="blue">功能开关</font></h4>
 <div class="form-group">
@@ -117,11 +117,11 @@ $group=\lib\Channel::getGroup($row['gid']);
 <h4><font color="blue">基本信息</font></h4>
 <div class="form-group">
 <label>手机号(登录账号):</label><br>
-<input type="text" class="form-control" name="phone" value="<?php echo $row['phone']?>" placeholder="可留空">
+<input type="text" class="form-control" name="phone" value="<?php echo $row['phone']?>" placeholder="和邮箱不能同时为空">
 </div>
 <div class="form-group">
 <label>邮箱(登录账号):</label><br>
-<input type="text" class="form-control" name="email" value="<?php echo $row['email']?>" placeholder="可留空">
+<input type="text" class="form-control" name="email" value="<?php echo $row['email']?>" placeholder="和手机号不能同时为空">
 </div>
 <div class="form-group">
 <label>商户余额:</label><br>
@@ -144,17 +144,21 @@ $group=\lib\Channel::getGroup($row['gid']);
 <input type="text" class="form-control" name="ordername" value="<?php echo $row['ordername']?>" placeholder="默认以系统设置里面的为准">
 <font color="green">支持变量值：[name]原商品名称，[order]支付订单号，[outorder]商户订单号，[time]时间戳，[qq]当前商户的联系QQ</font>
 </div>
+<div class="form-group">
+<label>预留余额:</label><br>
+<input type="text" class="form-control" name="remain_money" value="<?php echo $row['remain_money']?>" placeholder="可设置预留部分商户余额不参与每日自动结算">
+</div>
 <h4><font color="blue">结算信息</font></h4>
 <div class="form-group">
 <label>结算方式:</label><br><select class="form-control" name="settle_id" default="<?php echo $row['settle_id']?>"><?php echo $settle_select?></select>
 </div>
 <div class="form-group">
 <label>结算账号:</label><br>
-<input type="text" class="form-control" name="account" value="<?php echo $row['account']?>" required>
+<input type="text" class="form-control" name="account" value="<?php echo $row['account']?>" placeholder="不使用平台代收可留空">
 </div>
 <div class="form-group">
 <label>结算账号姓名:</label><br>
-<input type="text" class="form-control" name="username" value="<?php echo $row['username']?>" required>
+<input type="text" class="form-control" name="username" value="<?php echo $row['username']?>" placeholder="不使用平台代收可留空">
 </div>
 </div>
 <div class="col-sm-12 col-md-6">

@@ -306,8 +306,9 @@ class passpay_plugin
 			if ($_POST['order_status'] == 'SUCCESS') {
 				$out_trade_no = $_POST['out_trade_no'];
 				$trade_no = $_POST['trade_no'];
+				$bill_trade_no = $_POST['channel_order_sn'];
 				if($out_trade_no == TRADE_NO){
-					processNotify($order, $trade_no);
+					processNotify($order, $trade_no, null, $bill_trade_no);
 				}
 				return ['type'=>'html','data'=>'success'];
 			}

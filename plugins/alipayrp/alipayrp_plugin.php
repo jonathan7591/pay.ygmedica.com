@@ -82,6 +82,7 @@ class alipayrp_plugin
 					$openid = $result['user_id'];
 					$openid_type = 'userid';
 				}else{
+					return ['type'=>'error','msg'=>'支付宝快捷登录获取uid失败，需将用户标识切换到uid模式'];
 					$openid = $result['open_id'];
 					$openid_type = 'openid';
 				}

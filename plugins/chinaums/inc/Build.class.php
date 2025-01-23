@@ -29,17 +29,38 @@ class ChinaumsBuild
 		return $arr;
 	}
 
+	// 发起支付GET
+	public function requestGet($path, $params, $time){
+		$url = $this->gateway.$path;
+		$json = json_encode($params);
+		$query = [
+			'authorization' => 'OPEN-FORM-PARAM',
+			'appId' => $this->appid,
+			'timestamp' => date('YmdHis', $time),
+			'nonce' => md5(uniqid(mt_rand(), true)),
+			'content' => $json
+		];
+		$query['signature'] = $this->getSignature($query['timestamp'], $query['nonce'], $query['content']);
+		return $url . '?' . http_build_query($query);
+	}
+
 	// 获取Authorization
-	private function getOpenBodySig($json, $time){
+	private function getOpenBodySig($body, $time){
 
 		$timestamp = date('YmdHis', $time);
 		$nonce = md5(uniqid(mt_rand(), true));
-		$hash = hash('sha256', $json);
+		$signature = $this->getSignature($timestamp, $nonce, $body);
+		$authorization = 'OPEN-BODY-SIG AppId="'.$this->appid.'", Timestamp="'.$timestamp.'", Nonce="'.$nonce.'", Signature="'.$signature.'"';
+		return $authorization;
+	}
+
+	// 获取Signature
+	private function getSignature($timestamp, $nonce, $body){
+		$hash = hash('sha256', $body);
 		$str = $this->appid.$timestamp.$nonce.$hash;
 		$hash = hash_hmac('sha256', $str, $this->appkey, true);
 		$signature = base64_encode($hash);
-		$authorization = 'OPEN-BODY-SIG AppId="'.$this->appid.'", Timestamp="'.$timestamp.'", Nonce="'.$nonce.'", Signature="'.$signature.'"';
-		return $authorization;
+		return $signature;
 	}
 
 	// 发送请求
@@ -70,80 +91,31 @@ class ChinaumsBuild
 
 	// 回调签名验证
 	public function verify($params, $key){
-	
-		$sign = $this->makeSign($key,$params);
+		$sign = $this->getSign($params, $key, $params['signType']);
 		if($sign === $params['sign']){
 			return true;
 		}
-		return true;
+		return false;
 	}
 
 	// 计算签名
 	private function getSign($params, $key, $signType){
 		ksort($params);
 		$signstr = '';
-	   
+	
 		foreach($params as $k => $v){
 			if($k != "sign" && $v!=''){
 				$signstr .= $k.'='.$v.'&';
 			}
 		}
-			
 		$signstr = substr($signstr, 0, -1);
-	
 		$signstr = $signstr.$key;
-// 	 var_dump($signstr);
 		if($signType == 'SHA256'){
 			$sign = strtoupper(hash('sha256', $signstr));
-			
 		}else{
 			$sign = strtoupper(md5($signstr));
 		}
 		return $sign;
 	}
-	
-	private function makeSign($md5Key, $params) {
-        $str = $this->buildSignStr($params) . $md5Key;
-        // var_dump($str);
-        //file_put_contents('log.txt', "待验签字符串:".$str."\r\n", FILE_APPEND);
-        //console("待验签字符串:".$str."\r\n");
-        if($params['signType']=='SHA256'){
-            // var_dump(strtoupper(hash('sha256',$str)));
-            return strtoupper(hash('sha256',$str));
-        }
-        return strtoupper(hash('md5',$str));
-  }
-	
-	// 获取加密的参数字符串
-    private function buildSignStr($params) {
-        $keys = [];
-        foreach($params as $key => $value) {
-            if ($key == 'sign'||is_null($value)) {
-                continue;
-            }
-            array_push($keys, $key);
-        }
-        $str = '';
-        sort($keys);
-        $len = count($keys);
-        for($i = 0; $i < $len; $i++) {
-            $v = $params[$keys[$i]];
-            if (is_array($v)) {
-                $v = json_encode($v);
-            }
-            $str .= $keys[$i] . '=' . $v . (($i === $len -1) ? '' : "&");
-        }
-        return $str;
-    }
-	
-	//h5签名
-    private function getSignature($timestamp,$nonce,$body){
-        $appid= $this->appid;
-        $appkey= $this->appkey;
-        $str = bin2hex(hash('sha256', $body, true));
-        // echo "$appid$timestamp$nonce$str"."\r\n";
-        $signature = base64_encode(hash_hmac('sha256', "$appid$timestamp$nonce$str", $appkey, true));
-    	return $signature;
-    }
 	
 }

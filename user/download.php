@@ -10,8 +10,9 @@ switch($act){
 case 'wximg':
 	if(!checkRefererHost())exit();
 	$channelid = intval($_GET['channel']);
+	$subchannelid = intval($_GET['subchannel']);
 	$media_id = $_GET['mediaid'];
-	$channel=\lib\Channel::get($channelid);
+	$channel = $subchannelid ? \lib\Channel::getSub($subchannelid) : \lib\Channel::get($channelid);
 	$model = \lib\Complain\CommUtil::getModel($channel);
 	$image = $model->getImage($media_id);
 	if($image !== false){

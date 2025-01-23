@@ -26,7 +26,7 @@ class fubei_plugin
 			],
 		],
 		'select' => null,
-		'note' => '', //支付密钥填写说明
+		'note' => '如果是微信支付，需要<a href="./plugin_page.php?channel=[channel]&func=wxconfig" target="_blank">配置绑定AppId和支付目录</a>', //支付密钥填写说明
 		'bindwxmp' => true, //是否支持绑定微信公众号
 		'bindwxa' => false, //是否支持绑定微信小程序
 	];
@@ -48,9 +48,12 @@ class fubei_plugin
 	}
 
 	static public function mapi(){
-		global $siteurl, $channel, $order, $conf, $device, $mdevice;
+		global $siteurl, $channel, $order, $conf, $device, $mdevice, $method;
 
-		if($order['typename']=='alipay'){
+		if($method == 'applet'){
+			return self::wxplugin();
+		}
+		elseif($order['typename']=='alipay'){
 			return self::alipay();
 		}elseif($order['typename']=='wxpay'){
 			if($mdevice=='wechat'){
@@ -227,40 +230,56 @@ class fubei_plugin
 		return ['type'=>'page','page'=>'wxpay_jspay','data'=>['jsApiParameters'=>json_encode($retData['sign_package']), 'redirect_url'=>$redirect_url]];
 	}
 
-	//微信参数配置
-	static public function wxconfig(){
-		global $siteurl,$channel;
-
-		require_once(PAY_ROOT.'inc/FubeiClient.class.php');
-		$client = new FubeiClient($channel['appid'], $channel['appkey']);
-
-		$bizContent=[
-			'store_id' => $channel['appmchid'],
-			'jsapi_path' => $siteurl
-		];
+	//微信小程序插件支付
+	static public function wxplugin(){
+		$appId = 'wx21efb7c54d4729d6';
 		try{
-			$retData = $client->execute('fbpay.order.wxconfig', $bizContent);
-			return ['type'=>'error','msg'=>$retData['jsapi_msg']];
+			$result = self::addOrder('wxpay', null, $appId);
+			$payinfo = ['appId'=>$appId, 'orderSn'=>$result['order_sn']];
 		}catch(Exception $e){
-			return ['type'=>'error','msg'=>'微信参数配置失败！'.$e->getMessage()];
+			return ['type'=>'error','msg'=>$e->getMessage()];
 		}
+		return ['type'=>'wxplugin','data'=>$payinfo];
 	}
 
-	//微信参数配置查询
-	static public function wxconfigquery(){
-		global $siteurl,$channel;
+	//微信参数配置
+	static public function wxconfig(){
+		global $siteurl,$channel,$islogin;
+		if(!$islogin) exit('Access Denied');
 
 		require_once(PAY_ROOT.'inc/FubeiClient.class.php');
 		$client = new FubeiClient($channel['appid'], $channel['appkey']);
+
+		if(isset($_POST['sub_appid']) && isset($_POST['jsapi_path'])){
+			$bizContent=[
+				'store_id' => $channel['appmchid'],
+				'sub_appid' => $_POST['sub_appid'],
+				'jsapi_path' => $_POST['jsapi_path']
+			];
+			try{
+				$retData = $client->execute('fbpay.order.wxconfig', $bizContent);
+				$msg = '';
+				if(!empty($retData['sub_appid_msg'])) $msg .= $retData['sub_appid_msg'].'<br/>';
+				if(!empty($retData['jsapi_msg'])) $msg .= $retData['jsapi_msg'];
+				showmsg($msg,1);
+			}catch(Exception $e){
+				showmsg('微信参数配置失败！'.$e->getMessage(),4);
+			}
+		}
+
+		$wxinfo = \lib\Channel::getWeixin($channel['appwxmp']);
 
 		$bizContent=[
 			'store_id' => $channel['appmchid']
 		];
 		try{
 			$retData = $client->execute('fbpay.order.wxconfig.query', $bizContent);
-			return ['type'=>'error','msg'=>'appid_list:'.$retData['appid_list'].',jsapi_path_list:'.$retData['jsapi_path_list']];
+			$appid_list = json_decode($retData['appid_list']);
+			$jsapi_path_list = json_decode($retData['jsapi_path_list']);
+			$data = ['appid_config_list' => $appid_list['appid_config_list'], 'jsapi_path_list' => $jsapi_path_list['jsapi_path_list'], 'appid'=>$wxinfo ? $wxinfo['appid'] : ''];
+			include PAY_ROOT.'wxconf.page.php';
 		}catch(Exception $e){
-			return ['type'=>'error','msg'=>'微信参数配置失败！'.$e->getMessage()];
+			showmsg('微信参数配置查询失败！'.$e->getMessage(),4);
 		}
 	}
 

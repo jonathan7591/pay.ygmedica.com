@@ -97,7 +97,6 @@ class shengpay_plugin
 			'totalFee' => intval(round($order['realmoney']*100)),
 			'currency' => 'CNY',
 			'tradeType' => $tradeType,
-			'timeExpire' => date('YmdHis'),
 			'notifyUrl' => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
 			'pageUrl' => $siteurl.'pay/return/'.TRADE_NO.'/',
 			'extra' => $extra,
@@ -124,7 +123,6 @@ class shengpay_plugin
 			'outTradeNo' => TRADE_NO,
 			'totalFee' => intval(round($order['realmoney']*100)),
 			'currency' => 'CNY',
-			'timeExpire' => date('YmdHis'),
 			'notifyUrl' => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
 			'pageUrl' => $siteurl.'pay/return/'.TRADE_NO.'/',
 			'nonceStr' => random(32),
@@ -298,8 +296,11 @@ class shengpay_plugin
 			if ($data['status'] == 'PAY_SUCCESS') {
 				$out_trade_no = $data['outTradeNo'];
 				$trade_no = $data['transactionId'];
+				$payerInfo = json_decode($data['payerInfo'], true);
+				$buyer = $payerInfo['openid'];
+				$bill_trade_no = $payerInfo['officOrderNum'];
 				if($out_trade_no == TRADE_NO){
-					processNotify($order, $trade_no);
+					processNotify($order, $trade_no, $buyer, $bill_trade_no);
 				}
 				return ['type'=>'html','data'=>'SUCCESS'];
 			}

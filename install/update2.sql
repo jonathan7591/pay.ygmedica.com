@@ -219,7 +219,7 @@ ALTER TABLE `pre_wxkfaccount`
 ADD COLUMN `name` varchar(300) DEFAULT NULL;
 
 ALTER TABLE `pre_user`
-ADD COLUMN `msgconfig` varchar(150) DEFAULT NULL;
+ADD COLUMN `msgconfig` varchar(300) DEFAULT NULL;
 
 CREATE TABLE IF NOT EXISTS `pre_transfer` (
   `biz_no` char(19) NOT NULL,
@@ -305,3 +305,16 @@ ADD INDEX `bill_trade_no` (`bill_trade_no`);
 ALTER TABLE `pre_user`
 ADD COLUMN `remain_money` varchar(20) DEFAULT NULL,
 ADD COLUMN `open_code` tinyint(1) NOT NULL DEFAULT '0';
+
+ALTER TABLE `pre_psreceiver`
+ADD COLUMN `subchannel` int(11) DEFAULT NULL;
+
+ALTER TABLE `pre_transfer`
+ADD COLUMN `addtime` datetime DEFAULT NULL,
+ADD COLUMN `ext` text DEFAULT NULL;
+
+ALTER TABLE `pre_settle`
+ADD COLUMN `transfer_channel` int(10) unsigned DEFAULT NULL,
+ADD COLUMN `transfer_no` varchar(64) DEFAULT NULL,
+ADD COLUMN `transfer_ext` text DEFAULT NULL,
+ADD INDEX `transfer_no` (`transfer_no`);

@@ -29,7 +29,7 @@ body {
 }
 
 a {
-  color: black;
+  color: #363f44;
   text-decoration: none;
   cursor: pointer;
 }
@@ -670,12 +670,6 @@ body {
   width: 100%;
   height: auto;
   min-height: 100%;
-}
-
-.apps {
-  position: relative;
-  width: 100%;
-  height: auto;
 }
 
 .app:before {

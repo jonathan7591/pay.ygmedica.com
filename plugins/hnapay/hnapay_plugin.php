@@ -1,6 +1,6 @@
 <?php
 /***
- * https://www.yuque.com/books/share/aafe174b-46e2-48e2-a095-69e4a517b117
+ * https://www.yuque.com/chenyanfei-sjuaz/uhng8q
  */
 
 class hnapay_plugin
@@ -40,7 +40,7 @@ class hnapay_plugin
             ],
 		],
 		'select' => null,
-		'note' => '需要使用RSA密钥！<br/>如使用扫码支付，需将<b>收款密钥</b>中的<b>商户私钥</b>上传到/plugins/hnapay/cert/mch.key<br/>如使用付款功能，需将<b>付款密钥</b>中的<b>商户私钥</b>上传到/plugins/hnapay/cert/pay.key', //支付密钥填写说明
+		'note' => '需要使用RSA密钥！<br/>如使用扫码支付，需将<b>收款密钥</b>中的<b>商户私钥</b>上传到/plugins/hnapay/cert/mch.key（或cert/商户ID/mch.key）<br/>如使用付款功能，需将<b>付款密钥</b>中的<b>商户私钥</b>上传到/plugins/hnapay/cert/pay.key（或cert/商户ID/pay.key）', //支付密钥填写说明
 		'bindwxmp' => true, //是否支持绑定微信公众号
 		'bindwxa' => true, //是否支持绑定微信小程序
 	];
@@ -57,10 +57,9 @@ class hnapay_plugin
                 return ['type' => 'jump', 'url' => '/pay/alipay/' . TRADE_NO . '/'];
             }
 		}elseif($order['typename']=='wxpay'){
-			if(checkwechat()){
-			    return self::wxpay();
+			if($channel['appswitch']==0 && checkwechat()){
 				return ['type'=>'jump','url'=>'/pay/wxjspay/'.TRADE_NO.'/?d=1'];
-			}elseif(checkmobile()){
+			}elseif($channel['appswitch']==0 && checkmobile()){
 				return ['type'=>'jump','url'=>'/pay/wxwappay/'.TRADE_NO.'/'];
             }else{
 				return ['type'=>'jump','url'=>'/pay/wxpay/'.TRADE_NO.'/'];
@@ -82,10 +81,9 @@ class hnapay_plugin
 				return self::alipay();
 			}
 		}elseif($order['typename']=='wxpay'){
-			if($mdevice=='wechat'){
-			   return self::wxpay();
+			if($channel['appswitch']==0 && $mdevice=='wechat'){
 				return ['type'=>'jump','url'=>$siteurl.'pay/wxjspay/'.TRADE_NO.'/?d=1'];
-			}elseif($device=='mobile'){
+			}elseif($channel['appswitch']==0 && $device=='mobile'){
 				return self::wxwappay();
 			}else{
 				return self::wxpay();
@@ -100,22 +98,7 @@ class hnapay_plugin
 		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
 
 		require(PAY_ROOT.'inc/HnaPayApi.class.php');
-        if (!empty($order['param'])) { // 判断param是否不为空
-            $sub = json_decode($order['param'], true); // 解码JSON字符串，转为数组
-        
-            // 判断解码是否成功且结果是数组类型
-            if (is_array($sub)) {
-                if (isset($sub['submchid'])) {
-                    $appmchid = $sub['submchid']; // 如果submchid存在于数组中，赋值给$appmchid
-                } else {
-                    $appmchid = $channel['appmchid']; // 如果不存在submchid，则使用$channel中的appmchid
-                }
-            } else {
-                $appmchid = $channel['appmchid']; // 解码失败或非数组类型也使用$channel中的appmchid
-            }
-        } else {
-            $appmchid = $channel['appmchid']; // param为空则直接使用$channel中的appmchid
-        }
+
 		$param = [
 			'merOrderNum' => TRADE_NO,
 			'tranAmt' => strval($order['realmoney']*100),
@@ -124,7 +107,7 @@ class hnapay_plugin
 			'goodsName' => $ordername,
 			'tranIP' => $clientip,
 			'notifyUrl' => $conf['localurl'].'pay/notifys/'.TRADE_NO.'/',
-			'weChatMchId' => $appmchid,
+			'weChatMchId' => $channel['appmchid'],
 		];
 		
 		$pay = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret'], 1);
@@ -140,29 +123,7 @@ class hnapay_plugin
 		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
 
 		require(PAY_ROOT.'inc/HnaPayApi.class.php');
-        //这里我们做一个判断，判断param参数是否为空，如果不为空则进行第二步判断是否为数组，如果是数组且包含健名submchid，则将健值赋予给$appmchid，如果不包含则还是使用$channel中的appmchid
-        // if($order['param']!=null){
-        //       $sub =json_decode($order['param'],true);
-        //       $appmchid = $sub["submchid"];
-        // }else{
-        //       $appmchid = $channel['appmchid'];
-        // }
-        if (!empty($order['param'])) { // 判断param是否不为空
-            $sub = json_decode($order['param'], true); // 解码JSON字符串，转为数组
-        
-            // 判断解码是否成功且结果是数组类型
-            if (is_array($sub)) {
-                if (isset($sub['submchid'])) {
-                    $appmchid = $sub['submchid']; // 如果submchid存在于数组中，赋值给$appmchid
-                } else {
-                    $appmchid = $channel['appmchid']; // 如果不存在submchid，则使用$channel中的appmchid
-                }
-            } else {
-                $appmchid = $channel['appmchid']; // 解码失败或非数组类型也使用$channel中的appmchid
-            }
-        } else {
-            $appmchid = $channel['appmchid']; // param为空则直接使用$channel中的appmchid
-        }
+
 		$param = [
 			'tranAmt' => $order['realmoney'],
 			'orgCode' => $orgCode,
@@ -170,7 +131,7 @@ class hnapay_plugin
 			'merUserIp' => $clientip,
 			'goodsInfo' => $ordername,
 			'orderSubject' => $ordername,
-			'merchantId' => $appmchid,
+			'merchantId' => $channel['appmchid'],
 		];
 		if($orgCode == 'WECHATPAY'){
 			$param += [
@@ -183,8 +144,7 @@ class hnapay_plugin
 				'buyerId' => $openId,
 			];
 		}
-		log_debug("公众号支付参数".json_encode($param),'hnapay');
-        // file_put_contents(date('Ymd').'js.txt',json_encode($param).PHP_EOL,FILE_APPEND);
+
 		$pay = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret']);
 		
 		return \lib\Payment::lockPayData(TRADE_NO, function() use($pay, $param) {
@@ -251,22 +211,6 @@ class hnapay_plugin
 			$front_url=$siteurl.'pay/return/'.TRADE_NO.'/';
 		}
 		require(PAY_ROOT.'inc/HnaPayApi.class.php');
-		 if (!empty($order['param'])) { // 判断param是否不为空
-            $sub = json_decode($order['param'], true); // 解码JSON字符串，转为数组
-        
-            // 判断解码是否成功且结果是数组类型
-            if (is_array($sub)) {
-                if (isset($sub['submchid'])) {
-                    $appmchid = $sub['submchid']; // 如果submchid存在于数组中，赋值给$appmchid
-                } else {
-                    $appmchid = $channel['appmchid']; // 如果不存在submchid，则使用$channel中的appmchid
-                }
-            } else {
-                $appmchid = $channel['appmchid']; // 解码失败或非数组类型也使用$channel中的appmchid
-            }
-        } else {
-            $appmchid = $channel['appmchid']; // param为空则直接使用$channel中的appmchid
-        }
 		$param = [
 			'tranAmt' => $order['realmoney'],
 			'payType' => 'HnaZFB',
@@ -279,16 +223,15 @@ class hnapay_plugin
 			'frontUrl' => $front_url,
 			'notifyUrl' => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
 			'riskExpand'=>'',
-			'goodsInfo'=>$ordername,
+			'goodsInfo'=>'',
 			'orderSubject' => $ordername,
-			'orderDesc'=>$ordername,
-			'merchantId' => json_encode(['02'=>$appmchid]),
+			'orderDesc'=>'',
+			'merchantId' => json_encode(['02'=>$channel['appmchid']]),
 			'bizProtocolNo'=>'',
 			'payProtocolNo'=>'',
 			'merUserIp' => $clientip,
 			'payLimit'=>'',
 		];
-		log_debug('支付宝h5加密前参数:'.json_encode($param),'hnapay');
 		$pay = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret']);
 		$html = $pay->h5Pay($param, TRADE_NO);
 		return ['type'=>'html','data'=>$html];
@@ -296,7 +239,7 @@ class hnapay_plugin
 
 	//微信扫码支付
 	static public function wxpay(){
-		global $channel, $siteurl,$mdevice;
+		global $channel, $siteurl, $device, $mdevice;
 		if($channel['appswitch']==2){
 			try {
 				$code_url = self::qrcode('WECHATPAY');
@@ -306,10 +249,9 @@ class hnapay_plugin
 		}else{
 			$code_url = $siteurl.'pay/wxjspay/'.TRADE_NO.'/';
 		}
-		if (checkmobile()) {
-		    if(checkwechat()){
-		        return ['type'=>'jump','url'=>$code_url];
-		    }
+		if($mdevice == 'wechat' || checkwechat()){
+			return ['type'=>'jump','url'=>$code_url];
+		} elseif ($device == 'mobile' || checkmobile()) {
 			return ['type'=>'qrcode','page'=>'wxpay_wap','url'=>$code_url];
 		} else {
 			return ['type'=>'qrcode','page'=>'wxpay_qrcode','url'=>$code_url];
@@ -420,16 +362,17 @@ class hnapay_plugin
 			$verify_result = $pay->jsapiVerify($_POST);
 		}
 		if($verify_result){
-		    file_put_contents('xsnoti.txt',json_encode($_POST));
 			if($_POST['resultCode'] == '0000'){
 				$out_trade_no = $_POST['merOrderId'];
 				$trade_no = $_POST['hnapayOrderId'];
 				if(!empty($_POST['bankOrderId'])) $trade_no = $_POST['bankOrderId'];
+				$bill_trade_no = $_POST['realBankOrderId'];
+				if($order['type'] == 1 && substr($bill_trade_no, 0, 4) != date('Y') && substr($bill_trade_no, 2, 4) == date('Y')) $bill_trade_no = substr($bill_trade_no, 2);
 				$money = $_POST['tranAmt'];
 				$buyer = $_POST['userId'];
 
 				if ($out_trade_no == TRADE_NO) {
-					processNotify($order, $trade_no, $buyer);
+					processNotify($order, $trade_no, $buyer, $bill_trade_no);
 				}
 				return ['type'=>'html','data'=>'200'];
 			}else{
@@ -444,7 +387,7 @@ class hnapay_plugin
 	static public function notifys(){
 		global $channel, $order;
 
-		file_put_contents('logs.txt' , http_build_query($_POST));
+		//file_put_contents('logs.txt' , http_build_query($_POST));
 
 		require(PAY_ROOT.'inc/HnaPayApi.class.php');
 
@@ -454,12 +397,14 @@ class hnapay_plugin
 			if($_POST['respCode'] == '0000'){
 				$out_trade_no = $_POST['merOrderNum'];
 				$trade_no = $_POST['hnapayOrderId'];
-				if(!empty($_POST['realBankOrderId'])) $trade_no = $_POST['realBankOrderId'];
+				if(!empty($_POST['bankOrderId'])) $trade_no = $_POST['bankOrderId'];
+				$bill_trade_no = $_POST['realBankOrderId'];
+				if($order['type'] == 1 && substr($bill_trade_no, 0, 4) != date('Y') && substr($bill_trade_no, 2, 4) == date('Y')) $bill_trade_no = substr($bill_trade_no, 2);
 				$money = $_POST['tranAmt'];
 				$buyer = $_POST['userId'];
 
 				if ($out_trade_no == TRADE_NO) {
-					processNotify($order, $trade_no, $buyer);
+					processNotify($order, $trade_no, $buyer, $bill_trade_no);
 				}
 				return ['type'=>'html','data'=>'200'];
 			}else{
@@ -487,8 +432,6 @@ class hnapay_plugin
 
 		require(PAY_ROOT.'inc/HnaPayApi.class.php');
 
-		$pay = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret']);
-
 		$param = [
 			'orgMerOrderId' => $order['trade_no'],
 			'orgSubmitTime' => substr($order['trade_no'], 0, 14),
@@ -498,6 +441,7 @@ class hnapay_plugin
 		];
 
 		try{
+			$pay = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret']);
 			$result = $pay->refund($param, $order['refund_no']);
 			return ['code'=>0, 'trade_no'=>$result['orgMerOrderId'], 'refund_fee'=>$result['refundAmt']];
 		}catch(Exception $ex){
@@ -527,8 +471,7 @@ class hnapay_plugin
 		global $conf, $clientip;
 		if(empty($channel) || empty($bizParam))exit();
 
-		define('PAY_ROOT', PLUGIN_ROOT.$channel['plugin'].'/');
-		require(PAY_ROOT.'inc/HnaPayApi.class.php');
+		require(PLUGIN_ROOT.'hnapay/inc/HnaPayApi.class.php');
 
 		$param = [
 			'tranAmt' => $bizParam['money'],
@@ -545,10 +488,67 @@ class hnapay_plugin
 			'deviceInfo' => $clientip,
 		];
 
-		$client = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret'], 2);
 		try{
+			$client = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret'], 2);
 			$result = $client->transfer($param, $bizParam['out_biz_no']);
-			return ['code'=>0, 'status'=>1, 'orderid'=>$result['hnapayOrderId'], 'paydate'=>date('Y-m-d H:i:s')];
+			return ['code'=>0, 'status'=>0, 'orderid'=>$result['hnapayOrderId'], 'paydate'=>date('Y-m-d H:i:s')];
+		}catch(Exception $ex){
+			return ['code'=>-1, 'msg'=>$ex->getMessage()];
+		}
+	}
+
+	//转账查询
+	static public function transfer_query($channel, $bizParam){
+		if(empty($channel) || empty($bizParam))exit();
+
+		require(PLUGIN_ROOT.'hnapay/inc/HnaPayApi.class.php');
+
+		try{
+			$client = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret'], 2);
+			$result = $client->transferQuery($bizParam['out_biz_no']);
+			if($result['orderStatus'] == '1'){
+				$status = 1;
+			}elseif($result['orderStatus'] == '0' || $result['orderStatus'] == '3'){
+				$status = 0;
+			}else{
+				$status = 2;
+			}
+			if($result['orderFailedCode']){
+				$errmsg = '['.$result['orderFailedCode'].']'.$result['orderFailedMsg'];
+			}
+			return ['code'=>0, 'status'=>$status, 'amount'=>$result['tranAmt'], 'paydate'=>date('Y-m-d H:i:s', strtotime($result['successTime'])), 'errmsg'=>$errmsg];
+		}catch(Exception $ex){
+			return ['code'=>-1, 'msg'=>$ex->getMessage()];
+		}
+	}
+
+	//电子回单
+	static public function transfer_proof($channel, $bizParam){
+		if(empty($channel) || empty($bizParam))exit();
+
+		require(PLUGIN_ROOT.'hnapay/inc/HnaPayApi.class.php');
+
+		try{
+			$client = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret'], 2);
+			$result = $client->transferProof($bizParam['orderid']);
+			file_put_contents(ROOT.'assets/uploads/'.$bizParam['orderid'].'.png', base64_decode($result['payCertificate']));
+			$image = '/assets/uploads/'.$bizParam['orderid'].'.png';
+			return ['code'=>0, 'msg'=>'电子回单生成成功！', 'download_url'=>$image];
+		}catch(Exception $ex){
+			return ['code'=>-1, 'msg'=>$ex->getMessage()];
+		}
+	}
+
+	//余额查询
+	static public function balance_query($channel, $bizParam){
+		if(empty($channel))exit();
+
+		require(PLUGIN_ROOT.'hnapay/inc/HnaPayApi.class.php');
+
+		try{
+			$client = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret']);
+			$result = $client->queryBalance();
+			return ['code'=>0, 'amount'=>$result['avaBalance'], 'msg'=>'当前账户可用余额：'.$result['avaBalance'].' 元，待结转金额：'.$result['pendAmt']];
 		}catch(Exception $ex){
 			return ['code'=>-1, 'msg'=>$ex->getMessage()];
 		}
@@ -575,84 +575,5 @@ class hnapay_plugin
 			return ['type'=>'html','data'=>'sign_error'];
 		}
 	}
-	
-	
-	//查询余额
-	static public function balance_query($channel, $bizParam){
-	    	global $conf, $clientip;
-    		if(empty($channel) || empty($bizParam))exit();
-    
-    		define('PAY_ROOT', PLUGIN_ROOT.$channel['plugin'].'/');
-    		require(PAY_ROOT.'inc/HnaPayApi.class.php');
-    
-    		$client = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret']);
-    		try{
-    			$result = $client->balance_query();
-    			return ['code'=>0, 'status'=>1, 'amount'=>$result['avaBalance']];
-    		}catch(Exception $ex){
-    			return ['code'=>-1, 'msg'=>$ex->getMessage()];
-    		}
-	}
-	
-        //获取转账凭证
-        static public function transfer_proof($channel, $bizParam) {
-            global $conf;
-        
-            // 定义支付根目录
-            define('PAY_ROOT', PLUGIN_ROOT . $channel['plugin'] . '/');
-            require(PAY_ROOT . 'inc/HnaPayApi.class.php');
-        
-            // 缓存目录
-            $cacheDir =  $_SERVER['DOCUMENT_ROOT'].'/public/cache/transfer_proofs/';
-            if (!is_dir($cacheDir)) {
-                mkdir($cacheDir, 0755, true);
-            }
-        
-            // 缓存文件路径
-            $cacheFile = $cacheDir . $bizParam['out_biz_no'] . '.png';
-        
-            // 检查本地缓存是否存在
-            if (file_exists($cacheFile)) {
-                return [
-                    'code' => 0,
-                    'status' => 1,
-                    'download_url' => $conf['siteurl'] . '/public/cache/transfer_proofs/' . $bizParam['out_biz_no'] . '.png'
-                ];
-            }
-        
-            // 组装请求参数
-            $param = [
-                'hnapayOrderId' => $bizParam['orderid']
-            ];
-        
-            // 创建客户端对象
-            $client = new HnaPayApi($channel['appid'], $channel['appkey'], $channel['appsecret'], 2);
-        
-            try {
-                // 发起转账凭证请求
-                $result = $client->transfer_proof($param, $bizParam['out_biz_no']);
-        
-                // 解码 base64 并保存为本地文件
-                $payCertificate = base64_decode($result['payCertificate']);
-                file_put_contents($cacheFile, $payCertificate);
-        
-                // 记录转账凭证信息
-                log_debug('交易凭证已缓存：' . $cacheFile, 'hnapay');
-        
-                // 返回成功信息
-                return [
-                    'code' => 0,
-                    'status' => 1,
-                    'download_url' => $conf['siteurl'] . '/public/cache/transfer_proofs/' . $bizParam['out_biz_no'] . '.png'
-                ];
-            } catch (Exception $ex) {
-                // 处理异常，返回错误信息
-                return [
-                    'code' => -1,
-                    'msg' => $ex->getMessage()
-                ];
-            }
-        }
-
 
 }

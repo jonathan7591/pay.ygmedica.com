@@ -1,4 +1,0 @@
-[2024-12-13 18:54:38] [DEBUG] 退款请求数据：{"outTradeNo":"2024120212030823381","amount":{"refund":"138.78","total":"138.78","currency":"CNY"},"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024120212030823381/","outRefundNo":"2024121318543830357"}
-[2024-12-13 18:54:38] [DEBUG] 退款返回数据：{"msg":"未配置白名单访问权限，禁止访问","code":8011}
-[2024-12-13 18:55:05] [DEBUG] 退款请求数据：{"outTradeNo":"2024120212030823381","amount":{"refund":"138.78","total":"138.78","currency":"CNY"},"notifyUrl":"https://pay.ygmedica.com/pay/refundnotify/2024120212030823381/","outRefundNo":"2024121318550584771"}
-[2024-12-13 18:55:05] [DEBUG] 退款返回数据：{"msg":"未配置白名单访问权限，禁止访问","code":8011}

@@ -7,6 +7,7 @@ $title='分账记录';
 include './head.php';
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
+<style>.tips {cursor: pointer;}</style>
   <div class="container" style="padding-top:70px;">
     <div class="col-md-12 center-block" style="float: none;">
 <form onsubmit="return searchSubmit()" method="GET" class="form-inline" id="searchToolbar">
@@ -82,7 +83,7 @@ $(document).ready(function(){
 					}else if(value == '2'){
 						return '<font color=green>分账成功</font>';
 					}else if(value == '3'){
-						return '<font color=red>分账失败</font>';
+						return '<font color=red>分账失败</font>' + (row.result ? ' <span onclick="showmsg(\''+row.result+'\')" class="tips" title="失败原因"><i class="fa fa-info-circle"></i></span>' : '');
 					}else if(value == '4'){
 						return '<font color=grey>已取消</font>';
 					}else{
@@ -99,13 +100,13 @@ $(document).ready(function(){
 					}else if(value == '2'){
 						return '<a href="javascript:do_return('+row.id+')" class="btn btn-danger btn-xs">分账回退</a>';
 					}else if(value == '3'){
-						return '<a href="javascript:show_result('+row.id+',\''+row.result+'\')" class="btn btn-warning btn-xs">查看原因</a>&nbsp;<a href="javascript:do_submit('+row.id+')" class="btn btn-primary btn-xs">重试</a>';
+						return '<a href="javascript:do_submit('+row.id+')" class="btn btn-primary btn-xs">重试</a>&nbsp;<a href="javascript:do_unfreeze('+row.id+')" class="btn btn-danger btn-xs">取消</a>';
 					}else if(value == '0'){
 						return '<a href="javascript:do_submit('+row.id+')" class="btn btn-primary btn-xs">提交分账</a>&nbsp;<a href="javascript:do_unfreeze('+row.id+')" class="btn btn-danger btn-xs">取消</a>';
 					}
 				}
 			},
-		],
+		]
 	})
 })
 function do_submit(id){
@@ -203,7 +204,7 @@ function do_return(id){
 		});
 	});
 }
-function show_result(id, result){
+function showmsg(result){
 	layer.alert(result, {title:'失败原因'});
 }
 function editmoney(id, money){

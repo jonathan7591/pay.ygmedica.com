@@ -19,7 +19,6 @@ unset($rs);
 #orderItem .orderContent{word-break:break-all;}
 .dates{max-width: 120px;}
 .fixed-table-toolbar,.fixed-table-pagination{padding: 15px;}
-.label-red{background-color:red;}
 </style>
 <link href="../assets/css/datepicker.css" rel="stylesheet">
  <div id="content" class="app-content" role="main">
@@ -46,6 +45,8 @@ unset($rs);
 			<select class="form-control" name="type">
 			  <option value="1">系统订单号</option>
 			  <option value="2">商户订单号</option>
+			  <option value="9">接口订单号</option>
+			  <option value="10">用户交易单号</option>
 			  <option value="3">商品名称</option>
 			  <option value="4">商品金额</option>
 			  <option value="5">实付金额</option>
@@ -143,15 +144,18 @@ $(document).ready(function(){
 				title: '支付状态',
 				formatter: function(value, row, index) {
 					if(value == '1'){
-						text = '<span class="label label-success">已支付</span>';
+						text = '<font color=green>已支付</font>';
 					}else if(value == '2'){
-						text = '<span class="label label-danger">已退款</span>';
+						text = '<font color=red>已退款</font>';
+						if(row.refundmoney > 0 && row.refundmoney < row.realmoney){
+							text += '<br/><font color=red>('+row.refundmoney+'元)</font>';
+						}
 					}else if(value == '3'){
-						text = '<span class="label label-warning">已冻结</span>';
+						text = '<font color=red>已冻结</font>';
 					}else if(value == '4'){
-						text = '<span class="label label-info">预授权</span>';
+						text = '<font color=orange>预授权</font>';
 					}else{
-						text = '<span class="label label-primary">未支付</span>';
+						text = '<font color=blue>未支付</font>';
 					}
 					if(row.plugin=='alipayd'){
 						if(row.settle == '1'){
@@ -178,7 +182,7 @@ $(document).ready(function(){
 				title: '操作',
 				formatter: function(value, row, index) {
 					var html = '<a href="./record.php?type=3&kw='+row.trade_no+'" class="btn btn-info btn-xs">明细</a>&nbsp;<a href="javascript:callnotify(\''+row.trade_no+'\')" class="btn btn-success btn-xs">补单</a>';
-					if(is_user_refund=='1' && row.status=='1'){
+					if(is_user_refund=='1' && (row.status=='1' || row.status=='3' || row.status=='2' && row.refundmoney > 0 && row.refundmoney < row.realmoney)){
 						html += '&nbsp;<a href="javascript:refund(\''+row.trade_no+'\')" class="btn btn-danger btn-xs">退款</a>';
 					}
 					return html;
@@ -294,7 +298,7 @@ function refund(trade_no) {
 }
 function showOrder(trade_no) {
 	var ii = layer.load(2, {shade:[0.1,'#fff']});
-	var status = ['<span class="label label-primary">未支付</span>','<span class="label label-success">已支付</span>','<span class="label label-red">已退款</span>'];
+	var status = ['<span class="label label-primary">未支付</span>','<span class="label label-success">已支付</span>','<span class="label label-danger">已退款</span>','<span class="label label-info">已冻结</span>','<span class="label label-warning">预授权</span>'];
 	$.ajax({
 		type : 'GET',
 		url : 'ajax2.php?act=order&trade_no='+trade_no,

@@ -39,9 +39,9 @@ class zhangyishou_plugin
 	static public function submit(){
 		global $siteurl, $channel, $order, $ordername, $sitename, $conf;
 
-		if(checkwechat()){
+		/*if(checkwechat()){
 			return ['type'=>'jump','url'=>'/pay/wxjspay/'.TRADE_NO.'/'];
-		}
+		}*/
 
 		return ['type'=>'jump','url'=>'/pay/'.$order['typename'].'/'.TRADE_NO.'/'];
 	}

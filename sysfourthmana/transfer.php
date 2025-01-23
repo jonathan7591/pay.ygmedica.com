@@ -8,6 +8,7 @@ include './head.php';
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
   <div class="container" style="padding-top:70px;">
+	<div class="row">
     <div class="col-md-12 center-block" style="float: none;">
 <form onsubmit="return searchSubmit()" method="GET" class="form-inline" id="searchToolbar">
   <div class="form-group">
@@ -21,7 +22,7 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 	<select name="type" class="form-control"><option value="">所有付款方式</option><option value="alipay">支付宝</option><option value="wxpay">微信</option><option value="qqpay">QQ钱包</option><option value="bank">银行卡</option></select>
   </div>
   <div class="form-group">
-	<select name="dstatus" class="form-control"><option value="-1">全部状态</option><option value="0">状态正在处理</option><option value="1">状态转账成功</option><option value="2">状态转账失败</option></select>
+	<select name="dstatus" class="form-control"><option value="-1">全部状态</option><option value="0">正在处理</option><option value="1">转账成功</option><option value="2">转账失败</option></select>
   </div>
   <button type="submit" class="btn btn-primary">搜索</button>
   <a href="./transfer_add.php" class="btn btn-success">新增付款</a>
@@ -36,7 +37,9 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 	  </table>
     </div>
   </div>
+  </div>
 <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.min.js"></script>
+<script src="<?php echo $cdnpublic?>jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script src="../assets/js/bootstrap-table.min.js"></script>
 <script src="../assets/js/bootstrap-table-page-jump-to.min.js"></script>
 <script src="../assets/js/custom.js"></script>
@@ -73,7 +76,7 @@ $(document).ready(function(){
 			},
 			{
 				field: 'type',
-				title: '付款方式<br/>(通道ID)',
+				title: '付款方式<br/>备注',
 				formatter: function(value, row, index) {
 					let typename = '';
 					if(value == 'alipay'){
@@ -85,7 +88,7 @@ $(document).ready(function(){
 					}else if(value == 'bank'){
 						typename='<img src="/assets/icon/bank.ico" width="16" onerror="this.style.display=\'none\'">银行卡';
 					}
-					return typename+'('+row.channel+')';
+					return typename+'('+row.channel+')'+'<br/>'+(row.desc?'<font color="#bf7fef">'+row.desc+'</font>':'')+'';
 				}
 			},
 			{
@@ -104,9 +107,9 @@ $(document).ready(function(){
 			},
 			{
 				field: 'paytime',
-				title: '付款时间<br/>备注',
+				title: '提交时间<br/>付款时间',
 				formatter: function(value, row, index) {
-					return ''+value+'<br/>'+(row.desc?'<font color="#bf7fef">'+row.desc+'</font>':'')+'';
+					return (row.addtime ? row.addtime : value)+'<br/>'+value;
 				}
 			},
 			{
@@ -118,7 +121,7 @@ $(document).ready(function(){
 					}else if(value == '2'){
 						return '<a href="javascript:showResult(\''+row.biz_no+'\')" title="点此查看失败原因"><font color=red>转账失败</font></a>';
 					}else{
-						return '<a href="javascript:queryStatus(\''+row.biz_no+'\')" title="点此查询转账状态"><font color=orange>正在处理</font></a>';
+						return '<a href="javascript:queryStatus(\''+row.biz_no+'\')" title="点此查询转账状态"><font color=orange>正在处理</font></a>' + (row.jumpurl ? '<br/><a href="javascript:showQrcode(\''+row.jumpurl+'\')" class="btn btn-xs btn-success"><i class="fa fa-qrcode"></i> 确认收款</a>' : '');
 					}
 				}
 			},
@@ -133,7 +136,8 @@ $(document).ready(function(){
 						html += '<a href="javascript:setStatus(\''+row.biz_no+'\', 1)" class="btn btn-success btn-xs">改为成功</a> <a href="javascript:delItem(\''+row.biz_no+'\')" class="btn btn-danger btn-xs">删除</a><br/><a href="transfer_add.php?app='+row.type+'&copy='+row.biz_no+'" class="btn btn-default btn-xs">复制</a>';
 					}else{
 						html += '<a href="javascript:queryStatus(\''+row.biz_no+'\')" class="btn btn-info btn-xs">查询状态</a> ';
-						if(row.uid > 0) html += '<a href="javascript:refund(\''+row.biz_no+'\')" class="btn btn-warning btn-xs">退回</a>';
+						if(row.jumpurl) html += '<a href="javascript:cancel(\''+row.biz_no+'\')" class="btn btn-warning btn-xs">撤销</a>';
+						else if(row.uid > 0) html += '<a href="javascript:refund(\''+row.biz_no+'\')" class="btn btn-warning btn-xs">退回</a>';
 						else html += '<a href="javascript:delItem(\''+row.biz_no+'\')" class="btn btn-danger btn-xs">删除</a>';
 						html += '<br/><a href="transfer_add.php?app='+row.type+'&copy='+row.biz_no+'" class="btn btn-default btn-xs">复制</a>';
 					}
@@ -253,6 +257,30 @@ function refund(biz_no){
 	  layer.close(confirmobj);
 	});
 }
+function cancel(biz_no){
+	var confirmobj = layer.confirm('是否确定撤销转账订单？', {
+	  btn: ['确定','取消'], icon:0
+	}, function(){
+	  $.ajax({
+		type : 'POST',
+		url : 'ajax_transfer.php?act=transfer_cancel',
+		data : {biz_no:biz_no},
+		dataType : 'json',
+		success : function(data) {
+			if(data.code == 0){
+				layer.alert(data.msg, {icon:1}, function(){ layer.closeAll();searchSubmit(); });
+			}else{
+				layer.alert(data.msg, {icon: 2});
+			}
+		},
+		error:function(data){
+			layer.msg('服务器错误');
+		}
+	  });
+	}, function(){
+	  layer.close(confirmobj);
+	});
+}
 function getProof(biz_no) {
 	var ii = layer.load(2, {shade:[0.1,'#fff']});
 	$.ajax({
@@ -309,5 +337,24 @@ function operation(status){
 		}
 	});
 	return false;
+}
+function showQrcode(url){
+	layer.open({
+		type: 1,
+		title: '收款方使用微信扫描以下二维码',
+		skin: 'layui-layer-demo',
+		shadeClose: true,
+		content: '<div id="qrcode" class="list-group-item text-center"></div>',
+		success: function(){
+			$('#qrcode').qrcode({
+				text: url,
+				width: 230,
+				height: 230,
+				foreground: "#000000",
+				background: "#ffffff",
+				typeNumber: -1
+			});
+		}
+	});
 }
 </script>

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * https://www.yuque.com/youyun-8yqqt/vpbgq7
+ */
 class HuolianClient
 {
     //支付接口地址

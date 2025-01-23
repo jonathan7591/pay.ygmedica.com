@@ -3,7 +3,7 @@
 class LakalaClient
 {
     //appid
-    public $appid;
+    protected $appid;
 
     //平台证书文件
     private $platform_cert_file;
@@ -15,7 +15,7 @@ class LakalaClient
     private $merchant_private_file;
 
 
-    private $gateway_url = 'https://s2.lakala.com';
+    protected $gateway_url = 'https://s2.lakala.com';
     private $version = '3.0';
     private $schema = 'LKLAPI-SHA256withRSA';
 
@@ -24,16 +24,16 @@ class LakalaClient
 
     public function __construct($appid, $isTest = false){
         $this->appid = $appid;
-        $this->platform_cert_file = PAY_ROOT.'cert/lkl-apigw-v1.cer';
-        $this->merchant_cert_file = PAY_ROOT.'cert/api_cert.cer';
-        $this->merchant_private_file = PAY_ROOT.'cert/api_private_key.pem';
-        if(file_exists(PAY_ROOT.'cert/'.$appid.'.cer') && file_exists(PAY_ROOT.'cert/'.$appid.'.pem')){
-            $this->merchant_cert_file = PAY_ROOT.'cert/'.$appid.'.cer';
-            $this->merchant_private_file = PAY_ROOT.'cert/'.$appid.'.pem';
+        $this->platform_cert_file = PLUGIN_ROOT.'lakala/cert/lkl-apigw-v1.cer';
+        $this->merchant_cert_file = PLUGIN_ROOT.'lakala/cert/api_cert.cer';
+        $this->merchant_private_file = PLUGIN_ROOT.'lakala/cert/api_private_key.pem';
+        if(file_exists(PLUGIN_ROOT.'lakala/cert/'.$appid.'.cer') && file_exists(PLUGIN_ROOT.'lakala/cert/'.$appid.'.pem')){
+            $this->merchant_cert_file = PLUGIN_ROOT.'lakala/cert/'.$appid.'.cer';
+            $this->merchant_private_file = PLUGIN_ROOT.'lakala/cert/'.$appid.'.pem';
         }
         if($isTest){
             $this->gateway_url = 'https://test.wsmsd.cn/sit';
-            $this->platform_cert_file = PAY_ROOT.'cert/lkl-apigw-v2.cer';
+            $this->platform_cert_file = PLUGIN_ROOT.'lakala/cert/lkl-apigw-v2.cer';
         }
     }
 
@@ -152,7 +152,7 @@ class LakalaClient
     }
 
     //请求
-    private function curl($url, $data, $authorization) {
+    protected function curl($url, $data, $authorization) {
 
         $headers = [
             "Authorization: " . $authorization,

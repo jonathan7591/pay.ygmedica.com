@@ -124,7 +124,7 @@ class alipayd_plugin
 
 			return ['type'=>'html','data'=>$html];
 		}elseif(in_array('6',$channel['apptype'])){
-			if($conf['alipay_wappaylogin']==1 && !$isAlipay){
+			if($conf['alipay_wappaylogin']==1 && !$isAlipay || $isMobile && !$isAlipay){
 				return ['type'=>'jump','url'=>'/pay/qrcode/'.TRADE_NO.'/'];
 			}
 			return ['type'=>'jump','url'=>'/pay/apppay/'.TRADE_NO.'/?d=1'];
@@ -514,34 +514,6 @@ class alipayd_plugin
 			$redirect_url='\'/pay/ok/'.TRADE_NO.'/\'';
 		}
 		return ['type'=>'page','page'=>'alipay_jspay','data'=>['alipay_trade_no'=>$alipay_trade_no, 'redirect_url'=>$redirect_url]];
-	}
-
-	//聚合收款码接口
-	static public function jsapi($type,$money,$name,$openid){
-		global $siteurl, $channel, $conf, $clientip;
-
-		$alipay_config = require(PAY_ROOT.'inc/config.php');
-		$alipay_config['notify_url'] = $conf['localurl'].'pay/notify/'.TRADE_NO.'/';
-		$bizContent = [
-			'out_trade_no' => TRADE_NO,
-			'total_amount' => $money,
-			'subject' => $name
-		];
-		if(is_numeric($openid) && substr($openid, 0, 4) == '2088'){
-			$bizContent['buyer_id'] = $openid;
-		}else{
-			$bizContent['buyer_open_id'] = $openid;
-		}
-		$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
-		try{
-			$aop = new \Alipay\AlipayTradeService($alipay_config);
-			$aop->directPayParams($bizContent);
-			$result = $aop->jsPay($bizContent);
-		}catch(Exception $e){
-			throw new Exception('支付宝下单失败！'.$e->getMessage());
-		}
-		$alipay_trade_no = $result['trade_no'];
-		return $alipay_trade_no;
 	}
 
 	//支付成功页面

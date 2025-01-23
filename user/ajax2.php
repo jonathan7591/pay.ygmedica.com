@@ -234,6 +234,16 @@ case 'edit_keytype':
 		exit('{"code":-1,"msg":"保存失败！'.$DB->error().'"}');
 	}
 break;
+case 'edit_voice':
+	$voice_devid=trim($_POST['voice_devid']);
+	$voice_order=intval($_POST['voice_order']);
+	$sqs = $DB->update('user', ['voice_devid'=>$voice_devid, 'voice_order'=>$voice_order], ['uid'=>$uid]);
+	if($sqs!==false){
+		exit('{"code":1,"msg":"succ"}');
+	}else{
+		exit('{"code":-1,"msg":"保存失败！'.$DB->error().'"}');
+	}
+break;
 case 'edit_channel_info':
 	$setting=$_POST['setting'];
 	$channelinfo = json_encode($setting);
@@ -261,6 +271,7 @@ case 'edit_msgconfig':
 		'settle' => intval($_POST['notice_settle']),
 		'login' => intval($_POST['notice_login']),
 		'complain' => intval($_POST['notice_complain']),
+		'mchrisk' => intval($_POST['notice_mchrisk']),
 		'order_money' => trim($_POST['notice_order_money']),
 		'balance' => intval($_POST['notice_balance']),
 		'balance_money' => trim($_POST['notice_balance_money'])
@@ -585,7 +596,8 @@ case 'recharge':
 	$trade_no=date("YmdHis").rand(11111,99999);
 	$return_url=$siteurl.'user/recharge.php?ok=1&trade_no='.$trade_no;
 	$domain=getdomain($return_url);
-	if(!$DB->exec("INSERT INTO `pre_order` (`trade_no`,`out_trade_no`,`uid`,`tid`,`addtime`,`name`,`money`,`notify_url`,`return_url`,`domain`,`ip`,`status`) VALUES (:trade_no, :out_trade_no, :uid, 2, NOW(), :name, :money, :notify_url, :return_url, :domain, :clientip, 0)", [':trade_no'=>$trade_no, ':out_trade_no'=>$trade_no, ':uid'=>$uid, ':name'=>$name, ':money'=>$money, ':notify_url'=>$return_url, ':return_url'=>$return_url, ':domain'=>$domain, ':clientip'=>$clientip]))exit('{"code":-1,"msg":"创建订单失败，请返回重试！"}');
+	$param = json_encode(['uid'=>$uid]);
+	if(!$DB->exec("INSERT INTO `pre_order` (`trade_no`,`out_trade_no`,`uid`,`tid`,`addtime`,`name`,`money`,`notify_url`,`return_url`,`domain`,`ip`,`status`,`param`) VALUES (:trade_no, :out_trade_no, :uid, 2, NOW(), :name, :money, :notify_url, :return_url, :domain, :clientip, 0, :param)", [':trade_no'=>$trade_no, ':out_trade_no'=>$trade_no, ':uid'=>$conf['reg_pay_uid'], ':name'=>$name, ':money'=>$money, ':notify_url'=>$return_url, ':return_url'=>$return_url, ':domain'=>$domain, ':clientip'=>$clientip, ':param'=>$param]))exit('{"code":-1,"msg":"创建订单失败，请返回重试！"}');
 	unset($_SESSION['csrf_token']);
 	$result = ['code'=>0, 'msg'=>'succ', 'url'=>'../submit2.php?typeid='.$typeid.'&trade_no='.$trade_no];
 	exit(json_encode($result));
@@ -634,8 +646,8 @@ case 'groupbuy':
 		$trade_no=date("YmdHis").rand(11111,99999);
 		$return_url=$siteurl.'user/groupbuy.php?ok=1&trade_no='.$trade_no;
 		$domain=getdomain($return_url);
-		$param = json_encode(['gid'=>$gid, 'endtime'=>$endtime]);
-		if(!$DB->exec("INSERT INTO `pre_order` (`trade_no`,`out_trade_no`,`uid`,`tid`,`addtime`,`name`,`money`,`notify_url`,`return_url`,`domain`,`ip`,`status`,`param`) VALUES (:trade_no, :out_trade_no, :uid, 4, NOW(), :name, :money, :notify_url, :return_url, :domain, :clientip, 0, :param)", [':trade_no'=>$trade_no, ':out_trade_no'=>$trade_no, ':uid'=>$uid, ':name'=>$name, ':money'=>$money, ':notify_url'=>$return_url, ':return_url'=>$return_url, ':domain'=>$domain, ':clientip'=>$clientip, ':param'=>$param]))exit('{"code":-1,"msg":"创建订单失败，请返回重试！"}');
+		$param = json_encode(['uid'=>$uid, 'gid'=>$gid, 'endtime'=>$endtime]);
+		if(!$DB->exec("INSERT INTO `pre_order` (`trade_no`,`out_trade_no`,`uid`,`tid`,`addtime`,`name`,`money`,`notify_url`,`return_url`,`domain`,`ip`,`status`,`param`) VALUES (:trade_no, :out_trade_no, :uid, 4, NOW(), :name, :money, :notify_url, :return_url, :domain, :clientip, 0, :param)", [':trade_no'=>$trade_no, ':out_trade_no'=>$trade_no, ':uid'=>$conf['reg_pay_uid'], ':name'=>$name, ':money'=>$money, ':notify_url'=>$return_url, ':return_url'=>$return_url, ':domain'=>$domain, ':clientip'=>$clientip, ':param'=>$param]))exit('{"code":-1,"msg":"创建订单失败，请返回重试！"}');
 		unset($_SESSION['csrf_token']);
 		$result = ['code'=>0, 'msg'=>'succ', 'url'=>'../submit2.php?typeid='.$typeid.'&trade_no='.$trade_no];
 		exit(json_encode($result));
@@ -714,6 +726,10 @@ case 'orderList':
 			$sql.=" AND A.`ip`='{$kw}'";
 		}elseif($_POST['type']==8){
 			$sql.=" AND A.`buyer`='{$kw}'";
+		}elseif($_POST['type']==9){
+			$sql.=" AND A.`api_trade_no`='{$kw}'";
+		}elseif($_POST['type']==10){
+			$sql.=" AND A.`bill_trade_no`='{$kw}'";
 		}
 	}
 	$offset = intval($_POST['offset']);
@@ -758,8 +774,19 @@ case 'settleList':
 	$limit = intval($_POST['limit']);
 	$total = $DB->getColumn("SELECT count(*) from pre_settle WHERE{$sql}");
 	$list = $DB->getAll("SELECT * FROM pre_settle WHERE{$sql} order by id desc limit $offset,$limit");
+	$list2 = [];
+	foreach($list as $row){
+		if($row['type'] == 2 && $row['status'] == 1 && !empty($row['transfer_ext']) && time() - strtotime($row['transfer_date']) <= 86400){
+			if(substr($row['ext'], 0, 4) == 'http'){
+				$row['jumpurl'] = $row['ext'];
+			}else{
+				$row['jumpurl'] = $siteurl.'paypage/wxtrans.php?id='.$row['id'].'&type=settle';
+			}
+		}
+		$list2[] = $row;
+	}
 
-	exit(json_encode(['total'=>$total, 'rows'=>$list]));
+	exit(json_encode(['total'=>$total, 'rows'=>$list2]));
 break;
 case 'transferList':
 	$sql=" uid=$uid";
@@ -779,13 +806,24 @@ case 'transferList':
 	$limit = intval($_POST['limit']);
 	$total = $DB->getColumn("SELECT count(*) from pre_transfer WHERE{$sql}");
 	$list = $DB->getAll("SELECT * FROM pre_transfer WHERE{$sql} order by biz_no desc limit $offset,$limit");
+	$list2 = [];
+	foreach($list as $row){
+		if($row['type'] == 'wxpay' && $row['status'] == 0 && !empty($row['ext'])){
+			if(substr($row['ext'], 0, 4) == 'http'){
+				$row['jumpurl'] = $row['ext'];
+			}else{
+				$row['jumpurl'] = $siteurl.'paypage/wxtrans.php?id='.$row['biz_no'].'&type=transfer';
+			}
+		}
+		$list2[] = $row;
+	}
 
-	exit(json_encode(['total'=>$total, 'rows'=>$list]));
+	exit(json_encode(['total'=>$total, 'rows'=>$list2]));
 break;
 
 case 'transfer_result':
 	$biz_no=trim($_GET['biz_no']);
-	$row=$DB->getRow("select result from pre_transfer where biz_no='$biz_no' limit 1");
+	$row=$DB->getRow("select result from pre_transfer where biz_no='$biz_no' and uid='$uid' limit 1");
 	if(!$row)
 		exit('{"code":-1,"msg":"当前付款记录不存在！"}');
 	$result = ['code'=>0,'msg'=>$row['result']?$row['result']:'未知'];

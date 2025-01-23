@@ -6,7 +6,7 @@ use Exception;
 class Transfer
 {
     public static function submit(){
-        global $conf, $DB, $userrow, $queryArr;
+        global $conf, $DB, $userrow, $queryArr, $siteurl;
 
         $pid=intval($queryArr['pid']);
         $groupconfig = getGroupConfig($userrow['gid']);
@@ -74,12 +74,19 @@ class Transfer
         $result['out_biz_no'] = $out_biz_no;
 
         if($result['code']==0){
-            $data = ['biz_no'=>$out_biz_no, 'uid'=>$pid, 'type'=>$type, 'channel'=>$channelid, 'account'=>$account, 'username'=>$name, 'money'=>$money, 'costmoney'=>$need_money, 'paytime'=>'NOW()', 'pay_order_no'=>$result['orderid'], 'status'=>$result['status'], 'desc'=>$desc];
-            if($DB->insert('transfer', $data)!==false){
+            $paytime = $result['status'] == 1 ? 'NOW()' : null;
+            $data = ['biz_no'=>$out_biz_no, 'uid'=>$pid, 'type'=>$type, 'channel'=>$channelid, 'account'=>$account, 'username'=>$name, 'money'=>$money, 'costmoney'=>$need_money, 'addtime'=>'NOW()', 'paytime'=>$paytime, 'pay_order_no'=>$result['orderid'], 'status'=>$result['status'], 'desc'=>$desc];
+            if(isset($result['wxpackage'])) $data['ext'] = $result['wxpackage'];
+            $id = $DB->insert('transfer', $data);
+            if($id!==false){
                 changeUserMoney($pid, $need_money, false, '代付');
             }
             if($result['status'] == 1){
                 $result['msg']='转账成功！转账单据号:'.$result['orderid'].' 支付时间:'.$result['paydate'];
+            }elseif(isset($result['wxpackage'])){
+                $jumpurl = $siteurl.'paypage/wxtrans.php?type=transfer&id='.$id;
+                $result='提交成功！请在微信打开 '.$jumpurl.' 确认收款。转账单据号:'.$result['orderid'].' 支付时间:'.$result['paydate'];
+                $result['jumpurl'] = $jumpurl;
             }else{
                 $result['msg']='提交成功！转账处理中。转账单据号:'.$result['orderid'].' 支付时间:'.$result['paydate'];
             }

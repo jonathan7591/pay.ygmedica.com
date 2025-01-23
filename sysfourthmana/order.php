@@ -24,7 +24,6 @@ unset($rs);
 }
 }
 .type-logo{width: 18px;margin-top: -2px;padding-right: 4px;}
-.label-red{background-color:red;}
 </style>
 <link href="../assets/css/datepicker.css" rel="stylesheet">
   <div class="container-fluid" style="padding-top:70px;">
@@ -232,7 +231,7 @@ $(document).ready(function(){
 					}else if(value == '2'){
 						html+= '<li><a href="javascript:setStatus(\''+row.trade_no+'\', 0)">改未完成</a></li><li><a href="javascript:apirefund(\''+row.trade_no+'\')">API退款</a></li><li><a href="javascript:setStatus(\''+row.trade_no+'\', 1)">改已完成</a></li><li role="separator" class="divider"></li><li><a href="javascript:callnotify(\''+row.trade_no+'\')">重新通知</a></li><li><a href="javascript:setStatus(\''+row.trade_no+'\', 5)">删除订单</a></li>';
 					}else if(value == '3'){
-						html+= '<li><a href="javascript:unfreeze(\''+row.trade_no+'\')">解冻订单</a></li><li role="separator" class="divider"></li><li><a href="javascript:callnotify(\''+row.trade_no+'\')">重新通知</a></li><li><a href="javascript:setStatus(\''+row.trade_no+'\', 5)">删除订单</a></li>';
+						html+= '<li><a href="javascript:unfreeze(\''+row.trade_no+'\')">解冻订单</a></li><li><a href="javascript:apirefund(\''+row.trade_no+'\')">API退款</a></li><li role="separator" class="divider"></li><li><a href="javascript:callnotify(\''+row.trade_no+'\')">重新通知</a></li><li><a href="javascript:setStatus(\''+row.trade_no+'\', 5)">删除订单</a></li>';
 					}else{
 						if(value == '4'){
 							html += '<li><a href="javascript:alipayPreAuthPay(\''+row.trade_no+'\')">授权资金支付</a></li>';
@@ -331,7 +330,7 @@ function operation(status){
 }
 function showOrder(trade_no) {
 	var ii = layer.load(2, {shade:[0.1,'#fff']});
-	var status = ['<span class="label label-primary">未支付</span>','<span class="label label-success">已支付</span>','<span class="label label-red">已退款</span>'];
+	var status = ['<span class="label label-primary">未支付</span>','<span class="label label-success">已支付</span>','<span class="label label-danger">已退款</span>','<span class="label label-info">已冻结</span>','<span class="label label-warning">预授权</span>'];
 	$.ajax({
 		type : 'GET',
 		url : 'ajax_order.php?act=order&trade_no='+trade_no,

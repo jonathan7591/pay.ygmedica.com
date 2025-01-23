@@ -31,6 +31,10 @@ class xsy_plugin
 				'options' => [0=>'生产环境',1=>'测试环境'],
 			],
         ],
+        'select_alipay' => [
+			'1' => '扫码支付',
+			'2' => '生活号支付',
+		],
         'bindwxmp' => true, // 绑定微信公众号
         'bindwxa' => true, // 绑定微信小程序
         'note' => '',
@@ -87,6 +91,7 @@ class xsy_plugin
             'payType' => $pay_type,
             'subject' => $order['name'],
             'trmIp' => $clientip,
+            'customerIp' => $clientip,
             'notifyUrl' => $conf['localurl'] . 'pay/notify/' . TRADE_NO . '/'
         ];
 
@@ -101,7 +106,7 @@ class xsy_plugin
     }
 
     //公众号小程序支付
-    private static function jsapi($pay_type, $pay_way, $appid, $userid)
+    private static function jsapi($pay_type, $pay_way, $userid, $appid = null)
     {
         global $siteurl, $channel, $order, $ordername, $conf, $clientip;
         require(PAY_ROOT . 'lib/PayClient.php');
@@ -116,6 +121,7 @@ class xsy_plugin
             'userId' => $userid,
             'subject' => $order['name'],
             'trmIp' => $clientip,
+            'customerIp' => $clientip,
             'notifyUrl' => $conf['localurl'] . 'pay/notify/' . TRADE_NO . '/'
         ];
 
@@ -129,16 +135,47 @@ class xsy_plugin
     //支付宝扫码支付
     public static function alipay()
     {
-        try {
-            $url = self::qrcode('ALIPAY');
-        } catch (Exception $e) {
-            return ['type'=>'error','msg'=>'支付宝下单失败！'.$e->getMessage()];
+        global $channel, $siteurl;
+        if(in_array('2',$channel['apptype']) && !in_array('1',$channel['apptype'])){
+            $code_url = $siteurl.'pay/alipayjs/'.TRADE_NO.'/';
+        }else{
+            try {
+                $code_url = self::qrcode('ALIPAY');
+            } catch (Exception $e) {
+                return ['type'=>'error','msg'=>'支付宝下单失败！'.$e->getMessage()];
+            }
         }
-        if (strpos($_SERVER['HTTP_USER_AGENT'], 'AlipayClient') !== false) {
-            return ['type' => 'jump', 'url' => $url];
+        if (checkalipay()) {
+            return ['type' => 'jump', 'url' => $code_url];
         } else {
-            return ['type' => 'qrcode', 'page' => 'alipay_qrcode', 'url' => $url];
+            return ['type' => 'qrcode', 'page' => 'alipay_qrcode', 'url' => $code_url];
         }
+    }
+
+    //支付宝生活号支付
+    public static function alipayjs()
+    {
+        global $conf;
+		if(!isset($_GET['userid'])){
+			$redirect_uri = '/pay/alipayjs/'.TRADE_NO.'/';
+			return ['type'=>'jump','url'=>'/user/oauth.php?state='.urlencode(authcode($redirect_uri, 'ENCODE', SYS_KEY))];
+		}
+
+		$blocks = checkBlockUser($_GET['userid'], TRADE_NO);
+		if($blocks) return $blocks;
+
+		try{
+			$retData = self::jsapi('ALIPAY', '02', $_GET['userid']);
+		}catch(Exception $ex){
+			return ['type'=>'error','msg'=>'支付宝下单失败！'.$ex->getMessage()];
+		}
+
+		if($_GET['d']=='1'){
+			$redirect_url='data.backurl';
+		}else{
+			$redirect_url='\'/pay/ok/'.TRADE_NO.'/\'';
+		}
+		return ['type'=>'page','page'=>'alipay_jspay','data'=>['alipay_trade_no'=>$retData['source'], 'redirect_url'=>$redirect_url]];
     }
 
     //微信扫码支付
@@ -171,7 +208,7 @@ class xsy_plugin
 
 		//②、统一下单
 		try{
-			$result = self::jsapi('WECHAT', '02', $wxinfo['appid'], $openid);
+			$result = self::jsapi('WECHAT', '02', $openid, $wxinfo['appid']);
 		}catch(Exception $ex){
 			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
 		}
@@ -206,9 +243,9 @@ class xsy_plugin
 		
 		//②、统一下单
 		try{
-			$result = self::jsapi('WECHAT', '03', $wxinfo['appid'], $openid);
-		}catch(Exception $ex){
-			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
+			$result = self::jsapi('WECHAT', '03', $openid, $wxinfo['appid']);
+		}catch(Exception $e){
+            exit('{"code":-1,"msg":"'.$e->getMessage().'"}');
 		}
 
         $payinfo = ['appId'=>$result['payAppId'], 'timeStamp'=>$result['payTimeStamp'], 'nonceStr'=>$result['paynonceStr'], 'package'=>$result['payPackage'], 'signType'=>$result['paySignType'], 'paySign'=>$result['paySign']];

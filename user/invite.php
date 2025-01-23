@@ -75,7 +75,7 @@ $money_get = round(100*$conf['invite_rate']/100,2);
 	<div class="tab-container">
 		<ul class="nav nav-tabs">
 			<li class="active"><a href="" >已邀请的用户</a></li>
-			<li class=""><a href="./record.php?type=1&kw=邀请返现" style="color:black;">邀请返现记录</a></li>
+			<li class=""><a href="./record.php?type=1&kw=邀请返现">邀请返现记录</a></li>
 		</ul>
 		<div class="tab-content">
       		<div class="tab-pane active">

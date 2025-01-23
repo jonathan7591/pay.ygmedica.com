@@ -35,21 +35,6 @@ class kuaiqian_plugin
 				'type' => 'input',
 				'note' => '仅当面付需要填写',
 			],
-			'fkf_merchant_id' => [
-				'name' => '飞快付-商户号',
-				'type' => 'input',
-				'note' => '仅飞快付需要填写',
-			],
-			'fkf_terminal_id' => [
-				'name' => '飞快付-终端号',
-				'type' => 'input',
-				'note' => '仅飞快付需要填写',
-			],
-			'fkf_key' => [
-				'name' => '飞快付-MD5密钥',
-				'type' => 'input',
-				'note' => '仅飞快付需要填写',
-			],
 			'appmchid' => [
 				'name' => '服务商-快钱子账户号',
 				'type' => 'input',
@@ -64,12 +49,10 @@ class kuaiqian_plugin
 		'select_alipay' => [
 			'1' => 'H5支付',
 			'2' => '当面付',
-			'3'=> '飞快付',
 		],
 		'select_wxpay' => [
 			'1' => 'H5支付',
 			'2' => '当面付',
-			'3'=> '飞快付',
 		],
 		'select_bank' => [
 			'1' => '网银支付',
@@ -100,14 +83,10 @@ class kuaiqian_plugin
 					return ['type'=>'jump','url'=>'/pay/alipaywap/'.TRADE_NO.'/'];
 				}
 				return self::mobilepay('27-3');
-			}elseif(in_array('3',$channel['apptype'])){
-			    return ['type'=>'jump','url'=>'/pay/fkfpay/'.TRADE_NO.'/'];
-			}
-			else{
+			}else{
 				return ['type'=>'jump','url'=>'/pay/alipay/'.TRADE_NO.'/'];
 			}
 		}elseif($order['typename']=='wxpay'){
-		    //	file_put_contents('sb.txt',json_encode($order));
 			if(checkwechat() && $channel['appwxmp']>0){
 				return ['type'=>'jump','url'=>'/pay/wxjspay/'.TRADE_NO.'/?d=1'];
 			}elseif(checkmobile() && in_array('1',$channel['apptype'])){
@@ -121,8 +100,6 @@ class kuaiqian_plugin
 					return ['type'=>'jump','url'=>'/pay/wxwappay/'.TRADE_NO.'/'];
 				}
 				return self::mobilepay('26-2');
-			}elseif(in_array('3',$channel['apptype'])){
-			    return ['type'=>'jump','url'=>'/pay/fkfwxpay/'.TRADE_NO.'/'];
 			}else{
 				return ['type'=>'jump','url'=>'/pay/wxpay/'.TRADE_NO.'/'];
 			}
@@ -217,10 +194,9 @@ class kuaiqian_plugin
 			$params['extDataContent'] = '<NB2>'.json_encode(['customAuthNetInfo'=>['own_channel'=>'1']]).'</NB2>';
 		}
 		$params['signMsg'] = $client->generateSign($params);
-	
 		$params['terminalIp'] = $clientip;
 		$params['tdpformName'] = $conf['sitename'];
-	    file_put_contents('kq.txt',$params);
+
 		$html_text = '<form action="'.$apiurl.'" method="post" id="dopay">';
 		foreach($params as $k => $v) {
 			$v = htmlentities($v, ENT_QUOTES | ENT_HTML5);
@@ -264,9 +240,8 @@ class kuaiqian_plugin
 		$params['signMsg'] = $client->generateSign($params);
 		$params['terminalIp'] = $clientip;
 		$params['tdpformName'] = $conf['sitename'];
-       
+
 		$res = $client->curl($apiurl, http_build_query($params));
-		 file_put_contents('kq3.txt',$res);
 		if(strpos($res[1], '确认支付') !== false){
 			$cookie = '';
 			preg_match_all('/Set-Cookie: (.*?);/i', $res[0], $match);
@@ -288,7 +263,6 @@ class kuaiqian_plugin
 					$url = 'https://www.99bill.com/mobilegateway/alicsbPay.htm';
 					$res = $client->curl($url, '', $cookie);
 					$arr = json_decode($res[1], true);
-					file_put_contents('kq7.txt',$cookie);
 					if(isset($arr['qrcode'])){
 						return $arr['qrcode'];
 					}else{
@@ -303,104 +277,6 @@ class kuaiqian_plugin
 		}else{
 			echo $res[1];exit;
 		}
-	}
-	
-	//飞快付
-	static public function fkfpay(){
-	   global $siteurl, $channel, $order, $ordername, $conf, $clientip;
-	   require(PAY_ROOT."inc/PayApp.class.php");
-
-	   $client = new \kuaiqian\PayApp($channel['appid'], $channel['appkey'], $channel['appsecret']);
-	   $apiurl = 'https://pay.99bill.com/prod/html/smf/agentStatic.html';
-	   $params = [
-	        "requestTime"=>date('YmdHis'),
-	        "externalTraceNo"=>TRADE_NO,
-	        "merchantCode"=>$channel['appid'],
-	        "merchantId"=>$channel['fkf_merchant_id'],
-	        "terminalId"=>$channel['fkf_terminal_id'],
-	        "amt"=>$order['realmoney'],
-	       // "returnUrl"=>$siteurl.'pay/return/'.TRADE_NO.'/',
-	       ];
-	       if(!isset($channel['fkf_key']) || empty($channel['fkf_key']) || $channel['fkf_key']==''){
-	           throw new Exception('飞快付-MD5密钥不能为空 ');
-	       }
-	    $params['secretInfo'] = $client->generateFkfSign($params,$channel['fkf_key']);
-	   // 手动构建查询字符串
-        $queryString = '';
-      foreach ($params as $key => $value) {
-            if (!empty($queryString)) {
-                $queryString .= '&';
-            }
-            // 检查是否为secretInfo参数，如果是则不进行编码
-            // if ($key == 'secretInfo') {
-            //     $queryString .= $key . '=' . $value;  // 直接添加不编码
-            // } 
-            if($key == 'returnUrl'){
-                $queryString .= $key . '=' . urlencode($value);
-            }
-            else {
-                $queryString .= $key . '=' . $value;
-            }
-        }
-	   //这里只进行构建请求参数
-	   $res = $apiurl.'?'.$queryString;
-	   //$res = $client->curl($apiurl, http_build_query($params));
-	   file_put_contents(date('Ymd').'sb.txt',$res.PHP_EOL,FILE_APPEND);
-	   	\lib\Payment::updateOrderCombine(TRADE_NO,2); //更新退款标示为2
-	   //$data = array("pay_info"=>$res);
-	   $jump_url = 'alipays://platformapi/startapp?appId=20000067&url='.urlencode($res);
-	   return ['type'=>'scheme','page'=>'alipay_qrcode','url'=>$jump_url];
-	   //return $res;
-	   
-	}
-	
-	//飞快付微信支付
-	static public function fkfwxpay(){
-	   global $siteurl, $channel, $order, $ordername, $conf, $clientip;
-	   require(PAY_ROOT."inc/PayApp.class.php");
-
-	   $client = new \kuaiqian\PayApp($channel['appid'], $channel['appkey'], $channel['appsecret']);
-	   $apiurl = 'https://pay.99bill.com/prod/html/smf/agentStatic.html';
-	   $params = [
-	        "requestTime"=>date('YmdHis'),
-	        "externalTraceNo"=>TRADE_NO,
-	        "merchantCode"=>$channel['appid'],
-	        "merchantId"=>$channel['fkf_merchant_id'],
-	        "terminalId"=>$channel['fkf_terminal_id'],
-	        "amt"=>$order['realmoney'],
-	       // "returnUrl"=>$siteurl.'pay/return/'.TRADE_NO.'/',
-	       ];
-	       if(!isset($channel['fkf_key']) || empty($channel['fkf_key']) || $channel['fkf_key']==''){
-	           throw new Exception('飞快付-MD5密钥不能为空 ');
-	       }
-	    $params['secretInfo'] = $client->generateFkfSign($params,$channel['fkf_key']);
-	   // 手动构建查询字符串
-        $queryString = '';
-      foreach ($params as $key => $value) {
-            if (!empty($queryString)) {
-                $queryString .= '&';
-            }
-            // 检查是否为secretInfo参数，如果是则不进行编码
-            // if ($key == 'secretInfo') {
-            //     $queryString .= $key . '=' . $value;  // 直接添加不编码
-            // } 
-            if($key == 'returnUrl'){
-                $queryString .= $key . '=' . urlencode($value);
-            }
-            else {
-                $queryString .= $key . '=' . $value;
-            }
-        }
-	   //这里只进行构建请求参数
-	   $res = $apiurl.'?'.$queryString;
-	   //$res = $client->curl($apiurl, http_build_query($params));
-	   file_put_contents(date('Ymd').'wxsb.txt',$res.PHP_EOL,FILE_APPEND);
-	   	\lib\Payment::updateOrderCombine(TRADE_NO,2); //更新退款标示为2
-	   //$data = array("pay_info"=>$res);
-	   //$jump_url = 'alipays://platformapi/startapp?appId=20000067&url='.urlencode($res);
-	   return ['type'=>'jump','url'=>$res];
-	   //return $res;
-	   
 	}
 
 	//当面付
@@ -459,7 +335,6 @@ class kuaiqian_plugin
 	static public function alipaywap(){
 		try{
 			$jump_url = self::mobilepayurl('27-3');
-			
 		}catch(Exception $ex){
 			return ['type'=>'error','msg'=>'支付宝下单失败！'.$ex->getMessage()];
 		}
@@ -468,7 +343,7 @@ class kuaiqian_plugin
 
 	static public function wxpay(){
 		global $channel, $siteurl, $device, $mdevice;
-        
+
 		if(in_array('2',$channel['apptype'])){
 			try{
 				$code_url = self::qrcode();
@@ -498,9 +373,6 @@ class kuaiqian_plugin
 		}
 		return ['type'=>'scheme','page'=>'wxpay_mini','url'=>$jump_url];
 	}
-	
-	
-	
 
 	static public function bank(){
 		global $channel, $siteurl;
@@ -612,25 +484,6 @@ class kuaiqian_plugin
 			return ['type'=>'html','data'=>'<result>0</result>'];
 		}
 	}
-	
-	
-	//飞快付回调
-	static public function fkfnotify(){
-	    global $channel, $order;
-        $json = file_get_contents('php://input');
-        $jsons = $_REQUEST;
-        // file_put_contents('fkotify.txt',$json,FILE_APPEND);
-        // file_put_contents('fknotifys.txt',$jsons,FILE_APPEND);
-		require(PAY_ROOT."inc/PayApp.class.php");
-		$client = new \kuaiqian\PayApp($channel['appid'], $channel['appkey'], $channel['appsecret']);
-// 		file_put_contents('fkfnotify.txt',$json);
-		//var_dump($order);
-		if($_POST['processFlag']=='0' && $_POST['responseCode']=='00'){
-		    processNotify($order, $_POST['RRN']);
-		}
-// 		$redirecturl = $siteurl.'pay/return/'.TRADE_NO.'/';
-		return ['type'=>'html','data'=>'0'];
-	}
 
 	//当面付异步回调
 	static public function notifys(){
@@ -709,29 +562,6 @@ class kuaiqian_plugin
 			return ['type'=>'error','msg'=>$ex->getMessage()];
 		}
 	}
-	
-	static public function query_fkf(){
-	    global $channel, $order;
-	    require(PAY_ROOT."inc/PayApp.class.php");
-
-		$client = new \kuaiqian\PayApp($channel['appid'], $channel['appkey'], $channel['appsecret']);
-		$apiurl = "https://hat.99bill.com/polymerizes-order/order/query";
-		$params = [
-	       "memberCode"=>$channel['appid'],
-	       "requestTime"=>date('YmdHis'),
-	       "merchantId"=>$channel['fkf_merchant_id'],
-	       "terminalId"=>$channel['fkf_terminal_id'],
-	       "origTxnType"=>"PUR",
-	       "externalTraceNo"=>$order['trade_no'],
-	       ];
-	   $params['secretInfo'] = $client->generateFkfSign($params,$channel['fkf_key']);
-	   	try{
-			$result = $client->kq_curl($apiurl, json_encode($params));
-			print_r($result);
-		}catch(Exception $ex){
-			return ['type'=>'error','msg'=>$ex->getMessage()];
-		}
-	}
 
 	//退款
 	static public function refund($order){
@@ -766,45 +596,6 @@ class kuaiqian_plugin
 		}catch(Exception $ex){
 			return ['code'=>-1, 'msg'=>$ex->getMessage()];
 		}
-	}
-	
-	
-	//飞快付退款
-	static function refund_fkf($order){
-	   global $channel, $conf;
-	   if(empty($order))exit(); 
-	   require(PAY_ROOT."inc/PayApp.class.php");
-	   $client = new \kuaiqian\PayApp($channel['appid'], $channel['appkey'], $channel['appsecret']);
-	   $apiurl = "https://hat.99bill.com/polymerizes-order/order/refund";
-	   $params = [
-	       "memberCode"=>$channel['appid'],
-	       "requestTime"=>date('YmdHis'),
-	       "merchantName"=>"潮礼科技",
-	       "merchantId"=>$channel['fkf_merchant_id'],
-	       "terminalId"=>$channel['fkf_terminal_id'],
-	       "origIdBiz"=>$order['api_trade_no'],
-	       "amt"=>$order['refundmoney'],
-	       "termTxnTime"=>date('Y-m-d H:i:s'),
-	       "externalTraceNo"=>$order['trade_no']
-	       ];
-	   $params['secretInfo'] = $client->generateFkfSign($params,$channel['fkf_key']);
-	   try {
-	        $result = $client->kq_curl($apiurl,json_encode($params));
-	        if($result['responseCode']=='00'){
-	            if($result['txnFlg']=='S'){
-	               	return ['code'=>0];
-	            }else{
-	                return ['code'=>-1, 'msg'=>'['.$result['responseCode'].']'.$result['responseMessage']];
-	            }
-	        }else{
-	           return ['code'=>-1, 'msg'=>'['.$result['responseCode'].']'.$result['responseMessage']]; 
-	        }
-	   } catch (Exception $e) {
-	       return ['code'=>-1, 'msg'=>$ex->getMessage()];
-	   }
-	  
-	   
-	   
 	}
 
 	//当面付退款
@@ -934,7 +725,7 @@ class kuaiqian_plugin
 		}
 		$model = \lib\Complain\CommUtil::getModel($channel);
 		$model->refreshNewInfo($result['body']['complaintNo'], $result['body']['actionType']);
-        
+
 		return ['type'=>'html','data'=>$response];
 	}
 

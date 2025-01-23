@@ -58,9 +58,15 @@ class huolian_plugin
 	}
 
 	static public function mapi(){
-		global $siteurl, $channel, $order, $conf, $device, $mdevice;
+		global $siteurl, $channel, $order, $conf, $device, $mdevice, $method;
 
-		if($order['typename']=='alipay'){
+		if($method == 'wxplugin'){
+			return self::wxplugin();
+		}
+		elseif($method == 'app'){
+			return self::wxapppay();
+		}
+		elseif($order['typename']=='alipay'){
 			return self::alipay();
 		}elseif($order['typename']=='wxpay'){
 			if($channel['appwxa']>0){
@@ -87,6 +93,7 @@ class huolian_plugin
 			'notifyUrl' => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
 			'subject' => $ordername,
 			'payWay' => $pay_type,
+			'clientIp' => $clientip,
 		];
 		if(checkwechat())$params['callBackUrl'] = $siteurl.'pay/return/'.TRADE_NO.'/';
 
@@ -100,7 +107,7 @@ class huolian_plugin
 	}
 	
 	//微信小程序支付
-	static private function wechat_applet($appid, $openid){
+	static private function wechat_applet($appid, $openid = null){
 		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
 
 		require_once(PAY_ROOT.'inc/HuolianClient.class.php');
@@ -114,7 +121,8 @@ class huolian_plugin
 			'subject' => $ordername,
 			'payWay' => 'wechat',
 			'appId' => $appid,
-			'openId' => $openid
+			'openId' => $openid,
+			'clientIp' => $clientip,
 		];
 
 		$client = new HuolianClient($channel['appid'], $channel['appkey']);
@@ -122,7 +130,33 @@ class huolian_plugin
 		return \lib\Payment::lockPayData(TRADE_NO, function() use($client, $params) {
 			$result = $client->execute('api.hl.order.pay.applet', $params);
 			\lib\Payment::updateOrder(TRADE_NO, $result['orderNo']);
-			return $result['jsPayInfo'];
+			return $result;
+		});
+	}
+
+	//微信小程序托管支付
+	static private function wechat_applet_host(){
+		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
+
+		require_once(PAY_ROOT.'inc/HuolianClient.class.php');
+
+		$params = [
+			'businessOrderNo' => TRADE_NO,
+			'payAmount' => $order['realmoney'],
+			'merchantNo' => $channel['appmchid'],
+			'operatorAccount' => $channel['appurl'],
+			'notifyUrl' => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
+			'subject' => $ordername,
+			'payWay' => 'wechat',
+			'clientIp' => $clientip,
+		];
+
+		$client = new HuolianClient($channel['appid'], $channel['appkey']);
+
+		return \lib\Payment::lockPayData(TRADE_NO, function() use($client, $params) {
+			$result = $client->execute('api.hl.order.pre.pay.applet', $params);
+			\lib\Payment::updateOrder(TRADE_NO, $result['orderNo']);
+			return $result;
 		});
 	}
 
@@ -174,7 +208,8 @@ class huolian_plugin
 
 		//②、统一下单
 		try{
-			$jsApiParameters = self::wechat_applet($wxinfo['appid'], $openid);
+			$result = self::wechat_applet($wxinfo['appid'], $openid);
+			$jsApiParameters = $result['jsPayInfo'];
 		}catch(Exception $ex){
 			exit('{"code":-1,"msg":"'.$ex->getMessage().'"}');
 		}
@@ -194,6 +229,29 @@ class huolian_plugin
 			return ['type'=>'error','msg'=>$e->getMessage()];
 		}
 		return ['type'=>'scheme','page'=>'wxpay_mini','url'=>$code_url];
+	}
+
+	//微信小程序插件支付
+	static public function wxplugin(){
+		$appId = 'wxf51d01cf670e28d3';
+		try{
+			$result = self::wechat_applet($appId);
+			$payinfo = ['appId'=>$appId, 'merchantNo'=>$result['merchantNo'], 'orderNo'=>$result['orderNo']];
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		return ['type'=>'wxplugin','data'=>$payinfo];
+	}
+
+	//微信小程序托管支付
+	static public function wxapppay(){
+		try{
+			$result = self::wechat_applet_host();
+			$payinfo = ['appId'=>$result['appId'], 'miniProgramId'=>$result['miniProgramId'], 'path'=>$result['payPath']];
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		return ['type'=>'wxapp','data'=>$payinfo];
 	}
 
 	//云闪付扫码支付

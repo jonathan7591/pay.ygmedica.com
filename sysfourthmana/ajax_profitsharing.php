@@ -41,6 +41,7 @@ case 'add_receiver':
 	$data = [
 		'channel' => intval($_POST['channel']),
 		'uid' => !empty($_POST['uid'])?intval($_POST['uid']):null,
+		'subchannel' => !empty($_POST['subchannel']) ? intval($_POST['subchannel']) : null,
 		'account' => trim($_POST['account']),
 		'name' => trim($_POST['name']),
 		'rate' => !empty($_POST['rate'])?trim($_POST['rate']):'30',
@@ -51,6 +52,7 @@ case 'add_receiver':
 	if(!$data['channel'] || !$data['account'])exit('{"code":-1,"msg":"必填项不能为空"}');
 	if(!empty($data['uid']) && !$DB->find('user', 'uid', ['uid'=>$data['uid']]))exit('{"code":-1,"msg":"商户ID不存在"}');
 	if(!\lib\Channel::get($data['channel']))exit('{"code":-1,"msg":"支付通道不存在"}');
+	if(!strpos($data['rate'], '|') && $data['rate'] > 100) exit('{"code":-1,"msg":"分账比例不能大于100"}');
 	$rows = $DB->getRow("SELECT * FROM `pre_psreceiver` WHERE `channel`='{$data['channel']}' AND ".($data['uid']?"`uid`='{$data['uid']}'":"`uid` IS NULL")."");
 	if($rows)exit('{"code":-1,"msg":"该支付通道&UID已存在分账规则，每次支付只能同时给1个人分账"}');
 	if($DB->insert('psreceiver', $data)){
@@ -67,6 +69,7 @@ case 'edit_receiver':
 	$data = [
 		'channel' => intval($_POST['channel']),
 		'uid' => !empty($_POST['uid'])?intval($_POST['uid']):null,
+		'subchannel' => !empty($_POST['subchannel']) ? intval($_POST['subchannel']) : null,
 		'account' => trim($_POST['account']),
 		'name' => trim($_POST['name']),
 		'rate' => !empty($_POST['rate'])?trim($_POST['rate']):30,
@@ -75,6 +78,7 @@ case 'edit_receiver':
 	if(!$data['channel'] || !$data['account'])exit('{"code":-1,"msg":"必填项不能为空"}');
 	if(!empty($data['uid']) && !$DB->find('user', 'uid', ['uid'=>$data['uid']]))exit('{"code":-1,"msg":"商户ID不存在"}');
 	if(!\lib\Channel::get($data['channel']))exit('{"code":-1,"msg":"支付通道不存在"}');
+	if(!strpos($data['rate'], '|') && $data['rate'] > 100) exit('{"code":-1,"msg":"分账比例不能大于100"}');
 	if($row['status']==1 && ($data['account']!=$row['account'] || $data['name']!=$row['name'] || $data['channel']!=$row['channel']))exit('{"code":-1,"msg":"请先将状态改为已关闭再修改信息"}');
 	$rows = $DB->getRow("SELECT * FROM `pre_psreceiver` WHERE `channel`='{$data['channel']}' AND ".($data['uid']?"`uid`='{$data['uid']}'":"`uid` IS NULL")." AND id!='$id'");
 	if($rows)exit('{"code":-1,"msg":"该支付通道&UID已存在分账规则，每次支付只能同时给1个人分账"}');
@@ -90,8 +94,7 @@ case 'set_receiver':
 	$status=intval($_POST['status']);
 	$row=$DB->find('psreceiver', '*', ['id'=>$id]);
 	if(!$row) exit('{"code":-1,"msg":"当前分账规则不存在！"}');
-	if($row['uid'])$channelinfo = $DB->getColumn("SELECT `channelinfo` FROM `pre_user` WHERE `uid`='{$row['uid']}' LIMIT 1");
-	$channel = \lib\Channel::get($row['channel'], $channelinfo);
+	$channel = $row['subchannel'] > 0 ? \lib\Channel::getSub($row['subchannel']) : \lib\Channel::get($row['channel'], $row['uid']?$DB->findColumn('user', 'channelinfo', ['uid'=>$row['uid']]):null);
 	if(!$channel) exit('{"code":-1,"msg":"当前支付通道不存在！"}');
 	$model = \lib\ProfitSharing\CommUtil::getModel($channel);
 	if($status == 1){
@@ -112,10 +115,9 @@ case 'del_receiver':
 	$row=$DB->find('psreceiver', '*', ['id'=>$id]);
 	if(!$row) exit('{"code":-1,"msg":"当前分账规则不存在！"}');
 	if($row['status']==1){
-		if($row['uid'])$channelinfo = $DB->getColumn("SELECT `channelinfo` FROM `pre_user` WHERE `uid`='{$row['uid']}' LIMIT 1");
-		$channel = \lib\Channel::get($row['channel'], $channelinfo);
-		$model = \lib\ProfitSharing\CommUtil::getModel($channel);
+		$channel = $row['subchannel'] > 0 ? \lib\Channel::getSub($row['subchannel']) : \lib\Channel::get($row['channel'], $row['uid']?$DB->findColumn('user', 'channelinfo', ['uid'=>$row['uid']]):null);
 		if($channel){
+			$model = \lib\ProfitSharing\CommUtil::getModel($channel);
 			$model->deleteReceiver($row['account'], $row['name']);
 		}
 	}
@@ -278,7 +280,7 @@ case 'unfreeeze':
 	$id=intval($_POST['id']);
 	$row = $DB->getRow("SELECT A.*,B.channel,B.account,B.name,C.uid,C.subchannel FROM pre_psorder A LEFT JOIN pre_psreceiver B ON A.rid=B.id LEFT JOIN pre_order C ON C.trade_no=A.trade_no WHERE A.id=:id", [':id'=>$id]);
 	if(!$row)exit('{"code":-1,"msg":"订单不存在"}');
-	if($row['status']!=0)exit('{"code":-1,"msg":"只有待分账的订单才能取消分账"}');
+	if($row['status']==2)exit('{"code":-1,"msg":"只有待分账的订单才能取消分账"}');
 	$channel = $row['subchannel'] > 0 ? \lib\Channel::getSub($row['subchannel']) : \lib\Channel::get($row['channel'], $row['uid']?$DB->findColumn('user', 'channelinfo', ['uid'=>$row['uid']]):null);
 	if(!$channel) exit('{"code":-1,"msg":"通道信息不存在"}');
 	$model = \lib\ProfitSharing\CommUtil::getModel($channel);

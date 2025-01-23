@@ -67,12 +67,12 @@ if(isset($_GET['auth_code'])){
 	if(isset($_GET['state'])){
 		$redirect_uri = authcode(str_replace(' ', '+', $_GET['state']), 'DECODE', SYS_KEY);
 		if($redirect_uri && substr($redirect_uri, 0, 1) == '/'){
-			exit("<script language='javascript'>window.location.replace('{$redirect_uri}?userid={$user_id}&usertype={$user_type}');</script>");
+			exit("<script language='javascript'>window.location.replace('{$redirect_uri}?userid={$user_id}&usertype={$user_type}&appid={$channel['appid']}');</script>");
 		}
 	}
 	$_SESSION['alipay_uid'] = $user_id;
 
-	$userrow=$DB->getRow("SELECT * FROM pre_user WHERE alipay_uid='{$user_id}' limit 1");
+	$userrow=$DB->getRow("SELECT * FROM pre_user WHERE alipay_uid=:user_id limit 1", [':user_id'=>$user_id]);
 	if($userrow){
 		$uid=$userrow['uid'];
 		$key=$userrow['key'];
@@ -88,7 +88,7 @@ if(isset($_GET['auth_code'])){
 		@header('Content-Type: text/html; charset=UTF-8');
 		exit("<script language='javascript'>window.location.href='./';</script>");
 	}elseif($islogin2==1){
-		$sds=$DB->exec("update `pre_user` set `alipay_uid`='$user_id' where `uid`='$uid'");
+		$sds=$DB->exec("update `pre_user` set `alipay_uid`=:user_id where `uid`='$uid'", [':user_id'=>$user_id]);
 		@header('Content-Type: text/html; charset=UTF-8');
 		exit("<script language='javascript'>alert('已成功绑定支付宝账号！');window.location.href='./editinfo.php';</script>");
 	}else{

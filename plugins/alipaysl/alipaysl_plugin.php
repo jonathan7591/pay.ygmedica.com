@@ -12,7 +12,7 @@ class alipaysl_plugin
 			'appid' => [
 				'name' => '应用APPID',
 				'type' => 'input',
-				'note' => '',
+				'note' => '必须使用第三方应用',
 			],
 			'appkey' => [
 				'name' => '支付宝公钥',
@@ -119,7 +119,7 @@ class alipaysl_plugin
 
 			return ['type'=>'html','data'=>$html];
 		}elseif(in_array('6',$channel['apptype'])){
-			if($conf['alipay_wappaylogin']==1 && !$isAlipay){
+			if($conf['alipay_wappaylogin']==1 && !$isAlipay || $isMobile && !$isAlipay){
 				return ['type'=>'jump','url'=>'/pay/qrcode/'.TRADE_NO.'/'];
 			}
 			return ['type'=>'jump','url'=>'/pay/apppay/'.TRADE_NO.'/?d=1'];
@@ -516,6 +516,7 @@ class alipaysl_plugin
 					}elseif($result['trade_status'] != 'WAIT_BUYER_PAY'){
 						return ['type'=>'error','msg'=>'支付宝支付失败！订单超时或用户取消支付'];
 					}
+					$retry++;
 				}
 				if($success){
 					if(!empty($result['buyer_user_id'])){

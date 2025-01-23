@@ -184,6 +184,7 @@ class qqpay_plugin
 					}elseif($result['trade_state'] != 'USERPAYING'){
 						return ['type'=>'error','msg'=>'QQ钱包支付失败！'.$result['trade_state_desc']];
 					}
+					$retry++;
 				}
 				if($success){
 					processNotify($order, $result['transaction_id'], $result['openid']);

@@ -14,7 +14,7 @@ function display_type($type){
 	if($type==1)
 		return '微信小程序';
 	else
-		return '微信公众号';
+		return '微信服务号';
 }
 
 $list = $DB->getAll("SELECT * FROM pre_weixin ORDER BY id ASC");
@@ -36,7 +36,7 @@ $list = $DB->getAll("SELECT * FROM pre_weixin ORDER BY id ASC");
 						<label class="col-sm-2 control-label">类别</label>
 						<div class="col-sm-10">
 							<select name="type" id="type" class="form-control" onchange="shownote()">
-								<option value="0">微信公众号</option>
+								<option value="0">微信服务号</option>
 								<option value="1">微信小程序</option>
 							</select>
 						</div>

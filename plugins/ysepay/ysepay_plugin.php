@@ -310,7 +310,7 @@ class ysepay_plugin
 		try{
 			$jsApiParameters = self::weixin($wxinfo['appid'], $openid, '1');
 		}catch(Exception $ex){
-			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
+			exit('{"code":-1,"msg":"'.$ex->getMessage().'"}');
 		}
 
 		exit(json_encode(['code'=>0, 'data'=>json_decode($jsApiParameters, true)]));

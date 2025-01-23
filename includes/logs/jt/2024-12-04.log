@@ -1,5 +1,0 @@
-[2024-12-04 00:53:57] [DEBUG] {"channel":"alipay_qr","appid":"10001245","mchid":"10003459","description":"\u5143\u6c14\u76d2\u5b50\uff0c\u6709\u7591\u95ee\u8bf7\u8054\u7cfb4008381278\uff0c\u6216\u6dfb\u52a0QQ\u5ba2\u670d458969581","amount":{"total":"99.18","currency":"CNY"},"outTradeNo":"2024120400535688232","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024120400535688232/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"106.47.74.150"},"payer":{"openid":"17332448372836"}}
-[2024-12-04 00:53:58] [DEBUG] 返回数据：{
-	"code":"SYSTEM_ERROR",
-	"msg":"[400 Bad Request] during [POST] to [http://provider/v5/pay/trade/apply] [PayClient#jsapi(PayReq)]: [{\"code\":\"PARAM_ERROR\",\"msg\":\"商户不允许交易\"}]"
-}

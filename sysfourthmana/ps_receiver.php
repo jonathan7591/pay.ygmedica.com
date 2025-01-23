@@ -7,7 +7,11 @@ $title='分账规则列表';
 include './head.php';
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
+<style>
+tbody tr>td:nth-child(4){overflow: hidden;text-overflow: ellipsis;white-space: nowrap;max-width:160px;}
+</style>
   <div class="container" style="padding-top:70px;">
+	<div class="row">
     <div class="col-md-12">
 <?php
 $support_plugins = \lib\ProfitSharing\CommUtil::$plugins;
@@ -44,13 +48,19 @@ if(isset($_GET['value']) && !empty($_GET['value'])) {
 							<select name="channel" id="channel" class="form-control" onchange="changeChannel()">
 								<option value="0">请选择支付通道</option><?php echo $channel_select; ?>
 							</select>
-							<font color="green">只支持alipay、alipaysl、wxpayn、wxpaynp支付插件</font>
+							<font color="green">只支持<?php echo implode("、",$support_plugins)?>支付插件</font>
 						</div>
 					</div>
 					<div class="form-group">
 						<label class="col-sm-3 control-label no-padding-right">商户ID</label>
 						<div class="col-sm-9">
 							<input type="text" class="form-control" name="uid" id="uid" placeholder="可留空，留空则为当前支付通道所有订单">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label no-padding-right">商户子通道</label>
+						<div class="col-sm-9">
+							<select name="subchannel" id="subchannel" class="form-control"></select>
 						</div>
 					</div>
 					<div class="form-group">
@@ -105,7 +115,7 @@ if(isset($_GET['value']) && !empty($_GET['value'])) {
 </div>
       <div class="table-responsive">
         <table class="table table-striped">
-          <thead><tr><th>ID</th><th>支付通道</th><th>商户ID</th><th>接收方账号/姓名</th><th>分账比例</th><th>状态</th><th>操作</th></tr></thead>
+          <thead><tr><th>ID</th><th>支付通道</th><th>商户ID</th><th>商户子通道</th><th>接收方账号/姓名</th><th>分账比例</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
 <?php
 $numrows=$DB->getColumn("SELECT count(*) from pre_psreceiver A WHERE{$sql}");
@@ -114,10 +124,10 @@ $pages=ceil($numrows/$pagesize);
 $page=isset($_GET['page'])?intval($_GET['page']):1;
 $offset=$pagesize*($page - 1);
 
-$rs=$DB->query("SELECT A.*,B.name channelname FROM pre_psreceiver A LEFT JOIN pre_channel B ON A.channel=B.id WHERE{$sql} order by A.id desc limit $offset,$pagesize");
+$rs=$DB->query("SELECT A.*,B.name channelname,C.name subchannelname,C.apply_id FROM pre_psreceiver A LEFT JOIN pre_channel B ON A.channel=B.id LEFT JOIN pre_subchannel C ON A.subchannel=C.id WHERE{$sql} order by A.id desc limit $offset,$pagesize");
 while($res = $rs->fetch())
 {
-echo '<tr><td><b>'.$res['id'].'</b></td><td>'.$res['channel'].'__'.$res['channelname'].'</td><td><a href="./ulist.php?my=search&column=uid&value='.$res['uid'].'" target="_blank">'.$res['uid'].'</a></td><td>'.$res['account'].($res['name']?'／'.$res['name']:'').'</td><td>'.$res['rate'].'</td><td>'.($res['status']==1?'<a class="btn btn-xs btn-success" onclick="setStatus('.$res['id'].',0)">已开启</a>':'<a class="btn btn-xs btn-warning" onclick="setStatus('.$res['id'].',1)">已关闭</a>').'</td><td><a class="btn btn-xs btn-info" onclick="editframe('.$res['id'].')">编辑</a>&nbsp;<a class="btn btn-xs btn-danger" onclick="delItem('.$res['id'].')">删除</a>&nbsp;<a href="./ps_order.php?rid='.$res['id'].'" target="_blank" class="btn btn-xs btn-default">订单</a></td></tr>';
+echo '<tr><td><b>'.$res['id'].'</b></td><td>'.$res['channel'].'__'.$res['channelname'].'</td><td><a href="./ulist.php?my=search&column=uid&value='.$res['uid'].'" target="_blank">'.$res['uid'].'</a></td><td>'.($res['subchannel']?$res['subchannel'].'__'.$res['subchannelname']:'').'</td><td>'.$res['account'].($res['name']?'／'.$res['name']:'').'</td><td>'.$res['rate'].'</td><td>'.($res['status']==1?'<a class="btn btn-xs btn-success" onclick="setStatus('.$res['id'].',0)">已开启</a>':'<a class="btn btn-xs btn-warning" onclick="setStatus('.$res['id'].',1)">已关闭</a>').'</td><td><a class="btn btn-xs btn-info" onclick="editframe('.$res['id'].')">编辑</a>&nbsp;<a class="btn btn-xs btn-danger" onclick="delItem('.$res['id'].')">删除</a>&nbsp;<a href="./ps_order.php?rid='.$res['id'].'" target="_blank" class="btn btn-xs btn-default">订单</a></td></tr>';
 }
 ?>
           </tbody>
@@ -163,9 +173,11 @@ function addframe(){
 	$("#modal-store").modal('show');
 	$("#modal-title").html("新增分账规则");
 	$("#action").val("add");
+	$("#subchannel").empty();
 	$("#id").val('');
 	$("#channel").val(0);
 	$("#uid").val('');
+	$("#subchannel").val(0);
 	$("#account").val('');
 	$("#name").val('');
 	$("#rate").val('');
@@ -184,6 +196,7 @@ function changeChannel(){
 	}else{
 		$("#account_note").text('');
 	}
+	getSubChannels();
 }
 function editframe(id){
 	var ii = layer.load(2, {shade:[0.1,'#fff']});
@@ -197,13 +210,18 @@ function editframe(id){
 				$("#modal-store").modal('show');
 				$("#modal-title").html("修改分账规则");
 				$("#action").val("edit");
+				$("#subchannel").empty();
 				$("#id").val(data.data.id);
 				$("#channel").val(data.data.channel);
 				$("#uid").val(data.data.uid);
+				$("#subchannel").val(data.data.subchannel);
 				$("#account").val(data.data.account);
 				$("#name").val(data.data.name);
 				$("#rate").val(data.data.rate);
 				$("#minmoney").val(data.data.minmoney);
+				if(data.data.subchannel > 0){
+					getSubChannels(data.data.subchannel);
+				}
 			}else{
 				layer.alert(data.msg, {icon: 2})
 			}
@@ -290,22 +308,30 @@ function setStatus(id,status) {
 		}
 	});
 }
-function getAll(id, obj){
-	var ii = layer.load();
+function getSubChannels(subchannel){
+	subchannel = subchannel || null;
+	var uid = $("#uid").val();
+	var channel = $("#channel").val();
+	$("#subchannel").empty();
+	if(uid == '' || channel == '0') return;
 	$.ajax({
 		type : 'GET',
-		url : 'ajax_profitsharing.php?act=getMoney&id='+id,
+		url : 'ajax_pay.php?act=getSubChannels&channel='+channel+'&uid='+uid,
 		dataType : 'json',
 		success : function(data) {
-			layer.close(ii);
 			if(data.code == 0){
-				$(obj).html(data.money);
+				$("#subchannel").append('<option value="0">可留空，留空表示当前商户所有子通道</option>');
+				$.each(data.data, function (i, res) {
+					$("#subchannel").append('<option value="'+res.id+'">'+res.id+'__'+res.name+'</option>');
+				})
+				if(subchannel!=null)$("#subchannel").val(subchannel);
 			}else{
 				layer.alert(data.msg, {icon: 2})
 			}
 		},
 		error:function(data){
 			layer.msg('服务器错误');
+			return false;
 		}
 	});
 }
@@ -316,5 +342,8 @@ $(document).ready(function(){
 			$(items[i]).val($(items[i]).attr("default"));
 		}
 	}
+	$("#uid").change(function(){
+		getSubChannels();
+	})
 })
 </script>

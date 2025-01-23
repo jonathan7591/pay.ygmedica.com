@@ -35,6 +35,7 @@ class jeepay_plugin
 			'1' => '支付宝扫码',
 			'2' => '支付宝PC网站',
 			'3' => '支付宝WAP',
+			'7' => '支付宝APP',
 			'4' => '支付宝生活号',
 			'5' => '聚合扫码',
 			'6' => 'WEB收银台',
@@ -42,6 +43,7 @@ class jeepay_plugin
 		'select_wxpay' => [
 			'1' => '微信扫码',
 			'2' => '微信H5',
+			'7' => '微信APP',
 			'3' => '微信公众号',
 			'4' => '微信小程序',
 			'5' => '聚合扫码',
@@ -137,11 +139,11 @@ class jeepay_plugin
 		if($channelExtra) $param['channelExtra'] = $channelExtra;
 
 		$param['sign'] = self::make_sign($param, $channel['appkey']);
-        log_debug('请求参数：'.json_encode($param),'jeepay');
+
 		return \lib\Payment::lockPayData(TRADE_NO, function() use($apiurl, $param) {
 			$data = get_curl($apiurl, json_encode($param), 0, 0, 0, 0, 0, ['Content-Type: application/json']);
 			$result = json_decode($data, true);
-             log_debug('请求结果：'.$data,'jeepay');
+
 			if(isset($result['code']) && $result['code']==0){
 				if($result['data']['errMsg']){
 					throw new Exception('['.$result['data']['errCode'].']'.$result['data']['errMsg']);
@@ -164,6 +166,8 @@ class jeepay_plugin
 			$wayCode = 'ALI_PC';
 		}elseif(in_array('1',$channel['apptype'])){
 			$wayCode = 'ALI_QR';
+		}elseif(in_array('7',$channel['apptype'])){
+			$wayCode = 'ALI_APP';
 		}elseif(in_array('4',$channel['apptype'])){
 			$qrcode_url = $siteurl.'pay/alipayjs/'.TRADE_NO.'/';
 			return ['type'=>'qrcode','page'=>'alipay_qrcode','url'=>$qrcode_url];
@@ -171,6 +175,9 @@ class jeepay_plugin
 			$wayCode = 'QR_CASHIER';
 		}elseif(in_array('6',$channel['apptype'])){
 			$wayCode = 'WEB_CASHIER';
+		}elseif(in_array('3',$channel['apptype'])){
+			$qrcode_url = $siteurl.'pay/alipay/'.TRADE_NO.'/';
+			return ['type'=>'qrcode','page'=>'alipay_qrcode','url'=>$qrcode_url];
 		}else{
 			return ['type'=>'error','msg'=>'当前支付通道没有开启的支付方式'];
 		}
@@ -250,7 +257,7 @@ class jeepay_plugin
 		}elseif(in_array('3',$channel['apptype'])){
 			$qrcode_url = $siteurl.'pay/wxjspay/'.TRADE_NO.'/';
 			return ['type'=>'qrcode','page'=>'wxpay_qrcode','url'=>$qrcode_url];
-		}elseif(in_array('4',$channel['apptype'])){
+		}elseif(in_array('4',$channel['apptype']) || in_array('7',$channel['apptype'])){
 			$qrcode_url = $siteurl.'pay/wxwappay/'.TRADE_NO.'/';
 			return ['type'=>'qrcode','page'=>'wxpay_qrcode','url'=>$qrcode_url];
 		}elseif(in_array('5',$channel['apptype'])){
@@ -266,14 +273,14 @@ class jeepay_plugin
 			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
 		}
 
-		if($wayCode == 'QR_CASHIER' && (!checkwechat() || $mdevice!='wechat')){
+		if($wayCode == 'QR_CASHIER' && !checkwechat() && $mdevice!='wechat'){
 			$type = 'codeurl';
 		}
 		if($type == 'payurl'){
 			return ['type'=>'jump','url'=>$payData];
 		}elseif($type == 'form'){
 			return ['type'=>'html','url'=>$payData];
-		}elseif (checkmobile()) {
+		}elseif (checkmobile() || $device=='mobile') {
 			return ['type'=>'qrcode','page'=>'wxpay_wap','url'=>$payData];
 		} else {
 			return ['type'=>'qrcode','page'=>'wxpay_qrcode','url'=>$payData];
@@ -402,6 +409,13 @@ class jeepay_plugin
 			}catch(Exception $ex){
 				return ['type'=>'error','msg'=>'微信H5支付下单失败！'.$ex->getMessage()];
 			}
+		}elseif(in_array('7',$channel['apptype'])){ //APP支付
+			try{
+				list($type,$code_url) = self::addOrder('WX_APP');
+			}catch(Exception $ex){
+				return ['type'=>'error','msg'=>'微信H5支付下单失败！'.$ex->getMessage()];
+			}
+			return ['type'=>'qrcode','page'=>'wxpay_h5','url'=>$code_url];
 		}elseif(in_array('4',$channel['apptype']) && $channel['appwxa']>0){ //小程序支付
 			$wxinfo = \lib\Channel::getWeixin($channel['appwxa']);
 			if(!$wxinfo) return ['type'=>'error','msg'=>'支付通道绑定的微信小程序不存在'];
@@ -441,9 +455,10 @@ class jeepay_plugin
 				$out_trade_no = $arr['mchOrderNo'];
 				$api_trade_no = $arr['payOrderId'];
 				$money = $arr['amount'];
+				$bill_trade_no = $arr['channelOrderNo'];
 
 				if ($out_trade_no == TRADE_NO && $money==strval($order['realmoney']*100)) {
-					processNotify($order, $api_trade_no);
+					processNotify($order, $api_trade_no, null, $bill_trade_no);
 				}
 				return ['type'=>'html','data'=>'success'];
 			}else{

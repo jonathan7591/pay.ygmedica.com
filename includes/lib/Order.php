@@ -57,7 +57,7 @@ class Order
     }
 
     public static function refund($refund_no, $trade_no, $money, $api = 0, $uid = 0, $out_refund_no = null){
-        global $DB, $order;
+        global $DB, $order, $conf;
 
         $where = ['trade_no'=>$trade_no];
         if($uid > 0) $where['uid'] = $uid;
@@ -78,7 +78,9 @@ class Order
         $mode = $DB->findColumn('channel', 'mode', ['id'=>$order['channel']]);
         if($order['status'] == 3 || $mode == 1){
             $reducemoney = 0;
-        }elseif($money == $order['money'] || $money >= $order['getmoney']){
+        }elseif($conf['refund_fee_type']==1 && $money == $order['realmoney']){
+            $reducemoney = $order['realmoney'];
+        }elseif(!$conf['refund_fee_type'] && ($money == $order['realmoney'] || $money >= $order['getmoney'])){
             $reducemoney = $order['getmoney'];
         }else{
             $reducemoney = $money;
@@ -98,6 +100,12 @@ class Order
             }
         }
         if($reducemoney > 0){
+            if($order['tid'] == 2){
+                $param = json_decode($order['param'], true);
+                if(isset($param['uid'])){
+                    $order['uid'] = $param['uid'];
+                }
+            }
             changeUserMoney($order['uid'], $reducemoney, false, '订单退款', $trade_no);
         }
 

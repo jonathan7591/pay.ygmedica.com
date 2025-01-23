@@ -148,6 +148,15 @@ case 'getChannelsByPlugin':
 	}
 	else exit('{"code":-1,"msg":"没有找到支持该支付插件的通道"}');
 break;
+case 'getSubChannels':
+	$channel = intval($_GET['channel']);
+	$uid = intval($_GET['uid']);
+	$sql = " channel='$channel'";
+	if($uid > 0) $sql .= " AND uid='$uid'";
+	$list=$DB->getAll("SELECT id,name,channel,apply_id FROM pre_subchannel WHERE{$sql} ORDER BY id ASC");
+	$result = ['code'=>0,'msg'=>'succ','data'=>$list];
+	exit(json_encode($result));
+break;
 case 'setChannel':
 	$id=intval($_GET['id']);
 	$status=intval($_GET['status']);

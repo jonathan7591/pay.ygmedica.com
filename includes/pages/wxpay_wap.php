@@ -24,7 +24,7 @@ if (!defined('IN_PLUGIN'))
                 <span class="logo-tile">微信支付</span>
             </div>
             <div class="payment-content">
-                <h1 style="margin-top: 8px;margin-bottom: 16px;">￥<?php echo $order['money']; ?></h1>
+                <h1 style="margin-top: 8px;margin-bottom: 16px;">￥<?php echo $order['realmoney']; ?></h1>
                 <div class="scan-the-code">
                     <ul class="nav nav-group" role="tablist">
                         <li class="active">

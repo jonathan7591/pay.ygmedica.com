@@ -128,17 +128,17 @@ if(strlen($userrow['phone'])==11){
 <div class="tab-container ng-isolate-scope">
 <ul class="nav nav-tabs">
 	<li style="width: 25%;" align="center">
-		<a href="userinfo.php?mod=api" style="color:black;">API信息</a>
+		<a href="userinfo.php?mod=api">API信息</a>
 	</li>
 	<li style="width: 25%;" align="center" class="active">
-		<a href="editinfo.php" style="color:black;">修改资料</a>
+		<a href="editinfo.php">修改资料</a>
 	</li>
 	<li style="width: 25%;" align="center">
-		<a href="userinfo.php?mod=account" style="color:black;">修改密码</a>
+		<a href="userinfo.php?mod=account">修改密码</a>
 	</li>
 	<?php if($conf['cert_open']>0){?>
 	<li style="width: 25%;" align="center">
-		<a href="certificate.php" style="color:black;">实名认证</a>
+		<a href="certificate.php">实名认证</a>
 	</li>
 	<?php }?>
 </ul>
@@ -299,6 +299,12 @@ if(strlen($userrow['phone'])==11){
 						<select class="form-control" name="notice_complain" default="<?php echo $userrow['msgconfig']['complain']?>"><option value="0">关闭</option><?php if($conf['wxnotice_tpl_complain']){?><option value="1">开启 - 微信公众号</option><?php } if($conf['msgconfig_complain']){?><option value="2">开启 - 邮件</option><?php }?></select>
 					</div>
 				</div><?php }?>
+				<?php if($conf['msgconfig_mchrisk']){?><div class="form-group">
+					<label class="col-sm-2 control-label">渠道商户违规通知</label>
+					<div class="col-sm-9">
+						<select class="form-control" name="notice_mchrisk" default="<?php echo $userrow['msgconfig']['mchrisk']?>"><option value="0">关闭</option><option value="2">开启 - 邮件</option></select>
+					</div>
+				</div><?php }?>
 				<?php if($conf['wxnotice_tpl_balance'] || $conf['msgconfig_balance']){?><div class="form-group">
 					<label class="col-sm-2 control-label">余额不足提醒</label>
 					<div class="col-sm-9">
@@ -407,6 +413,16 @@ if($group_settings){
 <script src="<?php echo $cdnpublic?>jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script src="//static.geetest.com/static/tools/gt.js"></script>
 <script>
+window.appendChildOrg = Element.prototype.appendChild;
+Element.prototype.appendChild = function() {
+    if(arguments[0].tagName == 'SCRIPT'){
+        arguments[0].setAttribute('referrerpolicy', 'no-referrer');
+    }
+    return window.appendChildOrg.apply(this, arguments);
+};
+</script>
+<script src="//static.geetest.com/v4/gt4.js"></script>
+<script>
 function invokeSettime(obj){
     var countdown=60;
     settime(obj);
@@ -442,7 +458,7 @@ var handlerEmbed = function (captchaObj) {
 		$.ajax({
 			type : "POST",
 			url : "ajax2.php?act=sendcode",
-			data : {situation:situation,target:target,geetest_challenge:result.geetest_challenge,geetest_validate:result.geetest_validate,geetest_seccode:result.geetest_seccode},
+			data : {situation:situation,target:target, ...result},
 			dataType : 'json',
 			success : function(data) {
 				layer.close(ii);
@@ -457,10 +473,16 @@ var handlerEmbed = function (captchaObj) {
 				}
 			} 
 		});
+	}).onError(function(){
+		layer.msg('验证码加载失败，请刷新页面重试', {icon: 5});
 	});
 	$('#sendcode').click(function () {
 		if ($(this).attr("data-lock") === "true") return;
-		captchaObj.verify();
+		if(typeof captchaObj.showCaptcha === 'function'){
+			captchaObj.showCaptcha();
+		}else{
+			captchaObj.verify();
+		}
 	});
 	$('#sendcode2').click(function () {
 		if ($(this).attr("data-lock") === "true") return;
@@ -474,16 +496,23 @@ var handlerEmbed = function (captchaObj) {
 			var reg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
 			if(!reg.test(target)){layer.alert('邮箱格式不正确！');return false;}
 		}
-		captchaObj.verify();
+		if(typeof captchaObj.showCaptcha === 'function'){
+			captchaObj.showCaptcha();
+		}else{
+			captchaObj.verify();
+		}
 	});
 	$('#sendcode3').click(function () {
 		if ($(this).attr("data-lock") === "true") return;
 		target=$("input[name='phone_s']").val();
 		if(target==''){layer.alert('手机号码不能为空！');return false;}
 		if(target.length!=11){layer.alert('手机号码不正确！');return false;}
-		captchaObj.verify();
+		if(typeof captchaObj.showCaptcha === 'function'){
+			captchaObj.showCaptcha();
+		}else{
+			captchaObj.verify();
+		}
 	})
-	// 更多接口参考：http://www.geetest.com/install/sections/idx-client-sdk.html
 };
 $(document).ready(function(){
 	var items = $("select[default]");
@@ -610,6 +639,7 @@ $(document).ready(function(){
 		var notice_settle=$("select[name='notice_settle']").val();
 		var notice_login=$("select[name='notice_login']").val();
 		var notice_complain=$("select[name='notice_complain']").val();
+		var notice_mchrisk=$("select[name='notice_mchrisk']").val();
 		var notice_order_money=$("input[name='notice_order_money']").val();
 		var notice_balance=$("select[name='notice_balance']").val();
 		var notice_balance_money=$("input[name='notice_balance_money']").val();
@@ -617,7 +647,7 @@ $(document).ready(function(){
 		$.ajax({
 			type : "POST",
 			url : "ajax2.php?act=edit_msgconfig",
-			data : {notice_order:notice_order, notice_settle:notice_settle, notice_login:notice_login, notice_complain:notice_complain, notice_order_money:notice_order_money, notice_balance:notice_balance, notice_balance_money:notice_balance_money},
+			data : {notice_order:notice_order, notice_settle:notice_settle, notice_login:notice_login, notice_complain:notice_complain, notice_mchrisk:notice_mchrisk, notice_order_money:notice_order_money, notice_balance:notice_balance, notice_balance_money:notice_balance_money},
 			dataType : 'json',
 			success : function(data) {
 				layer.close(ii);
@@ -768,20 +798,29 @@ $(document).ready(function(){
 		});
 	});
 	$.ajax({
-		url: "ajax.php?act=captcha&t=" + (new Date()).getTime(),
+		url: "ajax.php?act=captcha",
 		type: "get",
-		asysn: true,
+		cache: false,
 		dataType: "json",
 		success: function (data) {
-			console.log(data);
-			initGeetest({
-				width: '100%',
-				gt: data.gt,
-				challenge: data.challenge,
-				new_captcha: data.new_captcha,
-				product: "bind",
-				offline: !data.success
-			}, handlerEmbed);
+			if(data.version == 1){
+				initGeetest4({
+					captchaId: data.gt,
+					product: 'bind',
+					protocol: 'https://',
+					riskType: 'slide',
+					hideSuccess: true,
+				}, handlerEmbed);
+			}else{
+				initGeetest({
+					width: '100%',
+					gt: data.gt,
+					challenge: data.challenge,
+					new_captcha: data.new_captcha,
+					product: "bind",
+					offline: !data.success
+				}, handlerEmbed);
+			}
 		}
 	});
 });

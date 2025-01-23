@@ -1,2 +1,0 @@
-[2024-12-08 18:44:22] [DEBUG] {"channel":"alipay_qr","appid":"10001247","mchid":"10003461","description":"\u5f00\u5ea6\u76d2\u5b50,\u6709\u7591\u95ee\u8bf7\u54a8\u8be24001198109","amount":{"total":"98.40","currency":"CNY"},"outTradeNo":"2024120818442199399","notifyUrl":"https://pay.ygmedica.com/pay/notify/2024120818442199399/","orderType":"ON_LINE","sceneInfo":{"payerClientIp":"116.21.128.69"},"payer":{"openid":"17336546625293"}}
-[2024-12-08 18:44:23] [DEBUG] 返回数据：{"qr_code":"https://qr.alipay.com/bax02516duxhjoceuix430c5","appId":"2021003167624148"}

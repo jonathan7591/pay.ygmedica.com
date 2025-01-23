@@ -5,9 +5,9 @@
  */
 class HnaPayApi
 {
-    private $mer_id;
-    private $sign_type = '1'; //1：RSA 3：国密交易证书 4：国密密钥
-    private $charset = '1';
+    protected $mer_id;
+    protected $sign_type = '1'; //1：RSA 3：国密交易证书 4：国密密钥
+    protected $charset = '1';
     private $platform_public_key;
     private $merchant_private_key;
 
@@ -15,16 +15,24 @@ class HnaPayApi
 	{
 		$this->mer_id = $mer_id;
         if($key_type == 2){
-            $platform_public_key_path = PAY_ROOT.'cert/hnapaypay.pem';
-            $merchant_private_key_path = PAY_ROOT.'cert/pay.key';
+            $platform_public_key_path = PLUGIN_ROOT.'hnapay/cert/hnapaypay.pem';
+            if(file_exists(PLUGIN_ROOT.'hnapay/cert/'.$mer_id.'/pay.key')){
+                $merchant_private_key_path = PLUGIN_ROOT.'hnapay/cert/'.$mer_id.'/pay.key';
+            }else{
+                $merchant_private_key_path = PLUGIN_ROOT.'hnapay/cert/pay.key';
+            }
             if(!file_exists($merchant_private_key_path)) {
                 throw new Exception('商户私钥文件pay.key不存在');
             }
             $this->platform_public_key = $this->loadPublicKeyFile($platform_public_key_path);
             $this->merchant_private_key = $this->loadPrivateKeyFile($merchant_private_key_path);
         }elseif($key_type == 1){
-            $platform_public_key_path = PAY_ROOT.'cert/hnapay.pem';
-            $merchant_private_key_path = PAY_ROOT.'cert/mch.key';
+            $platform_public_key_path = PLUGIN_ROOT.'hnapay/cert/hnapay.pem';
+            if(file_exists(PLUGIN_ROOT.'hnapay/cert/'.$mer_id.'/mch.key')){
+                $merchant_private_key_path = PLUGIN_ROOT.'hnapay/cert/'.$mer_id.'/mch.key';
+            }else{
+                $merchant_private_key_path = PLUGIN_ROOT.'hnapay/cert/mch.key';
+            }
             if(!file_exists($merchant_private_key_path)) {
                 throw new Exception('商户私钥文件mch.key不存在');
             }
@@ -54,7 +62,7 @@ class HnaPayApi
 
         $response = get_curl($apiurl, http_build_query($params));
         $arr = json_decode($response, true);
-        log_debug('请求数据：'.json_encode($params).'返回数据：'.$response,'hnapay');
+
         if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
             if(!empty($arr['signMsg'])){
                 $sign_order = ['tranCode', 'version', 'merId', 'merOrderNum', 'tranAmt', 'submitTime', 'qrCodeUrl', 'hnapayOrderId', 'resultCode', 'charset', 'signType'];
@@ -134,7 +142,7 @@ class HnaPayApi
         $response = get_curl($apiurl, http_build_query($param));
         $arr = json_decode($response, true);
         //print_r($arr);exit;
-       log_debug('JSAPI请求数据：'.json_encode($param).'返回数据：'.$response,'hnapay');
+
         if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
             if(!empty($arr['signValue'])){
                 $sign_order = ['version', 'tranCode', 'merOrderId', 'merId', 'charset', 'signType', 'resultCode', 'errorCode', 'hnapayOrderId', 'payInfo'];
@@ -143,8 +151,8 @@ class HnaPayApi
                 }
             }
             return $arr;
-        }elseif(isset($arr['resultCode'])){
-            throw new Exception('['.$arr['resultCode'].']'.$arr['errorMsg']);
+        }elseif(isset($arr['errorCode'])){
+            throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
         }else{
             throw new Exception('返回数据解析失败');
         }
@@ -171,8 +179,8 @@ class HnaPayApi
         
         if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
             return $arr;
-        }elseif(isset($arr['resultCode'])){
-            throw new Exception('['.$arr['resultCode'].']'.$arr['errorMsg']);
+        }elseif(isset($arr['errorCode'])){
+            throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
         }else{
             throw new Exception('返回数据解析失败');
         }
@@ -202,7 +210,7 @@ class HnaPayApi
 
         $sign_order = ['version', 'tranCode', 'merId', 'merOrderId', 'submitTime', 'signType', 'charset', 'msgCiphertext'];
         $param['signValue'] = $this->generateSign($param, $sign_order);
-        log_debug(json_encode($param),'hnapay');
+
         $html = "<form id='alipaysubmit' name='alipaysubmit' action='{$apiurl}' method='POST'>";
         foreach ($param as $key => $value) {
             $value = htmlentities($value, ENT_QUOTES | ENT_HTML5);
@@ -244,8 +252,8 @@ class HnaPayApi
 
         if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
             return $arr;
-        }elseif(isset($arr['resultCode'])){
-            throw new Exception('['.$arr['resultCode'].']'.$arr['errorMsg']);
+        }elseif(isset($arr['errorCode'])){
+            throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
         }else{
             throw new Exception('返回数据解析失败');
         }
@@ -274,16 +282,44 @@ class HnaPayApi
 
         if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
             return $arr;
-        }elseif(isset($arr['resultCode'])){
+        }elseif(isset($arr['errorCode'])){
             throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
         }else{
             throw new Exception('返回数据解析失败');
         }
     }
-    
-    //转账凭证
-    public function transfer_proof($params,$trade_no){
-        $apiurl = 'https://gateway.hnapay.com/website/payCertificate.do'; 
+
+    //商户账户余额查询
+    public function transferQuery($orderid){
+        $apiurl = 'https://gateway.hnapay.com/website/singlePayQuery.do';
+        $param = [
+			'version' => "2.0",
+			'tranCode' => "SGP02",
+			'merOrderId' => $orderid,
+            'submitTime' => substr($orderid, 0, 14),
+			'signType' => $this->sign_type,
+			'charset' => $this->charset,
+		];
+
+        $sign_order = ['version', 'tranCode', 'merId', 'merOrderId', 'submitTime'];
+        $param['signValue'] = $this->generateSign($param, $sign_order);
+
+        $response = get_curl($apiurl, http_build_query($param));
+        $arr = json_decode($response, true);
+        
+        if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
+            return $arr;
+        }elseif(isset($arr['errorCode'])){
+            throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
+        }else{
+            throw new Exception('返回数据解析失败');
+        }
+    }
+
+    //付款凭证下载
+    public function transferProof($hnapayOrderId){
+        $trade_no = date('YmdHis').rand(1000, 9999);
+        $apiurl = 'https://gateway.hnapay.com/website/payCertificate.do';
         $param = [
 			'version' => "2.0",
 			'tranCode' => "SGP03",
@@ -293,16 +329,49 @@ class HnaPayApi
 			'signType' => $this->sign_type,
 			'charset' => $this->charset,
 		];
-	   $param['msgCiphertext'] = $this->encryptParams($params);
-	   $sign_order = ['version', 'tranCode', 'merId', 'merOrderId', 'submitTime', 'msgCiphertext'];
-	    $param['signValue'] = $this->generateSign($param, $sign_order);
+        
+        $params = [
+            'hnapayOrderId' => $hnapayOrderId
+        ];
+
+        $param['msgCiphertext'] = $this->encryptParams($params);
+
+        $sign_order = ['version', 'tranCode', 'merId', 'merOrderId', 'submitTime', 'msgCiphertext'];
+        $param['signValue'] = $this->generateSign($param, $sign_order);
 
         $response = get_curl($apiurl, http_build_query($param));
         $arr = json_decode($response, true);
 
         if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
             return $arr;
-        }elseif(isset($arr['resultCode'])){
+        }elseif(isset($arr['errorCode'])){
+            throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
+        }else{
+            throw new Exception('返回数据解析失败');
+        }
+    }
+
+    //商户账户余额查询
+    public function queryBalance(){
+        $apiurl = 'https://gateway.hnapay.com/merchant/acct/queryBalance.do';
+        $param = [
+			'version' => "2.0",
+			'tranCode' => "QB01",
+			'merId' => $this->mer_id,
+            'acctType' => '11',
+			'signType' => $this->sign_type,
+			'charset' => $this->charset,
+		];
+
+        $sign_order = ['version', 'tranCode', 'merId', 'acctType', 'charset', 'signType'];
+        $param['signValue'] = $this->generateSign($param, $sign_order);
+
+        $response = get_curl($apiurl, http_build_query($param));
+        $arr = json_decode($response, true);
+        
+        if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
+            return $arr;
+        }elseif(isset($arr['errorCode'])){
             throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
         }else{
             throw new Exception('返回数据解析失败');
@@ -315,61 +384,28 @@ class HnaPayApi
         $sign_order = ['version', 'tranCode', 'merOrderId', 'merId', 'charset', 'signType', 'resultCode', 'hnapayOrderId'];
         return $this->verifySign($param, $sign_order, $param['signValue']);
     }
-    
-    
-    //查询余额
-    public function balance_query(){
-         
-        $apiurl = 'https://gateway.hnapay.com/merchant/acct/queryBalance.do';
-        $param = [
-			'version' => "2.0",
-			'tranCode' => "QB01",
-			'merId' => $this->mer_id,
-			'acctType' => "11",
-			'signType' => $this->sign_type,
-			'charset' => $this->charset,
-		];
-
-        // $param['msgCiphertext'] = $this->encryptParams($params);
-
-        $sign_order = ['version', 'tranCode', 'merId' ,'acctType','charset','signType'];
-        $param['signValue'] = $this->generateSign($param, $sign_order);
-       
-        $response = get_curl($apiurl, http_build_query($param));
-       
-        $arr = json_decode($response, true);
-     
-        if(isset($arr['resultCode']) && $arr['resultCode'] == '0000'){
-            return $arr;
-        }elseif(isset($arr['resultCode'])){
-            throw new Exception('['.$arr['errorCode'].']'.$arr['errorMsg']);
-        }else{
-            throw new Exception('返回数据解析失败');
-        }
-    }
 
     
     //请求参数签名(新收款密钥)
-	private function generateSign($param, $sign_order){
+	protected function generateSign($param, $sign_order){
         $signStr = $this->getSignContent($param, $sign_order);
-        
         return $this->rsaPrivateSign($signStr);
 	}
 
     //请求参数签名(收款密钥)
-	private function generateSignOld($param, $sign_order){
+	protected function generateSignOld($param, $sign_order){
         $signStr = $this->getSignContent($param, $sign_order);
         return $this->rsaPrivateSign($signStr, true);
 	}
 
     //参数验签(新收款密钥)
-    private function verifySign($param, $sign_order, $sign){
+    protected function verifySign($param, $sign_order, $sign){
         $signStr = $this->getSignContent($param, $sign_order);
         return $this->rsaPubilcVerify($signStr, $sign);
     }
 
     //参数验签(收款密钥)
-    private function verifySignOld($param, $sign_order, $sign){
+    protected function verifySignOld($param, $sign_order, $sign){
         $signStr = $this->getSignContent($param, $sign_order);
         return $this->rsaPubilcVerify($signStr, $sign, true);
     }
@@ -388,7 +424,7 @@ class HnaPayApi
     }
 
     //请求参数加密
-    private function encryptParams($params){
+    protected function encryptParams($params){
         $key = openssl_get_publickey($this->platform_public_key);
         if(!$key){
             throw new Exception('加密失败，平台公钥不正确');
@@ -407,8 +443,6 @@ class HnaPayApi
 
     //商户私钥签名
 	private function rsaPrivateSign($data, $is_hex = false){
-	   //  log_debug("加密".$this->merchant_private_key,'hnapay');
-	  // var_dump($this->merchant_private_key);
 		openssl_sign($data, $sign, $this->merchant_private_key, OPENSSL_ALGO_SHA1);
 		$sign = $is_hex ? bin2hex($sign) : base64_encode($sign);
 		return $sign;

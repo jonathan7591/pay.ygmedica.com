@@ -10,7 +10,7 @@ class Channel {
 		$channel = ['id'=>$value['id'], 'name'=>$value['name'], 'mode'=>$value['mode'], 'type'=>$value['type'], 'plugin'=>$value['plugin'], 'apptype'=>$value['apptype'], 'appwxmp'=>$value['appwxmp'], 'appwxa'=>$value['appwxa'], 'costrate'=>$value['costrate'], 'daytop'=>$value['daytop']];
 
 		$config = json_decode($value['config'], true);
-		if(!empty($channelinfo)){
+		if(!empty($channelinfo) && !empty($config)){
 			$arr = json_decode($channelinfo, true);
 			foreach($config as $configkey => $configrow){
 				if($configrow && substr($configrow, 0, 1) == '['){
@@ -20,18 +20,20 @@ class Channel {
 			}
 		}
 		
-		$channel = array_merge($channel, $config);
+		if(!empty($config)){
+			$channel = array_merge($channel, $config);
+		}
 		return $channel;
 	}
 
 	static public function getSub($id){
 		global $DB;
-		$value=$DB->getRow("SELECT A.*,B.info FROM pre_subchannel B INNER JOIN pre_channel A ON B.channel=A.id WHERE B.id='$id'");
+		$value=$DB->getRow("SELECT A.*,B.info,B.id subid FROM pre_subchannel B INNER JOIN pre_channel A ON B.channel=A.id WHERE B.id='$id'");
 		if(!$value) return null;
-		$channel = ['id'=>$value['id'], 'name'=>$value['name'], 'mode'=>$value['mode'], 'type'=>$value['type'], 'plugin'=>$value['plugin'], 'apptype'=>$value['apptype'], 'appwxmp'=>$value['appwxmp'], 'appwxa'=>$value['appwxa'], 'costrate'=>$value['costrate'], 'daytop'=>$value['daytop']];
+		$channel = ['id'=>$value['id'], 'subid'=>$value['subid'], 'name'=>$value['name'], 'mode'=>$value['mode'], 'type'=>$value['type'], 'plugin'=>$value['plugin'], 'apptype'=>$value['apptype'], 'appwxmp'=>$value['appwxmp'], 'appwxa'=>$value['appwxa'], 'costrate'=>$value['costrate'], 'daytop'=>$value['daytop']];
 
 		$config = json_decode($value['config'], true);
-		if(!empty($value['info'])){
+		if(!empty($value['info']) && !empty($config)){
 			$arr = json_decode($value['info'], true);
 			foreach($config as $configkey => $configrow){
 				if($configrow && substr($configrow, 0, 1) == '['){
@@ -51,7 +53,9 @@ class Channel {
 				$channel['subappwxa'] = 1;
 			}
 		}
-		$channel = array_merge($channel, $config);
+		if(!empty($config)){
+			$channel = array_merge($channel, $config);
+		}
 		return $channel;
 	}
 
@@ -108,7 +112,7 @@ class Channel {
 		}else{
 			$sqls = " AND (device=0 OR device=1)";
 		}
-		$paytype=$DB->getRow("SELECT id,name,status FROM pre_type WHERE name='$type'{$sqls} LIMIT 1");
+		$paytype=$DB->getRow("SELECT id,name,status FROM pre_type WHERE name=:type{$sqls} LIMIT 1", [':type'=>$type]);
 		if(!$paytype || $paytype['status']==0)sysmsg('支付方式(type)不存在');
 		$typeid = $paytype['id'];
 		$typename = $paytype['name'];

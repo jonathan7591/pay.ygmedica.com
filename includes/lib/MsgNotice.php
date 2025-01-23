@@ -7,8 +7,13 @@ class MsgNotice
 {
     public static function send($scene, $uid, $param){
         global $DB, $conf;
+        $scene_all = ['complain', 'mchrisk'];
         if($uid == 0){
-            $switch = self::getMessageSwitch($scene);
+            if(in_array($scene, $scene_all)){
+                $switch = self::getMessageSwitch($scene.'_all');
+            }else{
+                $switch = self::getMessageSwitch($scene);
+            }
             if($switch == 1){
                 $receiver = $conf['mail_recv']?$conf['mail_recv']:$conf['mail_name'];
                 return self::send_mail_msg($scene, $receiver, $param);
@@ -22,6 +27,14 @@ class MsgNotice
                 return self::send_wechat_tplmsg($scene, $userrow['wx_uid'], $param);
             }elseif($userrow['msgconfig'][$scene] == 2 && !empty($userrow['email']) && self::getMessageSwitch($scene) == 1){
                 return self::send_mail_msg($scene, $userrow['email'], $param);
+            }
+
+            if(in_array($scene, $scene_all)){
+                $switch = self::getMessageSwitch($scene.'_all');
+                if($switch == 1){
+                    $receiver = $conf['mail_recv']?$conf['mail_recv']:$conf['mail_name'];
+                    return self::send_mail_msg($scene, $receiver, $param);
+                }
             }
         }
         return false;
@@ -49,7 +62,7 @@ class MsgNotice
             if($conf['wxnotice_tpl_settle_money']) $data[$conf['wxnotice_tpl_settle_money']] = ['value'=>'￥'.$param['money']];
             if($conf['wxnotice_tpl_settle_realmoney']) $data[$conf['wxnotice_tpl_settle_realmoney']] = ['value'=>'￥'.$param['realmoney']];
             if($conf['wxnotice_tpl_settle_time']) $data[$conf['wxnotice_tpl_settle_time']] = ['value'=>$param['time']];
-            $jumpurl = $siteurl.'user/settle.php';
+            $jumpurl = isset($param['jumpurl']) ? $param['jumpurl'] : $siteurl.'user/settle.php';
         }elseif($scene == 'login'){
             $template_id = $conf['wxnotice_tpl_login'];
             $data = [];
@@ -112,6 +125,9 @@ class MsgNotice
         }elseif($scene == 'complain'){
             $title = '支付交易投诉通知 - '.$conf['sitename'];
             $content = '尊敬的商户，'.$param['type'].'！<br/>系统订单号：'.$param['trade_no'].'<br/>投诉原因：'.$param['title'].'<br/>投诉详情：'.$param['content'].'<br/>商品名称：'.$param['ordername'].'<br/>订单金额：￥'.$param['money'].'<br/>投诉时间：'.$param['time'];
+        }elseif($scene == 'mchrisk'){
+            $title = '渠道商户违规处置通知 - '.$conf['sitename'];
+            $content = '尊敬的商户，您有新的渠道商户违规处置记录！<br/>渠道子商户号：'.$param['mchid'].'<br/>商户名称：'.$param['mchname'].'<br/>风险类型：'.$param['risk_desc'].'<br/>处罚方案：'.$param['punish_type'].'（'.$param['punish_desc'].'）<br/>记录时间：'.$param['punish_time'];
         }elseif($scene == 'balance'){
             $title = '商户余额不足提醒 - '.$conf['sitename'];
             $content = '尊敬的商户，您的手续费余额不足'.$param['msgmoney'].'元，为避免造成订单失败请及时充值。<br/>当前余额：'.$param['money'].'元';

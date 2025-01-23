@@ -95,6 +95,8 @@ case 'userPayStat':
 	}
 
 	if($type == 4){
+		$startday .= ' 00:00:00';
+		$endday .= ' 23:59:59';
 		$rs=$DB->query("SELECT uid,type,channel,money from pre_transfer where status=1 and paytime>='$startday' and paytime<='$endday'");
 		while($row = $rs->fetch())
 		{
@@ -140,6 +142,16 @@ case 'userPayStat':
 		}
 	}
 	ksort($data);
+	//计算总计
+	$total = ['uid'=>'总计'];
+	foreach($data as $row){
+		foreach($row as $key=>$val){
+			if($key=='uid')continue;
+			if(!array_key_exists($key, $total)) $total[$key] = $val;
+			else $total[$key] += $val;
+		}
+	}
+	array_unshift($data, $total);
 	$list = [];
 	foreach($data as $row){
 		$list[] = $row;
@@ -310,7 +322,7 @@ case 'saveGroupPrice':
 		$price = trim($item);
 		$expire = intval($expires[$gid]);
 		$sort = trim($sorts[$gid]);
-		if(empty($price)||!is_numeric($price))exit('{"code":-1,"msg":"GID:'.$gid.'的售价填写错误"}');
+		if(!is_numeric($price)||$price<0)exit('{"code":-1,"msg":"GID:'.$gid.'的售价填写错误"}');
 		$DB->exec("UPDATE pre_group SET price='{$price}',expire='{$expire}',sort='{$sort}' WHERE gid='$gid'");
 	}
 	exit('{"code":0,"msg":"保存成功！"}');
@@ -337,7 +349,7 @@ case 'addUser':
 		'addtime' => 'NOW()',
 	];
 
-	if(empty($data['account']) || empty($data['username'])) exit('{"code":-1,"msg":"必填项不能为空！"}');
+	if(empty($data['phone']) && empty($data['email'])) exit('{"code":-1,"msg":"手机号和邮箱不能都为空"}');
 
 	if(!empty($data['phone'])){
 		if($DB->find('user','*',['phone'=>$data['phone']])) exit('{"code":-1,"msg":"手机号已存在！"}');
@@ -384,9 +396,8 @@ case 'editUser':
 		'settle' => intval($_POST['settle']),
 		'status' => intval($_POST['status']),
 		'open_code' => intval($_POST['open_code']),
+		'remain_money' => trim($_POST['remain_money']),
 	];
-
-	if(empty($data['account']) || empty($data['username'])) exit('{"code":-1,"msg":"必填项不能为空！"}');
 
 	if($DB->update('user', $data, ['uid'=>$uid])!==false){
 		if(!empty($_POST['pwd'])){

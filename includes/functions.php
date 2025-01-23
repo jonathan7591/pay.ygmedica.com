@@ -78,7 +78,6 @@ function get_curl($url, $post=0, $referer=0, $cookie=0, $header=0, $ua=0, $nobao
 	}
 	curl_setopt($ch, CURLOPT_ENCODING, "gzip");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
 	$ret = curl_exec($ch);
 	curl_close($ch);
 	return $ret;
@@ -417,6 +416,11 @@ function getSid() {
 function getMd5Pwd($pwd, $salt=null) {
     return md5(md5($pwd) . md5('1277180438'.$salt));
 }
+function getMillisecond()
+{
+	list($s1, $s2) = explode(' ', microtime());
+	return sprintf('%.0f', (floatval($s1) + floatval($s2)) * 1000);
+}
 
 /**
  * 取中间文本
@@ -588,7 +592,8 @@ function processOrder($srow,$notify=true){
 			}
 		}
 	}else if($srow['tid']==2){ //充值余额
-		changeUserMoney($srow['uid'], $addmoney, true, '余额充值', $srow['trade_no']);
+		$param = json_decode($srow['param'], true);
+		changeUserMoney($param['uid'], $addmoney, true, '余额充值', $srow['trade_no']);
 	}else if($srow['tid']==3){ //聚合收款码
 		if($channel['mode']==1){
 			if($reducemoney>0)
@@ -598,7 +603,7 @@ function processOrder($srow,$notify=true){
 		}
 	}else if($srow['tid']==4){ //购买用户组
 		$param = json_decode($srow['param'], true);
-		changeUserGroup($srow['uid'], $param['gid'], $param['endtime']);
+		changeUserGroup($param['uid'], $param['gid'], $param['endtime']);
 	}else{
 		if($channel['mode']==1){
 			if($reducemoney>0)
@@ -646,8 +651,9 @@ function processOrder($srow,$notify=true){
 	if($srow['profits']>0){ //订单分账处理
 		$psreceiver = $DB->find('psreceiver', '*', ['id'=>$srow['profits']]);
 		if($psreceiver){
+			$status = in_array($srow['plugin'], \lib\ProfitSharing\CommUtil::$no_order_plugins) ? 2 : 0;
 			$psmoney = round(floor($srow['realmoney'] * $psreceiver['rate']) / 100, 2);
-			$DB->insert('psorder', ['rid'=>$psreceiver['id'], 'trade_no'=>$srow['trade_no'], 'api_trade_no'=>$srow['api_trade_no'], 'money'=>$psmoney, 'status'=>0, 'addtime'=>'NOW()']);
+			$DB->insert('psorder', ['rid'=>$psreceiver['id'], 'trade_no'=>$srow['trade_no'], 'api_trade_no'=>$srow['api_trade_no'], 'money'=>$psmoney, 'status'=>$status, 'addtime'=>'NOW()']);
 		}
 	}
 }
@@ -851,6 +857,19 @@ function wxminipay_jump_scheme($wid, $orderid){
 	return $wechat->generate_scheme($path, $query);
 }
 
+function wxminipay_jump_path($orderid){
+	global $conf, $order, $siteurl;
+	if($conf['wxminipay_path']) {
+		$path = $conf['wxminipay_path'];
+		$extraData = ['orderid'=>$orderid, 'sign'=>md5(SYS_KEY.$orderid.SYS_KEY)];
+	}else{
+		$jump_url = $siteurl.'pay/wxminipay/'.$orderid.'/';
+		$path = 'pages/pay/pay';
+		$extraData = ['money'=>$order['realmoney'], 'url'=>$jump_url];
+	}
+	return $path . '?' . http_build_query($extraData);
+}
+
 function checkDomain($domain){
 	if(empty($domain) || !preg_match('/^[-$a-z0-9_*.]{2,512}$/i', $domain) || (stripos($domain, '.') === false) || substr($domain, -1) == '.' || substr($domain, 0 ,1) == '.' || substr($domain, 0 ,1) == '*' && substr($domain, 1 ,1) != '.' || substr_count($domain, '*')>1 || strpos($domain, '*')>0 || strlen($domain)<4) return false;
 	return true;
@@ -974,15 +993,19 @@ function getDefendKey($pid, $trade_no){
 function verify_captcha($user_id = 'public'){
 	global $conf, $clientip;
 	$GtSdk = new \lib\GeetestLib($conf['captcha_id'], $conf['captcha_key']);
-	$data = array(
-		'user_id' => $user_id,
-		'client_type' => "web",
-		'ip_address' => $clientip
-	);
-	if ($_SESSION['gtserver'] == 1) {   //服务器正常
-		return $GtSdk->success_validate($_POST['geetest_challenge'], $_POST['geetest_validate'], $_POST['geetest_seccode'], $data);
-	}else{  //服务器宕机,走failback模式
-		return $GtSdk->fail_validate($_POST['geetest_challenge'],$_POST['geetest_validate'],$_POST['geetest_seccode']);
+	if($conf['captcha_version'] == '1'){
+		return $GtSdk->gt4_validate($_POST['captcha_id'], $_POST['lot_number'], $_POST['pass_token'], $_POST['gen_time'], $_POST['captcha_output']);
+	}else{
+		$data = array(
+			'user_id' => $user_id,
+			'client_type' => "web",
+			'ip_address' => $clientip
+		);
+		if ($_SESSION['gtserver'] == 1) {   //服务器正常
+			return $GtSdk->success_validate($_POST['geetest_challenge'], $_POST['geetest_validate'], $_POST['geetest_seccode'], $data);
+		}else{  //服务器宕机,走failback模式
+			return $GtSdk->fail_validate($_POST['geetest_challenge'],$_POST['geetest_validate'],$_POST['geetest_seccode']);
+		}
 	}
 }
 
@@ -1085,6 +1108,7 @@ function generate_key_pair(){
 		'private_key_type' => OPENSSL_KEYTYPE_RSA,
 	];
 	$res = openssl_pkey_new($config);
+	if(!$res) return null;
 	$privateKey = '';
 	openssl_pkey_export($res, $privateKey, null, $config);
 	$pubKey = openssl_pkey_get_details($res);
@@ -1183,33 +1207,4 @@ function check_proxy($url)
 	}else{
 		throw new Exception('HTTP状态码异常：'.$httpCode);
 	}
-}
-//新增日志方法
-function log_message($message,$fun, $level = 'INFO') {
-    $date = date('Y-m-d H:i:s'); // 当前日期时间
-    $logDate = date('Y-m-d'); // 日志文件日期
-    $logMessage = "[$date] [$level] $message" . PHP_EOL;
-    
-    // 定义带日期的日志文件路径
-    $logFile = __DIR__ . "/logs/$fun/$logDate.log";
-    
-    // 确保日志目录存在
-    if (!is_dir(dirname($logFile))) {
-        mkdir(dirname($logFile), 0777, true); // 创建日志目录
-    }
-
-    // 将日志写入文件
-    file_put_contents($logFile, $logMessage, FILE_APPEND);
-}
-
-function log_debug($message,$fun) {
-    log_message($message,$fun, 'DEBUG');
-}
-
-function log_info($message,$fun) {
-    log_message($message,$fun, 'INFO');
-}
-
-function log_error($message,$fun) {
-    log_message($message, $fun,'ERROR');
 }

@@ -48,6 +48,7 @@ include './head.php';
 
 <?php include 'foot.php';?>
 <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.min.js"></script>
+<script src="<?php echo $cdnpublic?>jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script src="../assets/js/bootstrap-table.min.js"></script>
 <script src="../assets/js/bootstrap-table-page-jump-to.min.js"></script>
 <script src="../assets/js/custom.js"></script>
@@ -73,7 +74,7 @@ $(document).ready(function(){
 			},
 			{
 				field: 'type',
-				title: '付款方式',
+				title: '付款方式/备注',
 				formatter: function(value, row, index) {
 					let typename = '';
 					if(value == 'alipay'){
@@ -85,7 +86,7 @@ $(document).ready(function(){
 					}else if(value == 'bank'){
 						typename='<img src="/assets/icon/bank.ico" width="16" onerror="this.style.display=\'none\'">银行卡';
 					}
-					return typename;
+					return typename+'<br/>'+(row.desc?'<font color="#bf7fef">'+row.desc+'</font>':'')+'';
 				}
 			},
 			{
@@ -104,9 +105,9 @@ $(document).ready(function(){
 			},
 			{
 				field: 'paytime',
-				title: '付款时间/备注',
+				title: '提交时间/付款时间',
 				formatter: function(value, row, index) {
-					return ''+value+'<br/>'+(row.desc?'<font color="#bf7fef">'+row.desc+'</font>':'')+'';
+					return (row.addtime ? row.addtime : value)+'<br/>'+value;
 				}
 			},
 			{
@@ -118,7 +119,7 @@ $(document).ready(function(){
 					}else if(value == '2'){
 						return '<a href="javascript:showResult(\''+row.biz_no+'\')" title="点此查看失败原因"><font color=red>转账失败</font></a>';
 					}else{
-						return '<a href="javascript:queryStatus(\''+row.biz_no+'\')" title="点此查询转账状态"><font color=orange>正在处理</font></a>';
+						return '<a href="javascript:queryStatus(\''+row.biz_no+'\')" title="点此查询转账状态"><font color=orange>正在处理</font></a>' + (row.jumpurl ? '<br/><a href="javascript:showQrcode(\''+row.jumpurl+'\')" class="btn btn-xs btn-success"><i class="fa fa-qrcode"></i> 确认收款</a>' : '');
 					}
 				}
 			},
@@ -188,6 +189,25 @@ function getProof(biz_no) {
 		error:function(data){
 			layer.close(ii);
 			layer.msg('服务器错误');
+		}
+	});
+}
+function showQrcode(url){
+	layer.open({
+		type: 1,
+		title: '收款方使用微信扫描以下二维码',
+		skin: 'layui-layer-demo',
+		shadeClose: true,
+		content: '<div id="qrcode" class="list-group-item text-center"></div>',
+		success: function(){
+			$('#qrcode').qrcode({
+				text: url,
+				width: 230,
+				height: 230,
+				foreground: "#000000",
+				background: "#ffffff",
+				typeNumber: -1
+			});
 		}
 	});
 }

@@ -25,13 +25,18 @@ class sandpay_plugin
 				'type' => 'select',
 				'options' => [0=>'生产环境',1=>'测试环境'],
 			],
+			'product' => [
+				'name' => '市场产品',
+				'type' => 'select',
+				'options' => ['QZF'=>'标准线上收款','CSDB'=>'企业杉德宝'],
+			],
 		],
 		'select_bank' => [
-			'1' => '银联支付',
+			'1' => '银联聚合码',
 			'2' => '快捷支付',
 		],
 		'select' => null,
-		'note' => '将私钥证书命名为client.pfx（或商户编号.pfx）上传到 /plugins/sandpay/cert/', //支付密钥填写说明
+		'note' => '将杉德公钥证书sand.cer、商户私钥证书client.pfx（或商户编号.pfx）上传到 /plugins/sandpay/cert/', //支付密钥填写说明
 		'bindwxmp' => true, //是否支持绑定微信公众号
 		'bindwxa' => true, //是否支持绑定微信小程序
 	];
@@ -80,156 +85,85 @@ class sandpay_plugin
 		}
 	}
 
-	//扫码下单
-	static private function qrcode($productId, $payTool){
-		global $channel, $order, $ordername, $conf, $clientip;
+	//统一下单
+	static private function addOrder($pay_type, $pay_mode, $sub_openid = null, $sub_appid = null){
+		global $channel, $order, $ordername, $conf, $clientip, $siteurl;
 
-		require(PAY_ROOT."inc/Build.class.php");
+		require(PAY_ROOT."inc/SandpayClient.php");
 
-		$client = new SandpayCommon($channel['appid'], $channel['appkey'], $channel['appswitch']);
-		$client->productId = $productId;
-		$client->body      = array(
-			'payTool'     => $payTool,
-			'orderCode'   => TRADE_NO,
-			'totalAmount' => str_pad(strval($order['realmoney']*100),12,'0',STR_PAD_LEFT),
-			'subject'     => $ordername,
-			'body'        => $ordername,
-			'notifyUrl'   => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
-		);
+		$client = new SandpayClient($channel['appid'], $channel['appkey'], $channel['appswitch']);
+		$params = [
+			'marketProduct' => $channel['product'],
+			'outReqTime' => date('YmdHis'),
+			'mid' => $channel['appid'],
+			'outOrderNo' => TRADE_NO,
+			'description' => $ordername,
+			'goodsClass' => '01',
+			'amount' => $order['realmoney'],
+			'payType' => $pay_type,
+			'payMode' => $pay_mode,
+			'payerInfo' => [
+				'payAccLimit' => '',
+			],
+			'notifyUrl' => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
+			'riskmgtInfo' => [
+				'sourceIp' => $clientip,
+			],
+		];
+		if($sub_openid && $sub_appid){
+			$params['payerInfo'] = [
+				'subAppId' => $sub_appid,
+				'subUserId' => $sub_openid,
+				'frontUrl' => $siteurl.'pay/return/'.TRADE_NO.'/',
+			];
+		}elseif($sub_openid){
+			$params['payerInfo'] = [
+				'userId' => $sub_openid,
+				'frontUrl' => $siteurl.'pay/return/'.TRADE_NO.'/',
+			];
+		}
 
-		return \lib\Payment::lockPayData(TRADE_NO, function() use($client) {
-			$ret = $client->request('orderCreate');
-			return $ret['qrCode'];
+		return \lib\Payment::lockPayData(TRADE_NO, function() use($client, $params) {
+			global $channel;
+			$result = $client->execute('/v4/sd-receipts/api/trans/trans.order.create', $params);
+			\lib\Payment::updateOrder(TRADE_NO, $result['sandSerialNo']);
+			if($channel['appswitch']==1){
+				$log = "商户订单号：".TRADE_NO."\r\n【统一下单接口】请求报文：\r\n".$client->request_body."\r\n【统一下单接口】响应报文：\r\n".$client->response_body."\r\n\r\n";
+				file_put_contents(PAY_ROOT.'logs/'.date('Ymd').'.log', $log, FILE_APPEND);
+			}
+			return $result['credential'];
 		});
-	}
-
-	//收银台下单
-	static private function cashier(){
-		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
-
-		require(PAY_ROOT."inc/Build.class.php");
-
-		$client = new SandpayCommon($channel['appid'], $channel['appkey'], $channel['appswitch']);
-		$client->productId = '00002000';
-		$client->body      = array(
-			'orderCode'   => TRADE_NO,
-			'totalAmount' => str_pad(strval($order['realmoney']*100),12,'0',STR_PAD_LEFT),
-			'subject'     => $ordername,
-			'body'        => $ordername,
-			'notifyUrl'   => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
-			'frontUrl'    => $siteurl.'pay/return/'.TRADE_NO.'/',
-		);
-		$html_text = $client->form('cashierPay');
-		return ['type'=>'html','data'=>$html_text];
-	}
-
-	//新版H5跳转下单
-	static private function newh5($product_code, $pay_extra = []){
-		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
-
-		require(PAY_ROOT."inc/Build.class.php");
-		$client = new SandpayCommon($channel['appid'], $channel['appkey'], $channel['appswitch']);
-
-		$param = [
-			'version' => '10',
-			'mer_no' =>  $channel['appid'],
-			'mer_order_no' => TRADE_NO,
-			'create_time' => date('YmdHis'),
-			'order_amt' => $order['realmoney'],
-			'notify_url' => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
-			'return_url' => $siteurl.'pay/return/'.TRADE_NO.'/',
-			'create_ip' => str_replace('.','_',$clientip),
-			'pay_extra' => json_encode($pay_extra),
-			'accsplit_flag' => 'NO',
-			'sign_type' => 'RSA',
-			'store_id' => '000000',
-		];
-		$param['sign'] = $client->getSign($param);
-		$param += [
-			'expire_time' => date('YmdHis', time()+30*60),
-			'goods_name' => $ordername,
-			'product_code' => $product_code,
-			'clear_cycle' => '1',
-			'jump_scheme' => 'sandcash://scpay',
-			'meta_option' => json_encode([["s" => "Android","n" => "wxDemo","id" => "com.pay.paytypetest","sc" => "com.pay.paytypetest"]]),
-		];
-
-		$query = http_build_query($param);
-
-		if($product_code == '02010006'){
-			$attr = 'applet';
-		}elseif($product_code == '02020005'){
-			$attr = 'alipaycode';
-		}elseif($product_code == '02010002'){
-			$attr = 'wechatpay';
-		}elseif($product_code == '02020002'){
-			$attr = 'alipay';
-		}elseif($product_code == '02000001'){
-			$attr = 'qrcode';
-		}elseif($product_code == '05030001'){
-			$attr = 'fastpayment';
-		}elseif($product_code == '06030001'){
-			$attr = 'unionpayh5';
-		}
-
-		if($channel['appswitch'] == 1){
-			$payurl = "https://sandcash-uat01.sand.com.cn/pay/h5/".$attr."?".$query;
-		}else{
-			$payurl = "https://sandcash.mixienet.com.cn/pay/h5/".$attr."?".$query;
-		}
-		return $payurl;
 	}
 
 	//支付宝扫码支付
 	static public function alipay(){
-		/*if (checkmobile()) {
-			$payurl = self::newh5('02020002');
+		try{
+			$result = self::addOrder('ALIPAY','QR');
+			$code_url = $result['qrCode'];
+		}catch(Exception $ex){
+			return ['type'=>'error','msg'=>'支付宝支付下单失败！'.$ex->getMessage()];
+		}
 
-			return ['type'=>'jump','url'=>$payurl];
-		}else{*/
-			try{
-				$code_url = self::qrcode('00000006','0401');
-			}catch(Exception $ex){
-				return ['type'=>'error','msg'=>'支付宝支付下单失败！'.$ex->getMessage()];
-			}
-	
-			return ['type'=>'qrcode','page'=>'alipay_qrcode','url'=>$code_url];
-		//}
+		return ['type'=>'qrcode','page'=>'alipay_qrcode','url'=>$code_url];
 	}
 
 	//微信扫码支付
 	static public function wxpay(){
+		global $channel, $siteurl, $device, $mdevice;
 		try{
-			$code_url = self::qrcode('00000005','0402');
+			$result = self::addOrder('WXPAY','QR');
+			$code_url = $result['qrCode'];
 		}catch(Exception $ex){
 			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
 		}
 
-		if (checkmobile()) {
+		if (checkwechat() || $mdevice=='wechat') {
+			return ['type'=>'jump','url'=>$code_url];
+		} elseif (checkmobile() || $device == 'mobile') {
 			return ['type'=>'qrcode','page'=>'wxpay_wap','url'=>$code_url];
-		}else{
+		} else {
 			return ['type'=>'qrcode','page'=>'wxpay_qrcode','url'=>$code_url];
 		}
-	}
-
-	//云闪付扫码支付
-	static public function bank(){
-		try{
-			$code_url = self::qrcode('00000012','0403');
-		}catch(Exception $ex){
-			return ['type'=>'error','msg'=>'云闪付下单失败！'.$ex->getMessage()];
-		}
-
-		return ['type'=>'qrcode','page'=>'bank_qrcode','url'=>$code_url];
-	}
-
-	//快捷支付
-	static public function fastpay(){
-		if(checkmobile())
-			$payurl = self::newh5('06030001');
-		else
-			$payurl = self::newh5('05030001');
-		return ['type'=>'jump','url'=>$payurl];
 	}
 
 	//微信公众号
@@ -248,21 +182,89 @@ class sandpay_plugin
 		$blocks = checkBlockUser($openid, TRADE_NO);
 		if($blocks) return $blocks;
 
-		$payurl = self::newh5('02010002', ["mer_app_id"=>$wxinfo['appid'],"openid"=>$openid]);
+		try{
+			$payinfo = self::addOrder('WXPAY','JSAPI',$openid,$wxinfo['appid']);
+		}catch(Exception $ex){
+			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
+		}
 
-		return ['type'=>'jump','url'=>$payurl];
+		if($_GET['d']==1){
+			$redirect_url='data.backurl';
+		}else{
+			$redirect_url='\'/pay/ok/'.TRADE_NO.'/\'';
+		}
+		return ['type'=>'page','page'=>'wxpay_jspay','data'=>['jsApiParameters'=>json_encode($payinfo), 'redirect_url'=>$redirect_url]];
 	}
 
-	//微信H5包装云函数
-	static public function wxwappay(){
+	//微信小程序支付
+	static public function wxminipay(){
 		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
+
+		$code = isset($_GET['code'])?trim($_GET['code']):exit('{"code":-1,"msg":"code不能为空"}');
+		
+		//①、获取用户openid
+		$wxinfo = \lib\Channel::getWeixin($channel['appwxa']);
+		if(!$wxinfo)exit('{"code":-1,"msg":"支付通道绑定的微信小程序不存在"}');
+		try{
+			$tools = new \WeChatPay\JsApiTool($wxinfo['appid'], $wxinfo['appsecret']);
+			$openid = $tools->AppGetOpenid($code);
+		}catch(Exception $e){
+			exit('{"code":-1,"msg":"'.$e->getMessage().'"}');
+		}
+		$blocks = checkBlockUser($openid, TRADE_NO);
+		if($blocks)exit('{"code":-1,"msg":"'.$blocks['msg'].'"}');
+		
+		//②、统一下单
+		try{
+			$payinfo = self::addOrder('WXPAY','MINI',$openid,$wxinfo['appid']);
+		}catch(Exception $ex){
+			exit('{"code":-1,"msg":"微信支付下单失败！'.$ex->getMessage().'"}');
+		}
+
+		exit(json_encode(['code'=>0, 'data'=>json_decode($payinfo, true)]));
+	}
+
+	//微信手机支付
+	static public function wxwappay(){
+		global $siteurl,$channel, $order, $ordername, $conf, $clientip;
 
 		$wxinfo = \lib\Channel::getWeixin($channel['appwxa']);
 		if(!$wxinfo) return ['type'=>'error','msg'=>'支付通道绑定的微信小程序不存在'];
+		try{
+			$code_url = wxminipay_jump_scheme($wxinfo['id'], TRADE_NO);
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		return ['type'=>'scheme','page'=>'wxpay_mini','url'=>$code_url];
+	}
 
-		$payurl = self::newh5('02010006', ["resourceAppid"=>$wxinfo['appid'],"resourceEnv"=>""]);
+	//云闪付扫码支付
+	static public function bank(){
+		try{
+			$result = self::addOrder('CUPPAY','QR');
+			$code_url = $result['qrCode'];
+		}catch(Exception $ex){
+			return ['type'=>'error','msg'=>'云闪付下单失败！'.$ex->getMessage()];
+		}
 
-		return ['type'=>'jump','url'=>$payurl];
+		return ['type'=>'qrcode','page'=>'bank_qrcode','url'=>$code_url];
+	}
+
+	//快捷支付
+	static public function fastpay(){
+		if(!empty($_COOKIE['sandpay_user_id'])){
+			$user_id = $_COOKIE['sandpay_user_id'];
+		}else{
+			$user_id = substr(getSid(), 0, 10);
+			setcookie('sandpay_user_id', $user_id, time()+3600*24*365, '/');
+		}
+		try{
+			$result = self::addOrder('FASTPAY','SANDH5',$user_id);
+			$jump_url = $result['cashierUrl'];
+		}catch(Exception $ex){
+			return ['type'=>'error','msg'=>'支付宝支付下单失败！'.$ex->getMessage()];
+		}
+		return ['type'=>'jump','url'=>$jump_url];
 	}
 
 	//异步回调
@@ -270,22 +272,36 @@ class sandpay_plugin
 		global $channel, $order;
 
 		$sign   = $_POST['sign']; //签名
-		$data   = stripslashes($_POST['data']); //支付数据
+		$data   = $_POST['bizData']; //支付数据
 
-		//file_put_contents('logs.txt', 'sign='.$_POST['sign']."\r\n\r\ndata=".$_POST['data']);
+		require(PAY_ROOT."inc/SandpayClient.php");
 
-		require(PAY_ROOT."inc/Build.class.php");
-
-		$client = new SandpayCommon($channel['appid'], $channel['appkey'], $channel['appswitch']);
+		$client = new SandpayClient($channel['appid'], $channel['appkey'], $channel['appswitch']);
 		$verifyFlag = $client->verify($data, $sign);
 
 		if($verifyFlag){
 			$array = json_decode($data, true);
-			if($array['head']['respCode'] == '000000'){
-				$out_trade_no = $array['body']['orderCode'];
-				$trade_no = $array['body']['tradeNo'];
-				$money = $array['body']['totalAmount'];
-				$buyer = $array['body']['accLogonNo'];
+
+			if($channel['appswitch']==1){
+				$params = [
+					'outReqTime' => date('YmdHis'),
+					'mid' => $channel['appid'],
+					'outOrderNo' => $array['outOrderNo'],
+				];
+				try{
+					$client->execute('/v4/sd-receipts/api/trans/trans.order.query', $params);
+				}catch(Exception $e){
+					//return ['type'=>'error','msg'=>'订单查询失败 '.$ex->getMessage()];
+				}
+				$log = "商户订单号：".TRADE_NO."\r\n异步通知：\r\n".$data."\r\n【订单查询接口】请求报文：\r\n".$client->request_body."\r\n【订单查询接口】响应报文：\r\n".$client->response_body."\r\n\r\n";
+				file_put_contents(PAY_ROOT.'logs/'.date('Ymd').'.log', $log, FILE_APPEND);
+			}
+
+			if($array['orderStatus'] == 'success'){
+				$out_trade_no = $array['outOrderNo'];
+				$trade_no = $array['sandSerialNo'];
+				$money = $array['amount'];
+				$buyer = $array['payer']['payerAccNo'];
 				if($out_trade_no == TRADE_NO){
 					processNotify($order, $trade_no, $buyer);
 				}
@@ -305,18 +321,25 @@ class sandpay_plugin
 		global $channel, $conf;
 		if(empty($order))exit();
 
-		require(PAY_ROOT."inc/Build.class.php");
+		require(PAY_ROOT."inc/SandpayClient.php");
 
-		$client = new SandpayCommon($channel['appid'], $channel['appkey'], $channel['appswitch']);
-		$client->body      = array(
-			'orderCode'          => $order['refund_no'], //新的订单号
-			'oriOrderCode'       => $order['trade_no'], //原订单号
-			'refundAmount'       => str_pad(strval($order['refundmoney']*100),12,'0',STR_PAD_LEFT), //退款金额
-			'notifyUrl'          => $conf['localurl'].'pay/refundnotify/'.TRADE_NO.'/',
-		);
+		$params = [
+			'marketProduct' => $channel['product'],
+			'outReqTime' => date('YmdHis'),
+			'mid' => $channel['appid'],
+			'outOrderNo' => $order['refund_no'],
+			'oriOutOrderNo' => $order['trade_no'],
+			'amount' => $order['refundmoney'],
+			'notifyUrl' => $conf['localurl'].'pay/refundnotify/'.TRADE_NO.'/',
+		];
 		try{
-			$ret = $client->request('orderRefund');
-			return ['code'=>0, 'trade_no'=>$ret['orderCode'], 'refund_fee'=>$ret['refundAmount']];
+			$client = new SandpayClient($channel['appid'], $channel['appkey'], $channel['appswitch']);
+			$result = $client->execute('/v4/sd-receipts/api/trans/trans.order.refund', $params);
+			if($channel['appswitch']==1){
+				$log = "商户订单号：".$order['trade_no']."\r\n【退货接口】请求报文：\r\n".$client->request_body."\r\n【退货接口】响应报文：\r\n".$client->response_body."\r\n\r\n";
+				file_put_contents(PAY_ROOT.'logs/'.date('Ymd').'.log', $log, FILE_APPEND);
+			}
+			return ['code'=>0, 'trade_no'=>$result['sandSerialNo'], 'refund_fee'=>$result['amount']];
 		}catch(Exception $ex){
 			return ['code'=>-1,'msg'=>$ex->getMessage()];
 		}
@@ -327,19 +350,19 @@ class sandpay_plugin
 		global $channel, $order;
 
 		$sign   = $_POST['sign']; //签名
-		$data   = stripslashes($_POST['data']); //支付数据
+		$data   = $_POST['bizData']; //支付数据
 
-		require(PAY_ROOT."inc/Build.class.php");
+		require(PAY_ROOT."inc/SandpayClient.php");
 
-		$client = new SandpayCommon($channel['appid'], $channel['appkey'], $channel['appswitch']);
+		$client = new SandpayClient($channel['appid'], $channel['appkey'], $channel['appswitch']);
 		$verifyFlag = $client->verify($data, $sign);
 
 		if($verifyFlag){
 			$array = json_decode($data, true);
-			if($array['head']['respCode'] == '000000'){
-				$out_trade_no = $array['body']['orderCode'];
-				$trade_no = $array['body']['tradeNo'];
-				$money = $array['body']['totalAmount'];
+			if($array['orderStatus'] == 'success'){
+				$out_trade_no = $array['outOrderNo'];
+				$trade_no = $array['sandSerialNo'];
+				$money = $array['amount'];
 				return ['type'=>'html','data'=>'respCode=000000'];
 			}
 		}
@@ -350,17 +373,32 @@ class sandpay_plugin
 	static public function transfer($channel, $bizParam){
 		if(empty($channel) || empty($bizParam))exit();
 
-		require(PAY_ROOT."inc/Transfer.class.php");
+		require(PLUGIN_ROOT.'sandpay/inc/SandpayClient.php');
+		
+		$params = [
+			'mid' => $channel['appid'],
+			'outOrderNo' => $bizParam['out_biz_no'],
+			'amount' => $bizParam['money'],
+			'payeeInfo' => [
+				'accType' => 'cup',
+				'accNo' => $bizParam['payee_account'],
+				'accName' => $bizParam['payee_real_name'],
+			],
+			'payerInfo' => [
+				'sdaccSubId' => 'payment',
+				'remark' => $bizParam['transfer_desc'],
+			],
+		];
 
-		$client = new SandpayTransfer($channel['appid'], $channel['appkey']);
 		try{
-			$result = $client->agentpay($bizParam['out_biz_no'], $bizParam['payee_account'], $bizParam['payee_real_name'], $bizParam['money'], $bizParam['transfer_desc']);
-			if (isset($result['respCode']) && $result['respCode']=='0000') {
-				$status = $result['resultFlag'] == 0 ? 1 : 0;
-				return ['code'=>0, 'status'=>$status, 'orderid'=>$result['sandSerial'], 'paydate'=>$result['tranDate']];
-			}else{
-				return ['code'=>-1, 'errcode'=>$result['respCode'], 'msg'=>'['.$result['respCode'].']'.$result['respDesc']];
+			$client = new SandpayClient($channel['appid'], $channel['appkey'], $channel['appswitch']);
+			$result = $client->execute('/v4/sd-payment/api/trans/trans.payment.order.create', $params);
+			$status = $result['paymentStatus'] == 'success' ? 1 : 0;
+			if($channel['appswitch']==1){
+				$log = "商户订单号：".$bizParam['out_biz_no']."\r\n【付款接口】请求报文：\r\n".$client->request_body."\r\n【付款接口】响应报文：\r\n".$client->response_body."\r\n\r\n";
+				file_put_contents(PAY_ROOT.'logs/'.date('Ymd').'.log', $log, FILE_APPEND);
 			}
+			return ['code'=>0, 'status'=>$status, 'orderid'=>$result['sandSerialNo'], 'paydate'=>$result['finishedTime']];
 		}catch(Exception $ex){
 			return ['code'=>-1, 'msg'=>$ex->getMessage()];
 		}
@@ -370,17 +408,22 @@ class sandpay_plugin
 	static public function transfer_query($channel, $bizParam){
 		if(empty($channel) || empty($bizParam))exit();
 
-		require(PAY_ROOT."inc/Transfer.class.php");
+		require(PLUGIN_ROOT.'sandpay/inc/SandpayClient.php');
 
-		$client = new SandpayTransfer($channel['appid'], $channel['appkey']);
+		$params = [
+			'mid' => $channel['appid'],
+			'outReqDate' => substr($bizParam['out_biz_no'], 0, 8),
+			'outOrderNo' => $bizParam['out_biz_no'],
+		];
 		try{
-			$result = $client->queryOrder($bizParam['out_biz_no']);
-			if (isset($result['respCode']) && $result['respCode']=='0000') {
-				$status = $result['resultFlag'] == 0 ? 1 : 0;
-				return ['code'=>0, 'status'=>$status];
-			}else{
-				return ['code'=>-1, 'msg'=>'['.$result['respCode'].']'.$result['respDesc']];
+			$client = new SandpayClient($channel['appid'], $channel['appkey'], $channel['appswitch']);
+			$result = $client->execute('/v4/sd-payment/api/trans/trans.payment.order.query', $params);
+			$status = $result['orderStatus'] == 'success' ? 1 : 0;
+			if($channel['appswitch']==1){
+				$log = "商户订单号：".$bizParam['out_biz_no']."\r\n【付款订单查询接口】请求报文：\r\n".$client->request_body."\r\n【付款订单查询接口】响应报文：\r\n".$client->response_body."\r\n\r\n";
+				file_put_contents(PAY_ROOT.'logs/'.date('Ymd').'.log', $log, FILE_APPEND);
 			}
+			return ['code'=>0, 'status'=>$status];
 		}catch(Exception $ex){
 			return ['code'=>-1, 'msg'=>$ex->getMessage()];
 		}
@@ -390,17 +433,22 @@ class sandpay_plugin
 	static public function balance_query($channel, $bizParam){
 		if(empty($channel))exit();
 
-		require(PAY_ROOT."inc/Transfer.class.php");
+		require(PLUGIN_ROOT.'sandpay/inc/SandpayClient.php');
 
-		$client = new SandpayTransfer($channel['appid'], $channel['appkey']);
-		$out_biz_no = date("YmdHis").rand(11111,99999);
+		$params = [
+			'mid' => $channel['appid'],
+			'sdaccSubId' => 'payment',
+		];
 		try{
-			$result = $client->queryBalance($out_biz_no);
-			if (isset($result['respCode']) && $result['respCode']=='0000') {
-				return  ['code'=>0, 'ammount'=>$result['balance'], 'msg'=>'当前账户余额：'.$result['balance'].' 元，可用额度：'.$result['creditAmt']];
-			}else{
-				return ['code'=>-1, 'msg'=>'['.$result['respCode'].']'.$result['respDesc']];
+			$client = new SandpayClient($channel['appid'], $channel['appkey'], $channel['appswitch']);
+			$result = $client->execute('/v4/sd-payment/api/trans/trans.payment.balance.query', $params);
+			$account = $result['accountList'][0];
+			if($channel['appswitch']==1){
+				$log = "商户订单号：".$bizParam['out_biz_no']."\r\n【余额查询接口】请求报文：\r\n".$client->request_body."\r\n【余额查询接口】响应报文：\r\n".$client->response_body."\r\n\r\n";
+				file_put_contents(PAY_ROOT.'logs/'.date('Ymd').'.log', $log, FILE_APPEND);
 			}
+			if(empty($account)) return ['code'=>-1, 'msg'=>'未查询到账户信息'];
+			return  ['code'=>0, 'amount'=>$account['availableBal'], 'msg'=>'当前账户可用余额：'.$account['availableBal'].' 元，冻结金额：'.$account['frozenBal'].'，在途余额：'.$account['transitBal']];
 		}catch(Exception $ex){
 			return ['code'=>-1, 'msg'=>$ex->getMessage()];
 		}

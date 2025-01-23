@@ -19,13 +19,6 @@ case 'captcha_verify':
 	$key = time().getDefendKey($pid, $trade_no).rand(111111,999999);
 	echo json_encode(['code'=>0, 'key'=>$key]);
 break;
-case 'bank_pay':
-      $s = isset($_GET['s']) ? $_GET['s'] : null;
-      $trade_no = $_GET['trade_no'];
-      $p = $s.'/'.$trade_no.'/';
-      $re =  \lib\Plugin::loadForPay($p);
-      echo json_encode($re);
-    break;
 default:
 	$trade_no=isset($_GET['trade_no'])?daddslashes($_GET['trade_no']):exit('{"code":-2,"msg":"No trade_no!"}');
 

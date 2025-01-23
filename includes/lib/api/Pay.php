@@ -190,6 +190,7 @@ class Pay
         $order['channel'] = $submitData['channel'];
         $order['subchannel'] = $submitData['subchannel'];
         $order['typename'] = $submitData['typename'];
+        $order['plugin'] = $submitData['plugin'];
         $order['profits'] = \lib\Payment::updateOrderProfits($order, $submitData['plugin']);
         $order['profits2'] = \lib\Payment::updateOrderProfits2($order, $submitData['plugin']);
 
@@ -229,7 +230,7 @@ class Pay
         $type=daddslashes($queryArr['type']);
         $out_trade_no=daddslashes($queryArr['out_trade_no']);
         $notify_url=htmlspecialchars(daddslashes($queryArr['notify_url']));
-        $return_url=daddslashes($queryArr['return_url']);
+        $return_url=htmlspecialchars(daddslashes($queryArr['return_url']));
         $name=htmlspecialchars(daddslashes($queryArr['name']));
         $money=daddslashes($queryArr['money']);
         $clientip=daddslashes($queryArr['clientip']);
@@ -239,7 +240,7 @@ class Pay
         $sub_appid=$queryArr['sub_appid'];
         $auth_code=$queryArr['auth_code'];
         $sitename=urlencode(base64_encode(htmlspecialchars($queryArr['sitename'])));
-        $param = isset($queryArr['param']) ? json_encode($queryArr['param'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) : null;
+        $param=isset($queryArr['param'])?htmlspecialchars(daddslashes($queryArr['param'])):null;
         $method=$queryArr['method']; //web/jump/jsapi/scan
         if($device == 'jump')$method = 'jump';
         $mdevice='';
@@ -395,6 +396,7 @@ class Pay
         $order['channel'] = $submitData['channel'];
         $order['subchannel'] = $submitData['subchannel'];
         $order['typename'] = $submitData['typename'];
+        $order['plugin'] = $submitData['plugin'];
         $order['profits'] = \lib\Payment::updateOrderProfits($order, $submitData['plugin']);
         $order['profits2'] = \lib\Payment::updateOrderProfits2($order, $submitData['plugin']);
         $order['sub_openid'] = $sub_openid;

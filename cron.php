@@ -1,5 +1,4 @@
 <?php
-if(preg_match('/Baiduspider/', $_SERVER['HTTP_USER_AGENT']))exit;
 $nosession = true;
 require './includes/common.php';
 
@@ -213,18 +212,39 @@ elseif($_GET['do']=='check'){
 		$channels = $DB->getAll("SELECT * FROM pre_channel WHERE status=1 ORDER BY id ASC");
 		foreach($channels as $channel){
 			$channelid = $channel['id'];
-			$orders=$DB->getAll("SELECT trade_no,status FROM pre_order WHERE addtime>=DATE_SUB(NOW(), INTERVAL {$second} SECOND) AND channel='$channelid' order by trade_no desc limit {$failcount}");
-			if(count($orders)<$failcount)continue;
-			$succount = 0;
-			foreach($orders as $order){
-				if($order['status']>0) $succount++;
-			}
-			if($succount == 0){
-				$DB->exec("UPDATE pre_channel SET status=0 WHERE id='$channelid'");
-				echo '已关闭通道:'.$channel['name'].'<br/>';
-				if($conf['check_channel_notice'] == 1){
-					$mail_name = $conf['mail_recv']?$conf['mail_recv']:$conf['mail_name'];
-					send_mail($mail_name,$conf['sitename'].' - 支付通道自动关闭提醒','尊敬的管理员：支付通道“'.$channel['name'].'”因在'.$second.'秒内连续出现'.$failcount.'个未支付订单，已被系统自动关闭！<br/>----------<br/>'.$conf['sitename'].'<br/>'.date('Y-m-d H:i:s'));
+			if(strpos($channel['config'], '[') && strpos($channel['config'], ']') && $DB->getCount("SELECT COUNT(*) FROM pre_subchannel WHERE channel='$channelid' AND status=1") > 0){
+				$subchannels = $DB->getAll("SELECT * FROM pre_subchannel WHERE channel='$channelid' AND status=1 ORDER BY id ASC");
+				foreach($subchannels as $subchannel){
+					$subchannelid = $subchannel['id'];
+					$orders=$DB->getAll("SELECT trade_no,status FROM pre_order WHERE addtime>=DATE_SUB(NOW(), INTERVAL {$second} SECOND) AND channel='$channelid' AND subchannel='$subchannelid' order by trade_no desc limit {$failcount}");
+					if(count($orders)<$failcount)continue;
+					$succount = 0;
+					foreach($orders as $order){
+						if($order['status']>0) $succount++;
+					}
+					if($succount == 0){
+						$DB->exec("UPDATE pre_subchannel SET status=0 WHERE id='$subchannelid'");
+						echo '已关闭子通道:'.$subchannel['name'].'<br/>';
+						if($conf['check_channel_notice'] == 1){
+							$mail_name = $conf['mail_recv']?$conf['mail_recv']:$conf['mail_name'];
+							send_mail($mail_name,$conf['sitename'].' - 支付通道自动关闭提醒','尊敬的管理员：支付通道“'.$channel['name'].'”下的子通道“'.$subchannel['name'].'”因在'.$second.'秒内连续出现'.$failcount.'个未支付订单，已被系统自动关闭！<br/>----------<br/>'.$conf['sitename'].'<br/>'.date('Y-m-d H:i:s'));
+						}
+					}
+				}
+			}else{
+				$orders=$DB->getAll("SELECT trade_no,status FROM pre_order WHERE addtime>=DATE_SUB(NOW(), INTERVAL {$second} SECOND) AND channel='$channelid' order by trade_no desc limit {$failcount}");
+				if(count($orders)<$failcount)continue;
+				$succount = 0;
+				foreach($orders as $order){
+					if($order['status']>0) $succount++;
+				}
+				if($succount == 0){
+					$DB->exec("UPDATE pre_channel SET status=0 WHERE id='$channelid'");
+					echo '已关闭通道:'.$channel['name'].'<br/>';
+					if($conf['check_channel_notice'] == 1){
+						$mail_name = $conf['mail_recv']?$conf['mail_recv']:$conf['mail_name'];
+						send_mail($mail_name,$conf['sitename'].' - 支付通道自动关闭提醒','尊敬的管理员：支付通道“'.$channel['name'].'”因在'.$second.'秒内连续出现'.$failcount.'个未支付订单，已被系统自动关闭！<br/>----------<br/>'.$conf['sitename'].'<br/>'.date('Y-m-d H:i:s'));
+					}
 				}
 			}
 		}

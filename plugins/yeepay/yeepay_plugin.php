@@ -55,9 +55,19 @@ class yeepay_plugin
 	}
 
 	static public function mapi(){
-		global $siteurl, $channel, $order, $conf, $device, $mdevice;
+		global $siteurl, $channel, $order, $conf, $device, $mdevice, $method;
 
-		if($order['typename']=='alipay'){
+		if($method == 'applet'){
+			return self::wxapppay();
+		}
+		elseif($method == 'app'){
+			if($order['typename']=='alipay'){
+				return self::aliapppay();
+			}else{
+				return self::wxapppay();
+			}
+		}
+		elseif($order['typename']=='alipay'){
 			return self::alipay();
 		}elseif($order['typename']=='wxpay'){
 			if($mdevice=='wechat' && $channel['appwxmp']>0){
@@ -73,11 +83,16 @@ class yeepay_plugin
 	}
 
 	//聚合支付托管下单
-	static private function tutelage_pay($payWay, $payType){
+	static private function tutelage_pay($payWay, $payType, $return_type = false){
 		global $siteurl, $channel, $order, $ordername, $conf, $clientip;
 
 		require(PAY_ROOT.'inc/YopClient.php');
 
+		if($payType == 'ALIPAY'){
+			$scene = 'OFFLINE';
+		}else{
+			$scene = 'ONLINE';
+		}
 		$params = [
 			'parentMerchantNo' => $channel['appid'],
 			'merchantNo' => empty($channel['appmchid'])?$channel['appid']:$channel['appmchid'],
@@ -87,17 +102,20 @@ class yeepay_plugin
 			'notifyUrl' => $conf['localurl'] . 'pay/notify/' . TRADE_NO . '/',
 			'payWay' => $payWay,
 			'channel' => $payType,
-			'scene' => 'ONLINE',
+			'scene' => $scene,
 			'userIp' => $clientip,
 			'redirectUrl' => $siteurl.'pay/return/'.TRADE_NO.'/',
 		];
+		if($order['profits']){
+			self::handleProfits($params);
+		}
 
 		$client = new \Yeepay\YopClient($channel['appkey'], $channel['appsecret']);
 
-		return \lib\Payment::lockPayData(TRADE_NO, function() use($client, $params) {
+		return \lib\Payment::lockPayData(TRADE_NO, function() use($client, $params, $return_type) {
 			$result = $client->post('/rest/v1.0/aggpay/tutelage/pre-pay', $params);
         	if($result['code'] == '00000'){
-				return $result['prePayTn'];
+				return $return_type ? ['appId'=>$result['appId'],'miniProgramPath'=>$result['miniProgramPath'],'miniProgramOrgId'=>$result['miniProgramOrgId']] : $result['prePayTn'];
 			}else{
 				throw new Exception('['.$result['code'].']'.$result['message']);
 			}
@@ -129,6 +147,9 @@ class yeepay_plugin
 				'userId' => $userId
 			];
 		}
+		if($order['profits']){
+			self::handleProfits($params);
+		}
 
 		$client = new \Yeepay\YopClient($channel['appkey'], $channel['appsecret']);
 
@@ -140,6 +161,22 @@ class yeepay_plugin
 				throw new Exception('['.$result['code'].']'.$result['message']);
 			}
 		});
+	}
+
+	static private function handleProfits(&$params){
+		global $order, $conf;
+		$psreceiver = \lib\ProfitSharing\CommUtil::getReceiver($order['profits']);
+		if($psreceiver){
+			$psmoney = round(floor($order['realmoney'] * $psreceiver['rate']) / 100, 2);
+			$divideDetail = [[
+				'ledgerNo' => $psreceiver['account'],
+				'amount' => $psmoney,
+				'ledgerType' => 'MERCHANT2MERCHANT',
+			]];
+			$params['fundProcessType'] = 'REAL_TIME_DIVIDE';
+			$params['divideDetail'] = json_encode($divideDetail);
+			$params['divideNotifyUrl'] = $conf['localurl'] . 'pay/dividenotify/' . TRADE_NO . '/';
+		}
 	}
 
 	//支付宝扫码支付
@@ -224,7 +261,7 @@ class yeepay_plugin
 		try{
 			$payinfo = self::pre_pay('MINI_PROGRAM', 'WECHAT', $wxinfo['appid'], $openid);
 		}catch(Exception $ex){
-			return ['type'=>'error','msg'=>'微信支付下单失败！'.$ex->getMessage()];
+			exit('{"code":-1,"msg":"'.$ex->getMessage().'"}');
 		}
 
 		exit(json_encode(['code'=>0, 'data'=>json_decode($payinfo, true)]));
@@ -243,6 +280,26 @@ class yeepay_plugin
 		}else{
 			return ['type'=>'qrcode','page'=>'wxpay_h5','url'=>$jump_url];
 		}
+	}
+
+	//支付宝APP支付
+	static public function aliapppay(){
+		try{
+			$code_url = self::tutelage_pay('SDK_PAY', 'ALIPAY');
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		return ['type'=>'scheme','page'=>'alipay_qrcode','url'=>$code_url];
+	}
+
+	//微信APP支付
+	static public function wxapppay(){
+		try{
+			$result = self::tutelage_pay('SDK_PAY', 'WECHAT');
+		}catch(Exception $e){
+			return ['type'=>'error','msg'=>$e->getMessage()];
+		}
+		return ['type'=>'wxapp','data'=>['appId'=>$result['appId'], 'miniProgramId'=>$result['miniProgramOrgId'], 'path'=>$result['miniProgramPath']]];
 	}
 
 	//云闪付扫码支付
@@ -276,10 +333,11 @@ class yeepay_plugin
 			$total_amount = $data['orderAmount'];
 			$payerInfo = json_decode($data['payerInfo'], true);
 			$buyer = $payerInfo['userID'];
+			$bill_trade_no = $data['channelTrxId'];
 
 			if ($data['status'] == 'SUCCESS') {
 				if($out_trade_no == TRADE_NO && round($total_amount,2)==round($order['realmoney'],2)){
-					processNotify($order, $api_trade_no, $buyer);
+					processNotify($order, $api_trade_no, $buyer, $bill_trade_no);
 				}
 			}
 			return ['type'=>'html','data'=>'SUCCESS'];
@@ -306,7 +364,7 @@ class yeepay_plugin
 			'parentMerchantNo' => $channel['appid'],
 			'merchantNo' => empty($channel['appmchid'])?$channel['appid']:$channel['appmchid'],
 			'orderId' => $order['trade_no'],
-			'refundRequestId' => $order['refund_no'],
+			'refundRequestId' => $order['refund_no'] ?? $order['trade_no'],
 			'refundAmount' => $order['refundmoney']
 		];
 
@@ -338,6 +396,67 @@ class yeepay_plugin
 		if($data) {
 			$model = \lib\Applyments\CommUtil::getModel2($channel);
 			if($model) $model->notify($data);
+			
+			return ['type'=>'html','data'=>'SUCCESS'];
+		}
+		else {
+			//验证失败
+			return ['type'=>'html','data'=>'FAIL'];
+		}
+	}
+
+	//投诉通知
+	static public function complainnotify(){
+		global $channel;
+
+		if(!$_POST['response']) return ['type'=>'html','data'=>'no data'];
+
+		require(PAY_ROOT.'inc/YopClient.php');
+		$client = new \Yeepay\YopClient($channel['appkey'], $channel['appsecret']);
+		try{
+			$data = $client->notifyDecrypt($_POST['response']);
+		}catch(Exception $e){
+			return ['type'=>'html','data'=>$e->getMessage()];
+		}
+
+		if($data) {
+			$model = \lib\Complain\CommUtil::getModel($channel);
+			if($model) $model->refreshNewInfo($data['complaintNo'], $data['actionType']);
+			
+			return ['type'=>'html','data'=>'SUCCESS'];
+		}
+		else {
+			//验证失败
+			return ['type'=>'html','data'=>'FAIL'];
+		}
+	}
+
+	//分账回调
+	static public function dividenotify(){
+		global $channel, $DB;
+
+		if(!$_POST['response']) return ['type'=>'html','data'=>'no data'];
+
+		require(PAY_ROOT.'inc/YopClient.php');
+		$client = new \Yeepay\YopClient($channel['appkey'], $channel['appsecret']);
+		try{
+			$data = $client->notifyDecrypt($_POST['response']);
+		}catch(Exception $e){
+			return ['type'=>'html','data'=>$e->getMessage()];
+		}
+
+		if($data) {
+			$divide_trade_no = $data['divideRequestId'];
+			$out_trade_no = $data['orderId'];
+			$status = $data['divideStatus'];
+			$psorder = $DB->find('psorder', '*', ['trade_no'=>$out_trade_no]);
+			if($psorder){
+				if($status == 'SUCCESS'){
+					$DB->update('psorder', ['status'=>2,'settle_no'=>$divide_trade_no], ['id'=>$psorder['id']]);
+				}elseif($status == 'FAIL'){
+					$DB->update('psorder', ['status'=>3,'result'=>$data['failReason']], ['id'=>$psorder['id']]);
+				}
+			}
 			
 			return ['type'=>'html','data'=>'SUCCESS'];
 		}

@@ -127,13 +127,19 @@ case 'connect':
 	exit(json_encode($result));
 break;
 case 'captcha':
-	$GtSdk = new \lib\GeetestLib($conf['captcha_id'], $conf['captcha_key']);
-	$data = array(
-		'user_id' => isset($uid)?$uid:'public',
-		'client_type' => "web",
-		'ip_address' => $clientip
-	);
-	$result = $GtSdk->pre_process($data);
+	if($conf['captcha_version'] == '1'){
+		$captcha_id = !empty($conf['captcha_id'])?$conf['captcha_id']:'54088bb07d2df3c46b79f80300b0abbe';
+		$result = ['success'=>1, 'gt'=>$captcha_id, 'version'=>1];
+	}else{
+		$GtSdk = new \lib\GeetestLib($conf['captcha_id'], $conf['captcha_key']);
+		$data = array(
+			'user_id' => isset($uid)?$uid:'public',
+			'client_type' => "web",
+			'ip_address' => $clientip
+		);
+		$result = $GtSdk->pre_process($data);
+		$result['version'] = 0;
+	}
 	$_SESSION['gtserver'] = $result['success'];
 	exit(json_encode($result));
 break;

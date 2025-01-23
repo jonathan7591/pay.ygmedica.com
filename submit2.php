@@ -15,19 +15,10 @@ if($order['status']>0){
 }
 
 // 获取订单支付方式ID、支付插件、支付通道、支付费率
-if($order['tid']==2 || $order['tid']==4){ //充值余额与购买用户组
-	$userrow = $DB->getRow("SELECT `uid`,`gid`,`money`,`mode`,`channelinfo`,`ordername` FROM `pre_user` WHERE `uid`='{$conf['reg_pay_uid']}' LIMIT 1");
-	$submitData = \lib\Channel::submit2($typeid, $userrow['uid'], $userrow['gid'], $order['money']);
-	if(!$submitData){
-		sysmsg('<center>当前支付方式无法使用</center>', '跳转提示');
-	}
-	$submitData['mode'] = 0;
-}else{
-	$userrow = $DB->getRow("SELECT `uid`,`gid`,`money`,`mode`,`channelinfo`,`ordername` FROM `pre_user` WHERE `uid`='{$order['uid']}' LIMIT 1");
-	$submitData = \lib\Channel::submit2($typeid, $userrow['uid'], $userrow['gid'], $order['money']);
-	if(!$submitData){
-		sysmsg('<center>当前支付方式无法使用</center>', '跳转提示');
-	}
+$userrow = $DB->getRow("SELECT `uid`,`gid`,`money`,`mode`,`channelinfo`,`ordername` FROM `pre_user` WHERE `uid`='{$order['uid']}' LIMIT 1");
+$submitData = \lib\Channel::submit2($typeid, $userrow['uid'], $userrow['gid'], $order['money']);
+if(!$submitData){
+	sysmsg('<center>当前支付方式无法使用</center>', '跳转提示');
 }
 
 if($userrow['mode']==1 && $order['tid']!=4 || $order['tid']==2){ //订单加费模式（排除购买用户组）或余额充值

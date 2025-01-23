@@ -6,7 +6,8 @@ use Exception;
 
 class CommUtil
 {
-    public static $plugins = ['alipay','alipaysl','alipayd','wxpayn','wxpaynp','yeepay','yseqt'];
+    public static $plugins = ['alipay','alipaysl','alipayd','wxpayn','wxpaynp','yeepay','yseqt','chinaums','dinpay'];
+    public static $no_order_plugins = ['chinaums','dinpay'];
     public static $plugins2 = ['adapay'];
 
     public static function getModel($channel){
@@ -18,24 +19,36 @@ class CommUtil
             return new Yeepay($channel);
         }elseif($channel['plugin'] == 'yseqt'){
             return new Yseqt($channel);
+        }elseif($channel['plugin'] == 'chinaums'){
+            return new Chinaums($channel);
+        }elseif($channel['plugin'] == 'dinpay'){
+            return new Dinpay($channel);
         }
         return false;
+    }
+
+    public static function getReceiver($id){
+        global $DB;
+        return $DB->find('psreceiver', '*', ['id'=>$id]);
+    }
+
+    public static function getOrder($trade_no){
+        global $DB;
+        return $DB->getRow("SELECT A.*,B.channel,B.account,B.name,B.rate FROM pre_psorder A LEFT JOIN pre_psreceiver B ON A.rid=B.id WHERE A.trade_no=:trade_no", [':trade_no'=>$trade_no]);
     }
 
     //订单分账定时任务
     public static function task(){
         global $DB;
         $limit = 10; //每次查询分账的订单数量
-        for($i=0;$i<$limit;$i++){
-            $srow=$DB->getRow("SELECT A.*,B.channel,B.account,B.name,C.uid,C.subchannel FROM pre_psorder A INNER JOIN pre_psreceiver B ON B.id=A.rid LEFT JOIN pre_order C ON C.trade_no=A.trade_no WHERE A.status=1 ORDER BY A.id ASC LIMIT 1");
-            if(!$srow)break;
+        $list = $DB->getAll("SELECT A.*,B.channel,B.account,B.name,C.uid,C.subchannel FROM pre_psorder A INNER JOIN pre_psreceiver B ON B.id=A.rid LEFT JOIN pre_order C ON C.trade_no=A.trade_no WHERE A.status=1 ORDER BY A.id ASC LIMIT {$limit}");
+        foreach($list as $srow){
             self::process_item($srow);
         }
     
         $limit = 10; //每次提交分账的订单数量
-        for($i=0;$i<$limit;$i++){
-            $srow=$DB->getRow("SELECT A.*,B.channel,B.account,B.name,C.uid,C.subchannel FROM pre_psorder A INNER JOIN pre_psreceiver B ON B.id=A.rid LEFT JOIN pre_order C ON C.trade_no=A.trade_no WHERE A.status=0 AND TimeStampDiff(SECOND, A.addtime, NOW())>=60 ORDER BY A.id ASC LIMIT 1");
-            if(!$srow)break;
+        $list = $DB->getAll("SELECT A.*,B.channel,B.account,B.name,C.uid,C.subchannel FROM pre_psorder A INNER JOIN pre_psreceiver B ON B.id=A.rid LEFT JOIN pre_order C ON C.trade_no=A.trade_no WHERE A.status=0 AND TimeStampDiff(SECOND, A.addtime, NOW())>=60 ORDER BY A.id ASC LIMIT 1");
+        foreach($list as $srow){
             self::process_item($srow);
         }
     }

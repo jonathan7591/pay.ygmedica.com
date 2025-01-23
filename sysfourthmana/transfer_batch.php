@@ -6,16 +6,22 @@ include("../includes/common.php");
 $type = isset($_GET['type'])?intval($_GET['type']):exit('no type');
 if($type == 1){
 	$typename = '支付宝';
-	$method = '单笔转账到支付宝账户接口';
+	$default_channel = $conf['transfer_alipay'];
+	$app = 'alipay';
 }elseif($type == 2){
 	$typename = '微信';
-	$method = '微信商家转账到零钱接口';
+	$default_channel = $conf['transfer_wxpay'];
+	$app = 'wxpay';
 }elseif($type == 3){
 	$typename = 'QQ钱包';
-	$method = 'QQ钱包企业付款接口';
+	$default_channel = $conf['transfer_qqpay'];
+	$app = 'qqpay';
 }elseif($type == 4){
 	$typename = '银行卡';
-	$method = '支付宝单笔转账到银行卡接口';
+	$default_channel = $conf['transfer_bank'];
+	$app = 'bank';
+}else{
+	sysmsg('参数错误');
 }
 $title=$typename.'批量转账';
 include './head.php';
@@ -30,6 +36,8 @@ if(isset($_GET['batch'])){
 	$row=$DB->getRow("SELECT * from pre_batch where batch='$batch'");
 	if(!$row)showmsg('批次号不存在');
 	$list=$DB->getAll("SELECT * FROM pre_settle WHERE batch='{$batch}' and type={$type}");
+
+	$channel_select = $DB->getAll("SELECT id,name,plugin FROM pre_channel WHERE plugin IN (SELECT name FROM pre_plugin WHERE transtypes LIKE '%".$app."%')");
 
 ?>
 <script>
@@ -50,8 +58,9 @@ function Transfer(){
 		var checkself=$(this);
 		var id=checkself.val();
 		var statusself=$('#id'+id);
+		var channel = $("select[name='channel']").val();
 		statusself.html("<img src='../assets/img/load.gif' height=22>");
-		$.post(url,'type='+paytype+'&id='+id, function(d) {
+		$.post(url, {type:paytype,channel:channel,id:id}, function(d) {
 			if(d.code==0){
 				transnum++;
 				var num = $('#donenum').text();
@@ -99,9 +108,10 @@ $(document).ready(function(){
 	$('.recheck').click(function(){
 		var self=$(this),
 			id=self.attr('uin');
+		var channel = $("select[name='channel']").val();
 		var url="ajax_settle.php?act=transfer";
 		self.html("<img src='../assets/img/load.gif' height=22>");
-		$.post(url,'type='+paytype+'&id='+id, function(d) {
+		$.post(url, {type:paytype,channel:channel,id:id}, function(d) {
 			if(d.code==0){
 				if(d.ret==1){
 					self.html('<font color="green">成功</font>');
@@ -126,7 +136,12 @@ $(document).ready(function(){
     <div class="col-md-12 center-block" style="float: none;">
 <div class="panel panel-default">
 	<div class="panel-heading" style="text-align:center">
-		<div class="panel-title"><h3 class="panel-title"><?php echo $typename?>批量转账（使用<?php echo $method?>）</h3>
+		<div class="panel-title"><p><h3 class="panel-title"><?php echo $typename?>批量转账</h3></p>
+			<div class="input-group"><div class="input-group-addon">通道选择</div>
+				<select name="channel" class="form-control">
+					<?php foreach($channel_select as $channel){echo '<option value="'.$channel['id'].'" '.($channel['id']==$default_channel?'selected':'').'>'.$channel['name'].''.($channel['id']==$default_channel?'（默认）':'').'</option>';} ?>
+				</select>
+			</div>
 			<div class="input-group" style="padding:8px 0;">
 				<div class="input-group-addon btn">全选<input type="checkbox" onclick="SelectAll(this)" /></div>
 				<div class="input-group-addon btn" id="startsend">点此开始转账</div>
@@ -136,6 +151,7 @@ $(document).ready(function(){
 		</div>
 	</div>
 </div>
+
 
 <div class="panel panel-primary">
 	<table class="table table-bordered table-condensed">

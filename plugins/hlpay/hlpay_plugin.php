@@ -29,6 +29,11 @@ class hlpay_plugin
 				'type' => 'textarea',
 				'note' => '',
 			],
+			'channelid' => [
+				'name' => '通道ID',
+				'type' => 'input',
+				'note' => '可留空',
+			],
 			'appswitch' => [
 				'name' => '支付方式类型',
 				'type' => 'select',
@@ -94,6 +99,9 @@ class hlpay_plugin
 			'notify_url'  => $conf['localurl'].'pay/notify/'.TRADE_NO.'/',
 			'return_url' => $siteurl.'pay/return/'.TRADE_NO.'/',
 		];
+		if(!empty($channel['channelid'])){
+			$param['mch_channel_id'] = $channel['channelid'];
+		}
 		if($sub_appid && $sub_openid){
 			$param += [
 				'channel_extra' => json_encode(['sub_appid' => $sub_appid, 'user_id' => $sub_openid]),

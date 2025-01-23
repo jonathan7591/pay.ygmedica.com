@@ -145,6 +145,14 @@ class Payment {
                     $json['pay_type'] = 'scan';
                     $json['pay_info'] = $result['data'];
                     break;
+                case 'wxplugin': //微信小程序插件支付
+                    $json['pay_type'] = 'wxplugin';
+                    $json['pay_info'] = $result['data'];
+                    break;
+                case 'wxapp': //跳转微信小程序支付
+                    $json['pay_type'] = 'wxapp';
+                    $json['pay_info'] = $result['data'];
+                    break;
                 case 'error':
                     $json['code'] = -2;
                     $json['msg'] = $result['msg'];
@@ -260,7 +268,11 @@ class Payment {
         global $DB;
         $support_plugins = \lib\ProfitSharing\CommUtil::$plugins;
         if(in_array($plugin, $support_plugins)){
-            $psreceiver = $DB->getRow("SELECT * FROM `pre_psreceiver` WHERE `channel`='{$order['channel']}' AND `uid`='{$order['uid']}' AND `status`=1");
+            $psreceiver = null;
+            if($order['subchannel'] > 0){
+                $psreceiver = $DB->getRow("SELECT * FROM `pre_psreceiver` WHERE `channel`='{$order['channel']}' AND `uid`='{$order['uid']}' AND `subchannel`='{$order['subchannel']}' AND `status`=1");
+            }
+            if(!$psreceiver) $psreceiver = $DB->getRow("SELECT * FROM `pre_psreceiver` WHERE `channel`='{$order['channel']}' AND `uid`='{$order['uid']}' AND `status`=1");
             if(!$psreceiver) $psreceiver = $DB->getRow("SELECT * FROM `pre_psreceiver` WHERE `channel`='{$order['channel']}' AND `uid` IS NULL AND `status`=1");
             if($psreceiver){
                 if(!$psreceiver['minmoney'] || $order['realmoney']>=$psreceiver['minmoney']){

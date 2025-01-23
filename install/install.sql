@@ -5,7 +5,7 @@ create table `pre_config` (
 PRIMARY KEY  (`k`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `pre_config` VALUES ('version', '2041');
+INSERT INTO `pre_config` VALUES ('version', '2042');
 INSERT INTO `pre_config` VALUES ('admin_user', 'admin');
 INSERT INTO `pre_config` VALUES ('admin_pwd', '123456');
 INSERT INTO `pre_config` VALUES ('admin_paypwd', '123456');
@@ -274,7 +274,7 @@ CREATE TABLE `pre_user` (
   `publickey` varchar(500) DEFAULT NULL,
   `channelinfo` text DEFAULT NULL,
   `ordername` varchar(255) DEFAULT NULL,
-  `msgconfig` varchar(150) DEFAULT NULL,
+  `msgconfig` varchar(300) DEFAULT NULL,
   `remain_money` varchar(20) DEFAULT NULL,
   `open_code` tinyint(1) NOT NULL DEFAULT '0',
  PRIMARY KEY (`uid`),
@@ -296,13 +296,17 @@ CREATE TABLE `pre_settle` (
   `addtime` datetime DEFAULT NULL,
   `endtime` datetime DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
+  `transfer_no` varchar(64) DEFAULT NULL,
+  `transfer_channel` int(10) unsigned DEFAULT NULL,
   `transfer_status` tinyint(1) NOT NULL DEFAULT '0',
   `transfer_result` varchar(64) DEFAULT NULL,
   `transfer_date` datetime DEFAULT NULL,
+  `transfer_ext` text DEFAULT NULL,
   `result` varchar(64) DEFAULT NULL,
  PRIMARY KEY (`id`),
  KEY `uid` (`uid`),
- KEY `batch` (`batch`)
+ KEY `batch` (`batch`),
+ KEY `transfer_no` (`transfer_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `pre_log`;
@@ -389,6 +393,7 @@ DROP TABLE IF EXISTS `pre_psreceiver`;
 CREATE TABLE `pre_psreceiver` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `channel` int(11) NOT NULL,
+  `subchannel` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL,
   `account` varchar(128) NOT NULL,
   `name` varchar(50) DEFAULT NULL,
@@ -518,11 +523,13 @@ CREATE TABLE `pre_transfer` (
   `username` varchar(128) DEFAULT NULL,
   `money` decimal(10,2) NOT NULL,
   `costmoney` decimal(10,2) DEFAULT NULL,
+  `addtime` datetime DEFAULT NULL,
   `paytime` datetime DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
   `api` tinyint(1) NOT NULL DEFAULT '0',
   `desc` varchar(80) DEFAULT NULL,
   `result` varchar(80) DEFAULT NULL,
+  `ext` text DEFAULT NULL,
  PRIMARY KEY (`biz_no`),
  KEY `uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

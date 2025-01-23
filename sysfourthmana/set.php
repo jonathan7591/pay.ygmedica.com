@@ -76,6 +76,10 @@ if($mod=='site'){
 	  <label class="col-sm-2 control-label">开放注册</label>
 	  <div class="col-sm-10"><select class="form-control" name="reg_open" default="<?php echo $conf['reg_open']?>"><option value="1">开启</option><option value="0">关闭</option><option value="2">仅邀请注册</option></select></div>
 	</div><br/>
+	<div class="form-group">
+	  <label class="col-sm-2 control-label">注册后可不填结算账户</label>
+	  <div class="col-sm-10"><select class="form-control" name="reg_input_settle" default="<?php echo $conf['reg_input_settle']?>"><option value="0">否</option><option value="1">是</option></select><font color="green">如不做平台代收，可设置为是</font></div>
+	</div><br/>
 	<div id="setform1" style="<?php echo $conf['reg_open']==0?'display:none;':null; ?>">
 	<div class="form-group">
 	  <label class="col-sm-2 control-label">开启注册审核</label>
@@ -109,12 +113,16 @@ if($mod=='site'){
 	</div><br/>
 	</div>
 	<div class="form-group">
-	  <label class="col-sm-2 control-label">极限验证码ID</label>
+	  <label class="col-sm-2 control-label">极验滑动验证码ID</label>
 	  <div class="col-sm-10"><input type="text" name="captcha_id" value="<?php echo $conf['captcha_id']; ?>" class="form-control"/></div>
 	</div><br/>
 	<div class="form-group">
-	  <label class="col-sm-2 control-label">极限验证码密钥</label>
+	  <label class="col-sm-2 control-label">极验滑动验证码密钥</label>
 	  <div class="col-sm-10"><input type="text" name="captcha_key" value="<?php echo $conf['captcha_key']; ?>" class="form-control"/></div>
+	</div><br/>
+	<div class="form-group">
+	  <label class="col-sm-2 control-label">极验版本</label>
+	  <div class="col-sm-10"><select class="form-control" name="captcha_version" default="<?php echo $conf['captcha_version']?>"><option value="0">V3.0</option><option value="1">V4.0</option></select></div>
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-2 control-label">登录开启验证码</label>
@@ -422,11 +430,15 @@ $(document).ready(function(){
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">支付宝手机网站支付前快捷登录</label>
-	  <div class="col-sm-9"><select class="form-control" name="alipay_wappaylogin" default="<?php echo $conf['alipay_wappaylogin']?>"><option value="0">关闭</option><option value="1">开启</option></select><font color="green">开启后，可在支付前获取用户支付宝userid，用于黑名单屏蔽</font></div>
+	  <div class="col-sm-9"><select class="form-control" name="alipay_wappaylogin" default="<?php echo $conf['alipay_wappaylogin']?>"><option value="0">关闭</option><option value="1">开启</option></select><font color="green">开启后，可在手机网站支付前获取用户支付宝userid，用于黑名单屏蔽。电脑网站支付不支持</font></div>
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">开启商户后台自助退款</label>
 	  <div class="col-sm-9"><select class="form-control" name="user_refund" default="<?php echo $conf['user_refund']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
+	</div><br/>
+	<div class="form-group">
+	  <label class="col-sm-3 control-label">订单退款手续费承担方</label>
+	  <div class="col-sm-9"><select class="form-control" name="refund_fee_type" default="<?php echo $conf['refund_fee_type']?>"><option value="0">平台（默认）</option><option value="1">商户</option></select></div>
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">微信小程序支付跳转小程序页面路径</label>
@@ -486,7 +498,7 @@ $(document).ready(function(){
   </form>
 </div>
 </div>
-<div class="panel panel-primary">
+<?php if(class_exists('\\lib\\Complain\\CommUtil')){?><div class="panel panel-primary">
 <div class="panel-heading"><h3 class="panel-title">支付交易投诉相关配置</h3></div>
 <div class="panel-body">
   <form onsubmit="return saveSetting(this)" method="post" class="form-horizontal" role="form">
@@ -514,49 +526,21 @@ $(document).ready(function(){
 	  <label class="col-sm-3 control-label">投诉自动拉黑支付账号</label>
 	  <div class="col-sm-9"><select class="form-control" name="complain_auto_black" default="<?php echo $conf['complain_auto_black']?>"><option value="0">否</option><option value="1">是</option></select></div>
 	</div><br/>
-	<div class="form-group">
+	<!--div class="form-group">
 	  <label class="col-sm-3 control-label">投诉订单自动退款</label>
 	  <div class="col-sm-9"><select class="form-control" name="complain_auto_refund" default="<?php echo $conf['complain_auto_refund']?>"><option value="0">否</option><option value="1">是</option></select></div>
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">金额低于多少自动退款</label>
 	  <div class="col-sm-9"><div class="input-group"><input type="text" name="complain_auto_refund_money" value="<?php echo $conf['complain_auto_refund_money']; ?>" class="form-control" placeholder="不填写则不限制金额"/><span class="input-group-addon">元</span></div></div>
-	</div><br/>
+	</div><br/-->
 	<div class="form-group">
 	  <div class="col-sm-offset-3 col-sm-9"><input type="submit" name="submit" value="修改" class="btn btn-primary form-control"/><br/>
 	 </div>
 	</div>
   </form>
 </div>
-</div>
-<div class="panel panel-primary">
-<div class="panel-heading"><h3 class="panel-title">支付宝/微信支付合单支付配置</h3></div>
-<div class="panel-body">
-  <form onsubmit="return saveSetting(this)" method="post" class="form-horizontal" role="form">
-	<h4 style="text-align: center;">微信支付合单支付配置</h4>
-	<div class="form-group">
-	  <label class="col-sm-3 control-label">微信开启合单支付</label>
-	  <div class="col-sm-9"><select class="form-control" name="wxcombine_open" default="<?php echo $conf['wxcombine_open']?>"><option value="0">关闭</option><option value="1">开启</option></select><font color="green">只支持微信官方支付V3和服务商版插件，可将大额订单分为多个子单进行合单支付。最小分3个子单，最大50个子单。</font></div>
-	</div><br/>
-	<div class="form-group">
-	  <label class="col-sm-3 control-label">支付宝开启合单支付</label>
-	  <div class="col-sm-9"><select class="form-control" name="alicombine_open" default="<?php echo $conf['alicombine_open']?>"><option value="0">关闭</option><option value="1">开启</option></select><font color="green">只支持支付宝直付通版插件，可将大额订单分为多个子单进行合单支付。最小分2个子单，最大6个子单。仅支持手机网站支付和APP支付</font></div>
-	</div><br/>
-	<div class="form-group">
-	  <label class="col-sm-3 control-label">合单支付最小金额</label>
-	  <div class="col-sm-9"><input type="text" name="wxcombine_minmoney" value="<?php echo $conf['wxcombine_minmoney']; ?>" class="form-control" placeholder="超过该金额进行合单支付，否则是普通支付"/></div>
-	</div><br/>
-	<div class="form-group">
-	  <label class="col-sm-3 control-label">合单支付子单最大金额</label>
-	  <div class="col-sm-9"><input type="text" name="wxcombine_submoney" value="<?php echo $conf['wxcombine_submoney']; ?>" class="form-control" placeholder="子单超过该金额则增加子单数量"/></div>
-	</div><br/>
-	<div class="form-group">
-	  <div class="col-sm-offset-3 col-sm-9"><input type="submit" name="submit" value="修改" class="btn btn-primary form-control"/><br/>
-	 </div>
-	</div>
-  </form>
-</div>
-</div>
+</div><?php }?>
 <div class="panel panel-primary">
 <div class="panel-heading"><h3 class="panel-title">支付风控检测设置</h3></div>
 <div class="panel-body">
@@ -736,23 +720,41 @@ $("select[name='settle_transfer']").change(function(){
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">付款默认备注</label>
 	  <div class="col-sm-9"><input type="text" name="transfer_desc" value="<?php echo $conf['transfer_desc']; ?>" class="form-control" placeholder="微信和QQ转账时显示"/></div>
-	</div><br/>
+	</div><hr/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">支付宝转账接口通道</label>
-	  <div class="col-sm-9"><select class="form-control" name="transfer_alipay" default="<?php echo $conf['transfer_alipay']?>"><option value="0">关闭</option><?php foreach($alipay_channel as $channel){echo '<option value="'.$channel['id'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为alipay的支付通道。需签约“转账到支付宝账户”产品。</font></div>
+	  <div class="col-sm-9"><select class="form-control" name="transfer_alipay" default="<?php echo $conf['transfer_alipay']?>" onchange="changeAliChannel(this)"><option value="0">关闭</option><?php foreach($alipay_channel as $channel){echo '<option value="'.$channel['id'].'" plugin="'.$channel['plugin'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为alipay的支付通道。需签约“转账到支付宝账户”产品。</font></div>
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">微信转账接口通道</label>
-	  <div class="col-sm-9"><select class="form-control" name="transfer_wxpay" default="<?php echo $conf['transfer_wxpay']?>"><option value="0">关闭</option><?php foreach($wxpay_channel as $channel){echo '<option value="'.$channel['id'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为wxpay或wxpayn的支付通道。需申请“企业付款”（V2插件）或“商家转账到零钱”（V3插件）产品。</font></div>
+	  <div class="col-sm-9"><select class="form-control" name="transfer_wxpay" default="<?php echo $conf['transfer_wxpay']?>"><option value="0">关闭</option><?php foreach($wxpay_channel as $channel){echo '<option value="'.$channel['id'].'" plugin="'.$channel['plugin'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为wxpay或wxpayn的支付通道。需申请“企业付款”（V2插件）或“商家转账”（V3插件）产品。</font></div>
 	</div><br/>
 	<div class="form-group">
+	  <label class="col-sm-3 control-label">微信V3转账产品类型</label>
+	  <div class="col-sm-9"><select class="form-control" name="transfer_wxpay_type" default="<?php echo $conf['transfer_wxpay_type']?>"><option value="0">商家转账到零钱（旧）</option><option value="1">商家转账（新）</option></select></div>
+	</div><br/>
+	<div id="transfer_wxpay_new_div" style="display:none">
+	<div class="form-group">
+	  <label class="col-sm-3 control-label">微信商家转账-场景ID</label>
+	  <div class="col-sm-9"><input type="text" name="transfer_wxpay_scene_id" value="<?php echo $conf['transfer_wxpay_scene_id']; ?>" class="form-control" placeholder=""/><font color="green">可前往“微信商户平台-产品中心-商家转账”中申请。如：1001-现金营销</font></div>
+	</div><br/>
+	<div class="form-group">
+	  <label class="col-sm-3 control-label">微信商家转账-报备信息类型</label>
+	  <div class="col-sm-9"><input type="text" name="transfer_wxpay_info_type" value="<?php echo $conf['transfer_wxpay_info_type']; ?>" class="form-control" placeholder=""/><font color="green">请根据<a href="https://pay.weixin.qq.com/doc/v3/merchant/4012711988#3.3-%E5%8F%91%E8%B5%B7%E8%BD%AC%E8%B4%A6" target="_blank" rel="noreferrer">产品文档</a>确认当前转账场景下需传入的信息类型，需按要求填入，有多个时用|隔开</font></div>
+	</div><br/>
+	<div class="form-group">
+	  <label class="col-sm-3 control-label">微信商家转账-报备信息内容</label>
+	  <div class="col-sm-9"><input type="text" name="transfer_wxpay_info_content" value="<?php echo $conf['transfer_wxpay_info_content']; ?>" class="form-control" placeholder=""/><font color="green">请根据信息类型，描述当前这笔转账单的转账背景，有多个类型时用|隔开</font></div>
+	</div><br/>
+	</div>
+	<div class="form-group">
 	  <label class="col-sm-3 control-label">QQ钱包转账接口通道</label>
-	  <div class="col-sm-9"><select class="form-control" name="transfer_qqpay" default="<?php echo $conf['transfer_qqpay']?>"><option value="0">关闭</option><?php foreach($qqpay_channel as $channel){echo '<option value="'.$channel['id'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为qqpay的支付通道。需申请“企业付款”产品。</font></div>
+	  <div class="col-sm-9"><select class="form-control" name="transfer_qqpay" default="<?php echo $conf['transfer_qqpay']?>"><option value="0">关闭</option><?php foreach($qqpay_channel as $channel){echo '<option value="'.$channel['id'].'" plugin="'.$channel['plugin'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为qqpay的支付通道。需申请“企业付款”产品。</font></div>
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">银行卡转账接口通道</label>
-	  <div class="col-sm-9"><select class="form-control" name="transfer_bank" default="<?php echo $conf['transfer_bank']?>"><option value="0">关闭</option><?php foreach($bank_channel as $channel){echo '<option value="'.$channel['id'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为alipay的支付通道。需签约“转账到银行卡”产品。或wxpay插件，签约“付款到银行卡”。部分其他插件也有付款到银行卡功能</font></div>
-	</div><br/>
+	  <div class="col-sm-9"><select class="form-control" name="transfer_bank" default="<?php echo $conf['transfer_bank']?>"><option value="0">关闭</option><?php foreach($bank_channel as $channel){echo '<option value="'.$channel['id'].'" plugin="'.$channel['plugin'].'">'.$channel['name'].'</option>';} ?></select><font color="green">请先添加支付插件为alipay的支付通道。需签约“转账到银行卡”产品。或wxpay插件，签约“付款到银行卡”。部分其他插件也有付款到银行卡功能</font></div>
+	</div><hr/>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">用户中心代付功能</label>
 	  <div class="col-sm-9"><select class="form-control" name="user_transfer" default="<?php echo $conf['user_transfer']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
@@ -780,6 +782,24 @@ $("select[name='settle_transfer']").change(function(){
   </form>
 </div>
 </div>
+<script>
+function changeAliChannel(obj){
+	var channel = $(obj).val()
+	$(".channelid").text(channel)
+}
+$("select[name='transfer_wxpay_type']").change(function(){
+	if($(this).val() == 1){
+		$("#transfer_wxpay_new_div").show();
+	}else{
+		$("#transfer_wxpay_new_div").hide();
+	}
+})
+$(document).ready(function(){
+	$("select[name='transfer_alipay']").change()
+	$("select[name='alipay_satf']").change()
+	$("select[name='transfer_wxpay_type']").change()
+})
+</script>
 <?php
 }elseif($mod=='certificate'){
 	$alipay_channel = $DB->getAll("SELECT * FROM pre_channel WHERE plugin='alipay'");
@@ -1189,14 +1209,14 @@ if($errmsg2){
 	  <label class="col-sm-2 control-label">登录通知模板参数</label>
 	  <div class="col-sm-10"><input type="text" name="wxnotice_tpl_login_user" value="<?php echo $conf['wxnotice_tpl_login_user']; ?>" class="form-control wxparam" placeholder="登录帐号"/><input type="text" name="wxnotice_tpl_login_time" value="<?php echo $conf['wxnotice_tpl_login_time']; ?>" class="form-control wxparam" placeholder="登录时间"/><input type="text" name="wxnotice_tpl_login_name" value="<?php echo $conf['wxnotice_tpl_login_name']; ?>" class="form-control wxparam" placeholder="登录平台"/><input type="text" name="wxnotice_tpl_login_ip" value="<?php echo $conf['wxnotice_tpl_login_ip']; ?>" class="form-control wxparam" placeholder="IP地址"/><input type="text" name="wxnotice_tpl_login_iploc" value="<?php echo $conf['wxnotice_tpl_login_iploc']; ?>" class="form-control wxparam" placeholder="IP归属地"/></div>
 	</div><br/>
-	<div class="form-group">
+	<?php if(class_exists('\\lib\\Complain\\CommUtil')){?><div class="form-group">
 	  <label class="col-sm-2 control-label">交易投诉通知模板ID</label>
 	  <div class="col-sm-10"><input type="text" name="wxnotice_tpl_complain" value="<?php echo $conf['wxnotice_tpl_complain']; ?>" class="form-control" placeholder="留空则不开启此消息"/></div>
 	</div><br/>
 	<div class="form-group">
 	  <label class="col-sm-2 control-label">交易投诉通知模板参数</label>
 	  <div class="col-sm-10"><input type="text" name="wxnotice_tpl_complain_order_no" value="<?php echo $conf['wxnotice_tpl_complain_order_no']; ?>" class="form-control wxparam" placeholder="订单编号"/><input type="text" name="wxnotice_tpl_complain_time" value="<?php echo $conf['wxnotice_tpl_complain_time']; ?>" class="form-control wxparam" placeholder="投诉时间"/><input type="text" name="wxnotice_tpl_complain_reason" value="<?php echo $conf['wxnotice_tpl_complain_reason']; ?>" class="form-control wxparam" placeholder="投诉原因"/><input type="text" name="wxnotice_tpl_complain_type" value="<?php echo $conf['wxnotice_tpl_complain_type']; ?>" class="form-control wxparam" placeholder="投诉状态"/><input type="text" name="wxnotice_tpl_complain_name" value="<?php echo $conf['wxnotice_tpl_complain_name']; ?>" class="form-control wxparam" placeholder="商品名称"/></div>
-	</div><br/>
+	</div><br/><?php }?>
 	<div class="form-group">
 	  <label class="col-sm-2 control-label">余额不足提醒模板ID</label>
 	  <div class="col-sm-10"><input type="text" name="wxnotice_tpl_balance" value="<?php echo $conf['wxnotice_tpl_balance']; ?>" class="form-control" placeholder="留空则不开启此消息"/></div>
@@ -1236,6 +1256,14 @@ if($errmsg2){
 	  <label class="col-sm-3 control-label">授权域名待审核提醒</label>
 	  <div class="col-sm-9"><select class="form-control" name="msgconfig_domain" default="<?php echo $conf['msgconfig_domain']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
 	</div><br/>
+	<?php if(class_exists('\\lib\\Complain\\CommUtil')){?><div class="form-group">
+	  <label class="col-sm-3 control-label">全部交易投诉通知</label>
+	  <div class="col-sm-9"><select class="form-control" name="msgconfig_complain_all" default="<?php echo $conf['msgconfig_complain_all']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
+	</div><br/><?php }?>
+	<?php if(class_exists('\\lib\\WxMchRisk')){?><div class="form-group">
+	  <label class="col-sm-3 control-label">渠道商户违规通知</label>
+	  <div class="col-sm-9"><select class="form-control" name="msgconfig_mchrisk_all" default="<?php echo $conf['msgconfig_mchrisk_all']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
+	</div><br/><?php }?>
 	<h4 style="text-align: center;">用户接收邮件开关设置</h4>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">邮件消息开关</label>
@@ -1249,10 +1277,14 @@ if($errmsg2){
 	  <label class="col-sm-3 control-label">结算通知</label>
 	  <div class="col-sm-9"><select class="form-control" name="msgconfig_settle" default="<?php echo $conf['msgconfig_settle']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
 	</div><br/>
-	<div class="form-group">
+	<?php if(class_exists('\\lib\\Complain\\CommUtil')){?><div class="form-group">
 	  <label class="col-sm-3 control-label">交易投诉通知</label>
 	  <div class="col-sm-9"><select class="form-control" name="msgconfig_complain" default="<?php echo $conf['msgconfig_complain']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
-	</div><br/>
+	</div><br/><?php }?>
+	<?php if(class_exists('\\lib\\WxMchRisk')){?><div class="form-group">
+	  <label class="col-sm-3 control-label">渠道商户违规通知</label>
+	  <div class="col-sm-9"><select class="form-control" name="msgconfig_mchrisk" default="<?php echo $conf['msgconfig_mchrisk']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
+	</div><br/><?php }?>
 	<div class="form-group">
 	  <label class="col-sm-3 control-label">余额不足提醒</label>
 	  <div class="col-sm-9"><select class="form-control" name="msgconfig_balance" default="<?php echo $conf['msgconfig_balance']?>"><option value="0">关闭</option><option value="1">开启</option></select></div>
@@ -1265,7 +1297,7 @@ if($errmsg2){
 </div>
 <div class="panel-footer">
 <span class="glyphicon glyphicon-info-sign"></span>
-<b>用户接收邮件的开关，除了在这里开启外，需要在用户中心手动开启才能收到。且用户只能选择一种消息接收方式。</b>
+<b>用户接收邮件的开关，除了在这里开启外，需要在用户中心手动开启才能收到！</b>
 </div>
 </div>
 <?php

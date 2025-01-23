@@ -25,6 +25,11 @@ class alipay_plugin
 				'type' => 'textarea',
 				'note' => '',
 			],
+			'appmchid' => [
+				'name' => '卖家支付宝用户ID',
+				'type' => 'input',
+				'note' => '可留空，默认为商户签约账号',
+			],
 		],
 		'select' => [ //选择已开启的支付方式
 			'1' => '电脑网站支付',
@@ -84,6 +89,9 @@ class alipay_plugin
 				'total_amount' => $order['realmoney'],
 				'subject' => $ordername,
 			];
+			if(!empty($channel['appmchid'])){
+				$bizContent['seller_id'] = $channel['appmchid'];
+			}
 			$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
 			try{
 				$aop = new \Alipay\AlipayTradeService($alipay_config);
@@ -105,6 +113,9 @@ class alipay_plugin
 				'total_amount' => $order['realmoney'],
 				'subject' => $ordername,
 			];
+			if(!empty($channel['appmchid'])){
+				$bizContent['seller_id'] = $channel['appmchid'];
+			}
 			$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
 			try{
 				$aop = new \Alipay\AlipayTradeService($alipay_config);
@@ -115,7 +126,7 @@ class alipay_plugin
 
 			return ['type'=>'html','data'=>$html];
 		}elseif(in_array('6',$channel['apptype'])){
-			if($conf['alipay_wappaylogin']==1 && !$isAlipay){
+			if($conf['alipay_wappaylogin']==1 && !$isAlipay || $isMobile && !$isAlipay){
 				return ['type'=>'jump','url'=>'/pay/qrcode/'.TRADE_NO.'/'];
 			}
 			return ['type'=>'jump','url'=>'/pay/apppay/'.TRADE_NO.'/?d=1'];
@@ -178,6 +189,9 @@ class alipay_plugin
 				'subject' => $ordername,
 				'qr_pay_mode' => '4'
 			];
+			if(!empty($channel['appmchid'])){
+				$bizContent['seller_id'] = $channel['appmchid'];
+			}
 			$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
 			try{
 				$aop = new \Alipay\AlipayTradeService($alipay_config);
@@ -215,6 +229,9 @@ class alipay_plugin
 			'qr_pay_mode' => '4',
 			'qrcode_width' => '230'
 		];
+		if(!empty($channel['appmchid'])){
+			$bizContent['seller_id'] = $channel['appmchid'];
+		}
 		$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
 		try{
 			$aop = new \Alipay\AlipayTradeService($alipay_config);
@@ -246,6 +263,9 @@ class alipay_plugin
 			'total_amount' => $order['realmoney'],
 			'subject' => $ordername,
 		];
+		if(!empty($channel['appmchid'])){
+			$bizContent['seller_id'] = $channel['appmchid'];
+		}
 		$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
 		try{
 			$aop = new \Alipay\AlipayTradeService($alipay_config);
@@ -282,6 +302,9 @@ class alipay_plugin
 			'total_amount' => $order['realmoney'],
 			'subject' => $ordername
 		];
+		if(!empty($channel['appmchid'])){
+			$bizContent['seller_id'] = $channel['appmchid'];
+		}
 		if(!in_array('3',$channel['apptype']) && in_array('8',$channel['apptype'])){
 			$bizContent['product_code'] = 'QR_CODE_OFFLINE';
 		}
@@ -320,6 +343,9 @@ class alipay_plugin
 			'total_amount' => $order['realmoney'],
 			'subject' => $ordername
 		];
+		if(!empty($channel['appmchid'])){
+			$bizContent['seller_id'] = $channel['appmchid'];
+		}
 		$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
 		try{
 			$aop = new \Alipay\AlipayTradeService($alipay_config);
@@ -397,6 +423,9 @@ class alipay_plugin
 			'total_amount' => $order['realmoney'],
 			'subject' => $ordername
 		];
+		if(!empty($channel['appmchid'])){
+			$bizContent['seller_id'] = $channel['appmchid'];
+		}
 		if($user_type == 'userid'){
 			$bizContent['buyer_id'] = $user_id;
 		}else{
@@ -445,6 +474,9 @@ class alipay_plugin
 			'product_code' => 'JSAPI_PAY',
 			'op_app_id' => $order['sub_appid'] ? $order['sub_appid'] : $alipay_config['app_id']
 		];
+		if(!empty($channel['appmchid'])){
+			$bizContent['seller_id'] = $channel['appmchid'];
+		}
 		if($user_type == 'openid'){
 			$bizContent['buyer_open_id'] = $user_id;
 		}else{
@@ -483,6 +515,9 @@ class alipay_plugin
 			'auth_code' => $order['auth_code'],
 			'scene' => 'bar_code',
 		];
+		if(!empty($channel['appmchid'])){
+			$bizContent['seller_id'] = $channel['appmchid'];
+		}
 		$bizContent['business_params'] = ['mc_create_trade_ip' => $clientip];
 		try{
 			$aop = new \Alipay\AlipayTradeService($alipay_config);
@@ -512,6 +547,7 @@ class alipay_plugin
 					}elseif($result['trade_status'] != 'WAIT_BUYER_PAY'){
 						return ['type'=>'error','msg'=>'支付宝支付失败！订单超时或用户取消支付'];
 					}
+					$retry++;
 				}
 				if($success){
 					if(!empty($result['buyer_user_id'])){
@@ -637,6 +673,9 @@ class alipay_plugin
 					'auth_no' => $auth_no,
 					'auth_confirm_mode' => 'COMPLETE'
 				];
+				if(!empty($channel['appmchid'])){
+					$bizContent['seller_id'] = $channel['appmchid'];
+				}
 				try{
 					$aop = new \Alipay\AlipayTradeService($alipay_config);
 					$result = $aop->scanPay($bizContent);
@@ -770,9 +809,27 @@ class alipay_plugin
 		try{
 			$aop = new \Alipay\AlipayTransferService($alipay_config);
 			$result = $aop->accountQuery($bizParam['user_id'], $user_type);
-			return ['code'=>0, 'amount'=>$result['available_amount']];
+			return ['code'=>0, 'amount'=>$result['available_amount'], 'msg'=>'账户可用余额：'.$result['available_amount'].'元，冻结余额：'.$result['freeze_amount'].'元'];
 		}catch(Exception $e){
 			return ['code'=>-1, 'msg'=>$e->getMessage()];
+		}
+	}
+
+	//协议签约回调
+	static public function signnofity(){
+		global $channel;
+		$alipay_config = require(PAY_ROOT.'inc/config.php');
+		$aop = new \Alipay\AlipayService($alipay_config);
+		$verify_result = $aop->check($_POST);
+		if($verify_result){
+			if($_POST['personal_product_code'] == 'FUND_SAFT_SIGN_WITHHOLDING_P'){
+				if($_POST['status'] == 'NORMAL'){
+					(new \lib\AlipaySATF())->signNotify($_POST);
+				}
+			}
+			return ['type'=>'html','data'=>'success'];
+		}else{
+			return ['type'=>'html','data'=>'check sign fail'];
 		}
 	}
 
@@ -783,22 +840,25 @@ class alipay_plugin
 		$aop = new \Alipay\AlipayService($alipay_config);
 		$verify_result = $aop->check($_POST);
 		if($verify_result){
-			if($_POST['msg_method'] == 'alipay.merchant.tradecomplain.changed'){
+			if($_POST['msg_method'] == 'alipay.merchant.tradecomplain.changed'){ //交易投诉通知回调
 				$bizContent = json_decode($_POST['biz_content'], true);
 				if($bizContent && isset($bizContent['complain_event_id'])){
 					$model = \lib\Complain\CommUtil::getModel($channel);
 					$model->refreshNewInfo($bizContent['complain_event_id']);
 				}
-			}
-			/*if($_POST['service']=='alipay.adatabus.risk.end.push' || $_POST['service']=='alipay.riskgo.risk.push'){
-				if($_POST['charset'] == 'GBK'){
-					$_POST['risktype'] = mb_convert_encoding($_POST['risktype'], "UTF-8", "GBK");
-					$_POST['risklevel'] = mb_convert_encoding($_POST['risklevel'], "UTF-8", "GBK");
-					$_POST['riskDesc'] = mb_convert_encoding($_POST['riskDesc'], "UTF-8", "GBK");
-					$_POST['complainText'] = mb_convert_encoding($_POST['complainText'], "UTF-8", "GBK");
+			}elseif($_POST['msg_method'] == 'alipay.fund.trans.order.changed'){ //资金单据状态变更通知
+				$bizContent = json_decode($_POST['biz_content'], true);
+				if($bizContent && $bizContent['product_code'] == 'FUND_ACCOUNT_BOOK' && $bizContent['biz_scene'] == 'SATF_DEPOSIT'){ //记账本充值回调
+					(new \lib\AlipaySATF())->rechargeNotify($bizContent);
+
+				}elseif($bizContent && $bizContent['product_code'] == 'SINGLE_TRANSFER_NO_PWD' && $bizContent['biz_scene'] == 'ENTRUST_TRANSFER'){ //转账下发回调
+					(new \lib\AlipaySATF())->transferNotify($bizContent);
+
+				}elseif($bizContent && $bizContent['product_code'] == 'SINGLE_TRANSFER_NO_PWD' && $bizContent['biz_scene'] == 'ENTRUST_ALLOCATION'){ //记账本调拨回调
+					(new \lib\AlipaySATF())->transferNotify($bizContent);
+
 				}
-				$DB->exec("INSERT INTO `pre_alipayrisk` (`channel`,`pid`,`smid`,`tradeNos`,`risktype`,`risklevel`,`riskDesc`,`complainTime`,`complainText`,`date`,`status`) VALUES (:channel, :pid, :smid, :tradeNos, :risktype, :risklevel, :riskDesc, :complainTime, :complainText, NOW(), 0)", [':channel'=>$channelid, ':pid'=>$_POST['pid'], ':smid'=>$_POST['smid']?$_POST['smid']:$_POST['merchantId'], ':tradeNos'=>$_POST['tradeNos'], ':risktype'=>$_POST['risktype'], ':risklevel'=>$_POST['risklevel'], ':riskDesc'=>$_POST['riskDesc'], ':complainTime'=>$_POST['complainTime'], ':complainText'=>$_POST['complainText']]);
-			}*/
+			}
 			return ['type'=>'html','data'=>'success'];
 		}else{
 			return ['type'=>'html','data'=>'check sign fail'];

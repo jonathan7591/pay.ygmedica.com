@@ -2,8 +2,8 @@
 //error_reporting(0);
 error_reporting(E_ERROR | E_PARSE | E_COMPILE_ERROR);
 if(defined('IN_CRONLITE'))return;
-define('VERSION', '3079');
-define('DB_VERSION', '2041');
+define('VERSION', '3081');
+define('DB_VERSION', '2042');
 define('IN_CRONLITE', true);
 define('SYSTEM_ROOT', dirname(__FILE__).'/');
 define('ROOT', dirname(SYSTEM_ROOT).'/');
@@ -98,11 +98,13 @@ if($conf['cdnpublic']==1){
 
 if(empty($conf['public_key'])){
 	$key_pair = generate_key_pair();
-	$conf['public_key'] = $key_pair['public_key'];
-	$conf['private_key'] = $key_pair['private_key'];
-	saveSetting('public_key', $conf['public_key']);
-	saveSetting('private_key', $conf['private_key']);
-	$CACHE->clear();
-	unset($key_pair);
+	if($key_pair){
+		$conf['public_key'] = $key_pair['public_key'];
+		$conf['private_key'] = $key_pair['private_key'];
+		saveSetting('public_key', $conf['public_key']);
+		saveSetting('private_key', $conf['private_key']);
+		$CACHE->clear();
+		unset($key_pair);
+	}
 }
 ?>

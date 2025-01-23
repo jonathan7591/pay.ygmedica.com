@@ -47,7 +47,8 @@ class Transfer
                 $result['msg'] = '转账失败：'.($result['errmsg']?$result['errmsg']:'原因未知');
             }elseif($result['status'] == 1){
                 if($order['status'] == 0){
-                    $DB->update('transfer', ['status'=>1], ['biz_no' => $out_biz_no]);
+                    $paytime = $result['paydate'] ?? 'NOW()';
+                    $DB->update('transfer', ['status'=>1, 'paytime'=>$paytime, 'result'=>''], ['biz_no' => $out_biz_no]);
                 }
                 $result['msg'] = '转账成功！';
             }else{
@@ -66,6 +67,32 @@ class Transfer
             'orderid' => $pay_order_no
         ];
         return \lib\Plugin::call('transfer_query', $channel, $bizParam);
+    }
+
+    //撤销转账
+    public static function cancel($out_biz_no){
+        global $DB;
+        $order = $DB->find('transfer', '*', ['biz_no' => $out_biz_no]);
+        if(!$order) return ['code'=>-1, 'msg'=>'付款记录不存在'];
+
+        $channelinfo = null;
+        if($order['uid'] > 0){
+            $channelinfo = $DB->findColumn('user', 'channelinfo', ['uid'=>$order['uid']]);
+        }
+        $channel = \lib\Channel::get($order['channel'], $channelinfo);
+        if(!$channel) return ['code'=>-1, 'msg'=>'支付通道不存在'];
+
+        $bizParam = [
+            'type' => $order['type'],
+            'out_biz_no' => $order['biz_no'],
+            'orderid' => $order['pay_order_no'],
+        ];
+        $result = \lib\Plugin::call('transfer_cancel', $channel, $bizParam);
+        if($result['code'] == 0){
+            $DB->update('transfer', ['status'=>2, 'result'=>'转账已撤销'], ['biz_no' => $out_biz_no]);
+            $result['msg'] = '转账已撤销';
+        }
+        return $result;
     }
 
     //账户余额查询
@@ -102,20 +129,25 @@ class Transfer
     public static function processNotify($out_biz_no, $status, $errmsg = null){
         global $DB;
         $order = $DB->find('transfer', '*', ['biz_no' => $out_biz_no]);
-        if(!$order) return;
-        if($status == 2){
-            if($order['status'] == 0){
-                $data = ['status'=>2];
-                if($errmsg) $data['result'] = $errmsg;
-                $resCount = $DB->update('transfer', $data, ['biz_no' => $out_biz_no]);
-                if($order['uid'] > 0 && $resCount > 0){
-                    changeUserMoney($order['uid'], $order['costmoney'], true, '代付退回');
-                }
+        if(!$order) {
+            $order = $DB->find('settle', '*', ['transfer_no' => $out_biz_no]);
+            if(!$order) return;
+            if($status == 2 && $order['transfer_status'] == 1){
+                $DB->update('settle', ['transfer_status'=>2, 'transfer_result'=>$errmsg, 'status'=>3, 'result'=>$errmsg], ['id' => $order['id']]);
+            }elseif($status == 1 && $order['transfer_status'] == 2){
+                $DB->update('settle', ['transfer_status'=>1, 'status'=>1, 'result'=>''], ['biz_no' => $out_biz_no]);
             }
-        }elseif($status == 1){
-            if($order['status'] == 0){
-                $DB->update('transfer', ['status'=>1], ['biz_no' => $out_biz_no]);
+            return;
+        }
+        if($status == 2 && $order['status'] == 0){ //转账失败
+            $data = ['status'=>2];
+            if($errmsg) $data['result'] = $errmsg;
+            $resCount = $DB->update('transfer', $data, ['biz_no' => $out_biz_no]);
+            if($order['uid'] > 0 && $resCount > 0){
+                changeUserMoney($order['uid'], $order['costmoney'], true, '代付退回');
             }
+        }elseif($status == 1 && $order['status'] == 0){ //转账成功
+            $DB->update('transfer', ['status'=>1, 'paytime'=>'NOW()', 'result'=>''], ['biz_no' => $out_biz_no]);
         }
     }
 }

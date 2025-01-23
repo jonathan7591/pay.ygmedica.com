@@ -82,7 +82,13 @@ function showTable(data){
 				title: item,
 				sortable: true,
 				formatter: function(value, row, index) {
-					return value>0?'<a href="./ulist.php?column=uid&value='+value+'" target="_blank">'+value+'</a>':'管理员';
+					if(value == 0){
+						return '管理员';
+					}else if(value>0){
+						return '<a href="./ulist.php?column=uid&value='+value+'" target="_blank">'+value+'</a>';
+					}else{
+						return value;
+					}
 				}
 			});
 		}else if(index == 'name'){
